@@ -1,6 +1,6 @@
 ---
   layout: default.md
-  title: "About Us"
+    title: "About Us"
 ---
 
 # About Us
@@ -31,14 +31,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Team Lead
 * Responsibilities: UI
 
-### Johnny Doe
+### Meng Yuxuan (Enzo Meng)
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/enzo-myx.png" width="200px">
 
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[homepage](https://www.linkedin.com/in/yuxuan-meng-a284813b9/)] [[github](http://github.com/Enzo-MYX)] [portfolio (non-existent atm)]
 
 * Role: Developer
-* Responsibilities: Data
+* Responsibilities: Coding (duh.)
 
 ### Jean Doe
 
