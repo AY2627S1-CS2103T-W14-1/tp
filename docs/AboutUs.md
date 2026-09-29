@@ -1,6 +1,6 @@
 ---
   layout: default.md
-  title: "About Us"
+    title: "About Us"
 ---
 
 # About Us
@@ -11,34 +11,32 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ## Project team
 
-### John Doe
+### Aleron Tham
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/unoptimalsuperstructure.png" width="200px">
 
-[[homepage](http://www.comp.nus.edu.sg/~damithch)]
-[[github](https://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](http://github.com/unoptimalsuperstructure)]
 
-* Role: Project Advisor
+- Role: Developer
+- Responsibilities: Coding (duh.)
 
-### Jane Doe
+### Lo Yong Yang
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/scoot1234.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/scoot1234)]
 
-* Role: Team Lead
-* Responsibilities: UI
+- Role: Team Lead
+- Responsibilities: To code & to lead(?)
 
-### Johnny Doe
+### Meng Yuxuan (Enzo Meng)
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/enzo-myx.png" width="200px">
 
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[homepage](https://www.linkedin.com/in/yuxuan-meng-a284813b9/)] [[github](http://github.com/Enzo-MYX)] [portfolio (non-existent atm)]
 
-* Role: Developer
-* Responsibilities: Data
+- Role: Developer
+- Responsibilities: Coding (duh.)
 
 ### Jean Doe
 
@@ -47,8 +45,8 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 [[github](http://github.com/johndoe)]
 [[portfolio](team/johndoe.md)]
 
-* Role: Developer
-* Responsibilities: Dev Ops + Threading
+- Role: Developer
+- Responsibilities: Dev Ops + Threading
 
 ### James Doe
 
@@ -57,5 +55,5 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 [[github](http://github.com/johndoe)]
 [[portfolio](team/johndoe.md)]
 
-* Role: Developer
-* Responsibilities: UI
+- Role: Developer
+- Responsibilities: UI
