@@ -11,6 +11,15 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ## Project team
 
+### Aleron Tham
+
+<img src="images/unoptimalsuperstructure.png" width="200px">
+
+[[github](http://github.com/unoptimalsuperstructure)]
+
+- Role: Developer
+- Responsibilities: Coding (duh.)
+
 ### Lo Yong Yang
 
 <img src="images/scoot1234.png" width="200px">
@@ -19,16 +28,6 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 - Role: Team Lead
 - Responsibilities: To code & to lead(?)
-
-### Jane Doe
-
-<img src="images/johndoe.png" width="200px">
-
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
-
-- Role: Team Lead
-- Responsibilities: UI
 
 ### Meng Yuxuan (Enzo Meng)
 
