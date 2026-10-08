@@ -62,6 +62,7 @@ public class ArgumentTokenizer {
      * {@code argsString} starting from index {@code fromIndex}. An occurrence
      * is valid if there is a whitespace before {@code prefix}. Returns -1 if no
      * such occurrence can be found.
+     * Slash-leading options (e.g. {@code /email}) must also be followed by whitespace or the end of the input.
      *
      * E.g if {@code argsString} = "e/hip/900", {@code prefix} = "p/" and
      * {@code fromIndex} = 0, this method returns -1 as there are no valid
@@ -71,8 +72,15 @@ public class ArgumentTokenizer {
      */
     private static int findPrefixPosition(String argsString, String prefix, int fromIndex) {
         int prefixIndex = argsString.indexOf(" " + prefix, fromIndex);
-        return prefixIndex == -1 ? -1
-                : prefixIndex + 1; // +1 as offset for whitespace
+        while (prefixIndex != -1) {
+            int valueStartIndex = prefixIndex + 1 + prefix.length();
+            if (!prefix.startsWith("/") || valueStartIndex == argsString.length()
+                    || Character.isWhitespace(argsString.charAt(valueStartIndex))) {
+                return prefixIndex + 1;
+            }
+            prefixIndex = argsString.indexOf(" " + prefix, prefixIndex + 1);
+        }
+        return -1;
     }
 
     /**
