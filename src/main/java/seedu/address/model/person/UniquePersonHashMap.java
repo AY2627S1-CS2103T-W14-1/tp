@@ -1,29 +1,34 @@
 package seedu.address.model.person;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import seedu.address.model.person.exceptions.DuplicatePersonException;
-import seedu.address.model.person.exceptions.PersonNotFoundException;
-import seedu.address.commons.core.index.PersonIndex;
+import static java.util.Objects.requireNonNull;
+import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import seedu.address.commons.core.index.PersonIndex;
+import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 
+/**
+ * Stores persons grouped by name and indexed within each name group.
+ */
 public class UniquePersonHashMap implements Iterable<Person> {
 
     private final Map<String, PersonNameBucket> internalMap = new HashMap<>();
 
+    private final ObservableList<Person> internalList = FXCollections.observableArrayList();
     private final ObservableList<Person> internalUnmodifiableList =
-            FXCollections.unmodifiableObservableList(toObservableList());
+            FXCollections.unmodifiableObservableList(internalList);
 
     private static class PersonNameBucket {
         // Uses one-based index
@@ -31,18 +36,26 @@ public class UniquePersonHashMap implements Iterable<Person> {
         private final PriorityQueue<Integer> freeIndices = new PriorityQueue<>();
         private int nextIndex = 1;
 
-        /** Returns whether this bucket contains the given indexed person. */
+        /**
+         * Returns whether this bucket contains the given indexed person.
+         */
         public boolean contains(Person person) {
             return person.getPersonIndex() != null
                     && persons.containsKey(person.getPersonIndex().getOneBased());
         }
 
-        /** Adds a person to this name bucket. */
+        /**
+         * Adds a person to this name bucket.
+         */
         public void add(Person person) {
-            persons.put(person.getPersonIndex().getOneBased(), person);
+            int index = person.getPersonIndex().getOneBased();
+            persons.put(index, person);
+            nextIndex = Math.max(nextIndex, index + 1);
         }
 
-        /** Removes and returns the person with the given one-based index. */
+        /**
+         * Removes and returns the person with the given one-based index.
+         */
         public Person remove(int index) {
             Person removed = persons.remove(index);
             if (removed != null) {
@@ -51,24 +64,48 @@ public class UniquePersonHashMap implements Iterable<Person> {
             return removed;
         }
 
-        /** Returns the person with the given one-based index. */
+        /**
+         * Returns the person with the given one-based index.
+         */
         public Person get(int index) {
             return persons.get(index);
         }
 
-        /** Returns all persons in index order. */
+        /**
+         * Returns all persons in index order.
+         */
         public Collection<Person> values() {
             return persons.values();
         }
 
-        /** Allocates the smallest available one-based index. */
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            }
+            if (!(other instanceof PersonNameBucket otherBucket)) {
+                return false;
+            }
+            return persons.equals(otherBucket.persons);
+        }
+
+        @Override
+        public int hashCode() {
+            return persons.hashCode();
+        }
+
+        /**
+         * Allocates the smallest available one-based index.
+         */
         public int allocateIndex() {
             return freeIndices.isEmpty()
                     ? nextIndex++
                     : freeIndices.poll();
         }
 
-        /** Replaces this bucket's contents with the supplied persons. */
+        /**
+         * Replaces this bucket's contents with the supplied persons.
+         */
         public void setPersons(Collection<Person> replacement) {
             persons.clear();
             persons.putAll(
@@ -89,7 +126,9 @@ public class UniquePersonHashMap implements Iterable<Person> {
                 unused -> new PersonNameBucket());
     }
 
-    /** Returns whether a person with the same name and index exists. */
+    /**
+     * Returns whether a person with the same name and index exists.
+     */
     public boolean contains(Person toCheck) {
         requireNonNull(toCheck);
 
@@ -97,7 +136,9 @@ public class UniquePersonHashMap implements Iterable<Person> {
         return bucket != null && bucket.contains(toCheck);
     }
 
-    /** Adds a person, assigning an index when the person is not yet indexed. */
+    /**
+     * Adds a person, assigning an index when the person is not yet indexed.
+     */
     public void add(Person toAdd) {
         requireNonNull(toAdd);
 
@@ -115,9 +156,12 @@ public class UniquePersonHashMap implements Iterable<Person> {
         }
 
         bucket.add(toAdd);
+        refreshInternalList();
     }
 
-    /** Removes a person from its name bucket and releases its index. */
+    /**
+     * Removes a person from its name bucket and releases its index.
+     */
     public void remove(Person toRemove) {
         requireNonNull(toRemove);
 
@@ -132,9 +176,12 @@ public class UniquePersonHashMap implements Iterable<Person> {
         if (bucket.values().isEmpty()) {
             internalMap.remove(nameKey);
         }
+        refreshInternalList();
     }
 
-    /** Replaces an existing person with an edited person. */
+    /**
+     * Replaces an existing person with an edited person.
+     */
     public void setPerson(Person target, Person editedPerson) {
         requireAllNonNull(target, editedPerson);
 
@@ -151,9 +198,27 @@ public class UniquePersonHashMap implements Iterable<Person> {
         add(editedPerson);
     }
 
-    /** Returns an unmodifiable flattened view of all persons. */
+    /**
+     * Returns an unmodifiable flattened view of all persons.
+     */
     public ObservableList<Person> asUnmodifiableObservableList() {
-        return FXCollections.unmodifiableObservableList(toObservableList());
+        return internalUnmodifiableList;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof UniquePersonHashMap otherMap)) {
+            return false;
+        }
+        return internalMap.equals(otherMap.internalMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(internalMap);
     }
 
     private ObservableList<Person> toObservableList() {
@@ -166,13 +231,15 @@ public class UniquePersonHashMap implements Iterable<Person> {
         return result;
     }
 
-    @Override
     /** Returns an iterator over all persons in the map. */
+    @Override
     public Iterator<Person> iterator() {
         return toObservableList().iterator();
     }
 
-    /** Replaces the contents with the supplied persons. */
+    /**
+     * Replaces the contents with the supplied persons.
+     */
     public void setPersons(List<Person> persons) {
         requireAllNonNull(persons);
 
@@ -187,5 +254,13 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
         internalMap.clear();
         internalMap.putAll(replacement.internalMap);
+        refreshInternalList();
+    }
+
+    /**
+     * Refreshes the live list exposed to the model and its filtered views.
+     */
+    private void refreshInternalList() {
+        internalList.setAll(toObservableList());
     }
 }

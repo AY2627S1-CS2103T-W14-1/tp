@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonHashMap;
-import seedu.address.model.person.UniquePersonList;
 
 /**
  * Wraps all data at the address-book level.
@@ -90,7 +89,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("persons", persons)
+                .add("persons", getPersonList())
                 .toString();
     }
 

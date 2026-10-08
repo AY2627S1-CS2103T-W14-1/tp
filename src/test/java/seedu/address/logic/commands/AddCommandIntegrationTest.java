@@ -39,10 +39,21 @@ public class AddCommandIntegrationTest {
     }
 
     @Test
-    public void execute_duplicatePerson_throwsCommandException() {
+    public void execute_duplicatePersonAndIndex_throwsCommandException() {
         Person personInList = model.getAddressBook().getPersonList().get(0);
         assertCommandFailure(new AddCommand(personInList), model,
                 AddCommand.MESSAGE_DUPLICATE_PERSON);
+    }
+
+    @Test
+    public void execute_duplicatePerson_success() {
+        Person personInList = model.getAddressBook().getPersonList().get(0);
+        Person sameInfoPerson = new PersonBuilder(personInList).buildNoIndex();
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addPerson(sameInfoPerson);
+        assertCommandSuccess(new AddCommand(sameInfoPerson), model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(sameInfoPerson)),
+                expectedModel);
     }
 
 }

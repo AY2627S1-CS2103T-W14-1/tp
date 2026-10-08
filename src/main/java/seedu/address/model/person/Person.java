@@ -44,11 +44,6 @@ public class Person {
 
     /**
      * Creates a person whose index will be assigned when it is inserted into the address book.
-     * @param name person's name
-     * @param phone person's phone number
-     * @param email person's email address
-     * @param address person's address
-     * @param tags person's tags
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
         requireAllNonNull(name, phone, email, address, tags);
@@ -131,7 +126,7 @@ public class Person {
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
                 && tags.equals(otherPerson.tags)
-                && personIndex.equals(otherPerson.personIndex);
+                && Objects.equals(personIndex, otherPerson.personIndex);
     }
 
     @Override

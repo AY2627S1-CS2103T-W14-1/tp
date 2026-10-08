@@ -102,7 +102,8 @@ public class EditCommand extends Command {
         Set<Tag> updatedTags = editPersonDescriptor.getTags().orElse(personToEdit.getTags());
         // PersonIndex cannot be changed without a deletion
 
-        return new Person(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags, personToEdit.getPersonIndex());
+        return new Person(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
+                personToEdit.getPersonIndex());
     }
 
     @Override
