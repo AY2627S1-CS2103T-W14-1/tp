@@ -42,6 +42,33 @@ public class Person {
         this.personIndex = personIndex;
     }
 
+    /**
+     * Creates a person whose index will be assigned when it is inserted into the address book.
+     * @param name person's name
+     * @param phone person's phone number
+     * @param email person's email address
+     * @param address person's address
+     * @param tags person's tags
+     */
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
+        requireAllNonNull(name, phone, email, address, tags);
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.tags.addAll(tags);
+        this.personIndex = null;
+    }
+
+    /**
+     * Returns a copy of this person with the supplied storage index.
+     * @param newPersonIndex index assigned by the person collection
+     * @return an indexed copy of this person
+     */
+    public Person withPersonIndex(PersonIndex newPersonIndex) {
+        return new Person(name, phone, email, address, tags, newPersonIndex);
+    }
+
     public Name getName() {
         return name;
     }
@@ -81,7 +108,7 @@ public class Person {
 
         return otherPerson != null
                 && otherPerson.getName().equals(getName())
-                && otherPerson.getPersonIndex().equals(getPersonIndex());
+                && Objects.equals(otherPerson.getPersonIndex(), getPersonIndex());
     }
 
     /**
@@ -110,7 +137,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags);
+        return Objects.hash(name, phone, email, address, tags, personIndex);
     }
 
     @Override
