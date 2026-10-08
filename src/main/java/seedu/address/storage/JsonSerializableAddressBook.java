@@ -21,6 +21,9 @@ import seedu.address.model.person.Person;
 @JsonRootName(value = "addressbook")
 class JsonSerializableAddressBook {
 
+    static final String MESSAGE_NULL_NAME_BUCKET = "Name buckets must not be null.";
+    static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
+
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
     @JsonIgnore
     private final List<JsonAdaptedPerson> legacyPersons = new ArrayList<>();
@@ -63,6 +66,9 @@ class JsonSerializableAddressBook {
         if (hasNameBuckets) {
             Map<String, Map<Integer, Person>> modelBuckets = new TreeMap<>();
             for (Map.Entry<String, JsonNameBucket> jsonBucket : personsByName.entrySet()) {
+                if (jsonBucket.getValue() == null) {
+                    throw new IllegalValueException(MESSAGE_NULL_NAME_BUCKET);
+                }
                 modelBuckets.put(jsonBucket.getKey(), jsonBucket.getValue().toModelType(jsonBucket.getKey()));
             }
             try {
@@ -74,6 +80,9 @@ class JsonSerializableAddressBook {
         }
 
         for (JsonAdaptedPerson jsonAdaptedPerson : legacyPersons) {
+            if (jsonAdaptedPerson == null) {
+                throw new IllegalValueException(MESSAGE_NULL_PERSON);
+            }
             Person person = jsonAdaptedPerson.toModelType();
             addressBook.addPerson(person);
         }
