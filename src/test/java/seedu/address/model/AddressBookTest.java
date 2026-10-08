@@ -11,12 +11,14 @@ import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UniquePersonHashMap;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.testutil.PersonBuilder;
 
@@ -42,14 +44,35 @@ public class AddressBookTest {
     }
 
     @Test
-    public void resetData_withDuplicatePersons_throwsDuplicatePersonException() {
-        // Two persons with the same identity fields
+    public void resetData_withSameNamePersons_acceptsBoth() {
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
         List<Person> newPersons = List.of(ALICE, editedAlice);
         AddressBookStub newData = new AddressBookStub(newPersons);
 
+        addressBook.resetData(newData);
+        assertEquals(newPersons, addressBook.getPersonList());
+    }
+
+    @Test
+    public void resetData_withExactDuplicatePersons_throwsDuplicatePersonException() {
+        AddressBookStub newData = new AddressBookStub(List.of(ALICE, ALICE));
+
         assertThrows(DuplicatePersonException.class, () -> addressBook.resetData(newData));
+    }
+
+    @Test
+    public void resetData_withBuckets_preservesSuffixAllocationState() {
+        Person thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").build();
+        Person replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").build();
+        AddressBook loadedAddressBook = new AddressBook();
+        loadedAddressBook.setPersonBuckets(Map.of(ALICE.getName().fullName, Map.of(0, ALICE, 2, thirdAlice)));
+
+        addressBook.resetData(loadedAddressBook);
+        addressBook.addPerson(replacementAlice);
+
+        assertEquals(Map.of(0, ALICE, 1, replacementAlice, 2, thirdAlice),
+                addressBook.getPersonBuckets().get(ALICE.getName().fullName));
     }
 
     @Test
@@ -69,11 +92,11 @@ public class AddressBookTest {
     }
 
     @Test
-    public void hasPerson_personWithSameIdentityFieldsInAddressBook_returnsTrue() {
+    public void hasPerson_personWithSameNameAndDifferentDetails_returnsFalse() {
         addressBook.addPerson(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
-        assertTrue(addressBook.hasPerson(editedAlice));
+        assertFalse(addressBook.hasPerson(editedAlice));
     }
 
     @Test
@@ -100,6 +123,13 @@ public class AddressBookTest {
         @Override
         public ObservableList<Person> getPersonList() {
             return persons;
+        }
+
+        @Override
+        public Map<String, Map<Integer, Person>> getPersonBuckets() {
+            UniquePersonHashMap buckets = new UniquePersonHashMap();
+            buckets.setPersons(persons);
+            return buckets.getPersonBuckets();
         }
     }
 
