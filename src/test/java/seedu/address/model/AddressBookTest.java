@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonHashMap;
-import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddressBookTest {
@@ -68,8 +68,8 @@ public class AddressBookTest {
         addressBook.addPerson(replacementAlice);
 
         assertEquals(Map.of(0, ALICE,
-                        1, replacementAlice.withPersonIndex(seedu.address.commons.core.index.PersonIndex.fromZeroBased(1)),
-                        2, thirdAlice.withPersonIndex(seedu.address.commons.core.index.PersonIndex.fromZeroBased(2))),
+                        1, replacementAlice.withPersonIndex(PersonIndex.fromZeroBased(1)),
+                        2, thirdAlice.withPersonIndex(PersonIndex.fromZeroBased(2))),
                 addressBook.getPersonBuckets().get(ALICE.getName().fullName));
     }
 
