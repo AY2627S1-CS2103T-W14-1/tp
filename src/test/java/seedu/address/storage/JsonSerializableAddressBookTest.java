@@ -1,16 +1,20 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
@@ -42,6 +46,20 @@ public class JsonSerializableAddressBookTest {
                 JsonSerializableAddressBook.class).get();
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
                 dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_nestedBuckets_preservesSuffixes() throws Exception {
+        Person alice = TypicalPersons.ALICE;
+        Person thirdAlice = new PersonBuilder(alice).withPhone("99999999").build();
+        AddressBook addressBook = new AddressBook();
+        addressBook.setPersonBuckets(Map.of(alice.getName().fullName, Map.of(0, alice, 2, thirdAlice)));
+
+        JsonSerializableAddressBook serializable = new JsonSerializableAddressBook(addressBook);
+        AddressBook loaded = serializable.toModelType();
+
+        assertEquals(addressBook.getPersonBuckets(), loaded.getPersonBuckets());
+        assertTrue(JsonUtil.toJsonString(serializable).contains("personsByName"));
     }
 
 }
