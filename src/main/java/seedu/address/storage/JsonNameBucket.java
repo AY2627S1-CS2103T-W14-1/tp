@@ -12,17 +12,17 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 
 /**
- * Jackson-friendly representation of the suffix-keyed persons belonging to one base-name bucket.
+ * Jackson-friendly representation of the id-keyed persons belonging to one name bucket.
  */
 class JsonNameBucket {
 
-    static final String MESSAGE_INVALID_SUFFIX = "Person suffixes must be non-negative integers.";
+    static final String MESSAGE_INVALID_SUFFIX = "Person ids must be non-negative integers.";
     static final String MESSAGE_NAME_MISMATCH = "Person name must match its name-bucket key.";
 
     private final Map<Integer, JsonAdaptedPerson> persons = new TreeMap<>();
 
     /**
-     * Constructs a name bucket with the given suffix-keyed persons.
+     * Constructs a name bucket with the given id-keyed persons.
      */
     @JsonCreator
     JsonNameBucket(@JsonProperty("persons") Map<Integer, JsonAdaptedPerson> persons) {
@@ -36,12 +36,18 @@ class JsonNameBucket {
      */
     static JsonNameBucket fromModel(Map<Integer, Person> persons) {
         Map<Integer, JsonAdaptedPerson> jsonPersons = new TreeMap<>();
-        persons.forEach((suffix, person) -> jsonPersons.put(suffix, new JsonAdaptedPerson(person)));
+        persons.forEach((id, person) -> {
+            if (id == null || id < 0 || person == null || person.getPersonIndex() == null
+                    || id != person.getPersonIndex().getZeroBased()) {
+                throw new IllegalArgumentException("Person bucket ids must match PersonIndex values.");
+            }
+            jsonPersons.put(id, new JsonAdaptedPerson(person));
+        });
         return new JsonNameBucket(jsonPersons);
     }
 
     /**
-     * Converts this bucket into suffix-keyed model persons and validates its base name.
+     * Converts this bucket into id-keyed model persons and validates its name.
      */
     Map<Integer, Person> toModelType(String baseName) throws IllegalValueException {
         if (!Name.isValidName(baseName)) {
@@ -50,8 +56,8 @@ class JsonNameBucket {
 
         Map<Integer, Person> modelPersons = new TreeMap<>();
         for (Map.Entry<Integer, JsonAdaptedPerson> jsonPerson : persons.entrySet()) {
-            Integer suffix = jsonPerson.getKey();
-            if (suffix == null || suffix < 0) {
+            Integer id = jsonPerson.getKey();
+            if (id == null || id < 0) {
                 throw new IllegalValueException(MESSAGE_INVALID_SUFFIX);
             }
 
@@ -59,7 +65,7 @@ class JsonNameBucket {
             if (!baseName.equals(person.getName().fullName)) {
                 throw new IllegalValueException(MESSAGE_NAME_MISMATCH);
             }
-            modelPersons.put(suffix, person);
+            modelPersons.put(id, person);
         }
         return Collections.unmodifiableMap(modelPersons);
     }

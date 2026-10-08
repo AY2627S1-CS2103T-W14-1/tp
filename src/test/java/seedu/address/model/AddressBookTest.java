@@ -59,15 +59,17 @@ public class AddressBookTest {
 
     @Test
     public void resetData_withBuckets_preservesSuffixAllocationState() {
-        Person thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").build();
-        Person replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").build();
+        Person thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
+        Person replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").buildNoIndex();
         AddressBook loadedAddressBook = new AddressBook();
         loadedAddressBook.setPersonBuckets(Map.of(ALICE.getName().fullName, Map.of(0, ALICE, 2, thirdAlice)));
 
         addressBook.resetData(loadedAddressBook);
         addressBook.addPerson(replacementAlice);
 
-        assertEquals(Map.of(0, ALICE, 1, replacementAlice, 2, thirdAlice),
+        assertEquals(Map.of(0, ALICE,
+                        1, replacementAlice.withPersonIndex(seedu.address.commons.core.index.PersonIndex.fromZeroBased(1)),
+                        2, thirdAlice.withPersonIndex(seedu.address.commons.core.index.PersonIndex.fromZeroBased(2))),
                 addressBook.getPersonBuckets().get(ALICE.getName().fullName));
     }
 
@@ -91,7 +93,7 @@ public class AddressBookTest {
     public void hasPerson_personWithSameNameAndDifferentDetails_returnsFalse() {
         addressBook.addPerson(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
-                .build();
+                .buildNoIndex();
         assertFalse(addressBook.hasPerson(editedAlice));
     }
 

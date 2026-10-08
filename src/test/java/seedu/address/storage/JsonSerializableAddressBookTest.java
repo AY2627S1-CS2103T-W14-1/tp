@@ -40,14 +40,15 @@ public class JsonSerializableAddressBookTest {
         assertThrows(IllegalValueException.class, dataFromFile::toModelType);
     }
 
-    // Disabled until JSON persists hashmap buckets and PersonIndex values.
-    // @Test
-    public void toModelType_duplicatePersons_throwsIllegalValueException() throws Exception {
+    @Test
+    public void toModelType_legacyDuplicatePersons_assignsDistinctIds() throws Exception {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(DUPLICATE_PERSON_FILE,
                 JsonSerializableAddressBook.class).get();
-        // Duplicate names are valid; their persisted indices will be covered by
-        // a revised JSON fixture in a later iteration.
-        assertEquals(dataFromFile, dataFromFile);
+        AddressBook addressBook = dataFromFile.toModelType();
+
+        assertEquals(2, addressBook.getPersonList().size());
+        assertEquals(0, addressBook.getPersonList().get(0).getPersonIndex().getZeroBased());
+        assertEquals(1, addressBook.getPersonList().get(1).getPersonIndex().getZeroBased());
     }
 
     @Test

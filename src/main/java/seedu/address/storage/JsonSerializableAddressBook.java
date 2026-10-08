@@ -14,15 +14,12 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
-import seedu.address.model.person.exceptions.DuplicatePersonException;
 
 /**
  * An Immutable AddressBook that is serializable to JSON format.
  */
 @JsonRootName(value = "addressbook")
 class JsonSerializableAddressBook {
-
-    public static final String MESSAGE_DUPLICATE_PERSON = "Persons list contains duplicate person(s).";
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
     @JsonIgnore
@@ -70,7 +67,7 @@ class JsonSerializableAddressBook {
             }
             try {
                 addressBook.setPersonBuckets(modelBuckets);
-            } catch (IllegalArgumentException | DuplicatePersonException exception) {
+            } catch (IllegalArgumentException exception) {
                 throw new IllegalValueException(exception.getMessage(), exception);
             }
             return addressBook;
@@ -78,9 +75,6 @@ class JsonSerializableAddressBook {
 
         for (JsonAdaptedPerson jsonAdaptedPerson : legacyPersons) {
             Person person = jsonAdaptedPerson.toModelType();
-            if (addressBook.hasPerson(person)) {
-                throw new IllegalValueException(MESSAGE_DUPLICATE_PERSON);
-            }
             addressBook.addPerson(person);
         }
         return addressBook;
