@@ -44,21 +44,17 @@ public class AddressBookTest {
     }
 
     @Test
-    public void resetData_withSameNamePersons_acceptsBoth() {
+    public void resetData_withDuplicateNames_acceptsDistinctIndices() {
+        // Two persons with the same identity fields
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
-                .build();
+                .buildNoIndex();
         List<Person> newPersons = List.of(ALICE, editedAlice);
         AddressBookStub newData = new AddressBookStub(newPersons);
 
         addressBook.resetData(newData);
-        assertEquals(newPersons, addressBook.getPersonList());
-    }
-
-    @Test
-    public void resetData_withExactDuplicatePersons_throwsDuplicatePersonException() {
-        AddressBookStub newData = new AddressBookStub(List.of(ALICE, ALICE));
-
-        assertThrows(DuplicatePersonException.class, () -> addressBook.resetData(newData));
+        assertEquals(2, addressBook.getPersonList().size());
+        assertEquals(1, addressBook.getPersonList().get(0).getPersonIndex().getOneBased());
+        assertEquals(2, addressBook.getPersonList().get(1).getPersonIndex().getOneBased());
     }
 
     @Test

@@ -46,10 +46,25 @@ public class AddCommandTest {
     @Test
     public void execute_duplicatePerson_throwsCommandException() {
         Person validPerson = new PersonBuilder().build();
-        AddCommand addCommand = new AddCommand(validPerson);
-        ModelStub modelStub = new ModelStubWithPerson(validPerson);
-
+        Person indexedPerson = validPerson.withPersonIndex(
+                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+        Person duplicate = validPerson.withPersonIndex(
+                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+        AddCommand addCommand = new AddCommand(duplicate);
+        ModelStub modelStub = new ModelStubWithPerson(indexedPerson);
         assertThrows(CommandException.class, AddCommand.MESSAGE_DUPLICATE_PERSON, () -> addCommand.execute(modelStub));
+    }
+
+    @Test
+    public void execute_duplicatePersonDifferentIndex_reachesAddMethod() {
+        Person validPerson = new PersonBuilder().build();
+        Person indexedPerson = validPerson.withPersonIndex(
+                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+        Person duplicate = validPerson.withPersonIndex(
+                seedu.address.commons.core.index.PersonIndex.fromOneBased(2));
+        AddCommand addCommand = new AddCommand(duplicate);
+        ModelStub modelStub = new ModelStubWithPerson(indexedPerson);
+        assertThrows(AssertionError.class, "This method should fail here.", () -> addCommand.execute(modelStub));
     }
 
     @Test
@@ -104,7 +119,7 @@ public class AddCommandTest {
 
         @Override
         public void addPerson(Person person) {
-            throw new AssertionError("This method should not be called.");
+            throw new AssertionError("This method should fail here.");
         }
 
         @Override
