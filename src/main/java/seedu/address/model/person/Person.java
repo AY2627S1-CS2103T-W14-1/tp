@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.tag.Tag;
 
@@ -25,16 +26,20 @@ public class Person {
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
 
+    // Duplicate handling fields
+    private final PersonIndex personIndex;
+
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, phone, email, address, tags);
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, PersonIndex personIndex) {
+        requireAllNonNull(name, phone, email, address, tags, personIndex);
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+        this.personIndex = personIndex;
     }
 
     public Name getName() {
@@ -53,6 +58,10 @@ public class Person {
         return address;
     }
 
+    public PersonIndex getPersonIndex() {
+        return personIndex;
+    }
+
     /**
      * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
      * if modification is attempted.
@@ -62,7 +71,7 @@ public class Person {
     }
 
     /**
-     * Returns true if both persons have the same name.
+     * Returns true if both persons have the same name & personIndex.
      * This defines a weaker notion of equality between two persons.
      */
     public boolean isSamePerson(Person otherPerson) {
@@ -71,7 +80,8 @@ public class Person {
         }
 
         return otherPerson != null
-                && otherPerson.getName().equals(getName());
+                && otherPerson.getName().equals(getName())
+                && otherPerson.getPersonIndex().equals(getPersonIndex());
     }
 
     /**
@@ -93,7 +103,8 @@ public class Person {
                 && phone.equals(otherPerson.phone)
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
-                && tags.equals(otherPerson.tags);
+                && tags.equals(otherPerson.tags)
+                && personIndex.equals(otherPerson.personIndex);
     }
 
     @Override
