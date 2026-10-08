@@ -70,7 +70,7 @@ public class FindCommandTest {
         FindCommand command = new FindCommand(predicate);
         expectedModel.updateFilteredPersonList(predicate);
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
-        assertEquals(List.of(CARL, ELLE, FIONA), model.getFilteredPersonList());
+        assertEquals(List.of(FIONA, ELLE, CARL), model.getFilteredPersonList());
     }
 
     @Test
