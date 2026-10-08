@@ -3,6 +3,7 @@ package seedu.address.storage;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -25,5 +26,15 @@ public class JsonNameBucketTest {
 
         assertThrows(IllegalValueException.class, JsonNameBucket.MESSAGE_NAME_MISMATCH, () ->
                 bucket.toModelType("Benson Meier"));
+    }
+
+    @Test
+    public void toModelType_nullPerson_throwsIllegalValueException() {
+        Map<Integer, JsonAdaptedPerson> persons = new HashMap<>();
+        persons.put(0, null);
+        JsonNameBucket bucket = new JsonNameBucket(persons);
+
+        assertThrows(IllegalValueException.class, JsonNameBucket.MESSAGE_NULL_PERSON, () ->
+                bucket.toModelType(ALICE.getName().fullName));
     }
 }

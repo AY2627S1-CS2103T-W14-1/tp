@@ -17,6 +17,7 @@ import seedu.address.model.person.Person;
 class JsonNameBucket {
 
     static final String MESSAGE_INVALID_SUFFIX = "Person ids must be non-negative integers.";
+    static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
     static final String MESSAGE_NAME_MISMATCH = "Person name must match its name-bucket key.";
 
     private final Map<Integer, JsonAdaptedPerson> persons = new TreeMap<>();
@@ -59,6 +60,9 @@ class JsonNameBucket {
             Integer id = jsonPerson.getKey();
             if (id == null || id < 0) {
                 throw new IllegalValueException(MESSAGE_INVALID_SUFFIX);
+            }
+            if (jsonPerson.getValue() == null) {
+                throw new IllegalValueException(MESSAGE_NULL_PERSON);
             }
 
             Person person = jsonPerson.getValue().toModelType();
