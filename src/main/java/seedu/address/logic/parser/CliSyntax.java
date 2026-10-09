@@ -12,4 +12,9 @@ public class CliSyntax {
     public static final Prefix PREFIX_ADDRESS = new Prefix("a/");
     public static final Prefix PREFIX_TAG = new Prefix("t/");
 
+    /* CampusContacts add syntax; edit retains the existing AB3 prefixes. */
+    public static final Prefix PREFIX_CONTACT_EMAIL = new Prefix("/email");
+    public static final Prefix PREFIX_CONTACT_PHONE = new Prefix("/phone");
+    public static final Prefix PREFIX_CONTACT_LOCATION = new Prefix("/location");
+
 }

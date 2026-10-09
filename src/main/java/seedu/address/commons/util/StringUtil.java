@@ -6,6 +6,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Helper functions for handling strings.
@@ -64,5 +65,25 @@ public class StringUtil {
         } catch (NumberFormatException nfe) {
             return false;
         }
+    }
+
+    public static String toProperCase(String name) {
+        name = name.trim().replaceAll(" +", " ");
+        String[] words = name.split(" ");
+
+        for (int i = 0; i < words.length; i++) {
+            words[i] = words[i].toLowerCase(Locale.ROOT);
+
+            int firstCodePoint = words[i].codePointAt(0);
+            int upperCodePoint = Character.toUpperCase(firstCodePoint);
+
+            words[i] = new StringBuilder()
+                    .appendCodePoint(upperCodePoint)
+                    .append(words[i].substring(
+                            Character.charCount(firstCodePoint)))
+                    .toString();
+        }
+
+        return String.join(" ", words);
     }
 }
