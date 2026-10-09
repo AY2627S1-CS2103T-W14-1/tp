@@ -85,6 +85,20 @@ public class Person {
     }
 
     /**
+     * Returns the display name of this person, including the duplicate suffix if indexed > 0.
+     * (e.g. "John Tan" for index 0, "John Tan_2" for index 1).
+     */
+    public String getDisplayName() {
+        if (personIndex != null && personIndex.getZeroBased() > 0) {
+            String suffix = "_" + personIndex.getOneBased();
+            if (!name.fullName.endsWith(suffix)) {
+                return name.fullName + suffix;
+            }
+        }
+        return name.fullName;
+    }
+
+    /**
      * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
      * if modification is attempted.
      */
