@@ -17,4 +17,11 @@ public abstract class Command {
      */
     public abstract CommandResult execute(Model model) throws CommandException;
 
+    public boolean requiresConfirmation() {
+        return false;
+    }
+
+    public String getConfirmationMessage() {
+        return null;
+    }
 }

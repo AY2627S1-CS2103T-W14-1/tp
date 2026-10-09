@@ -9,6 +9,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
@@ -39,7 +40,7 @@ public class AddCommandParser implements Parser<AddCommand> {
         }
 
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE, PREFIX_CONTACT_LOCATION);
-        Name name = ParserUtil.parseName(argMultimap.getPreamble());
+        Name name = ParserUtil.parseName(StringUtil.toProperCase(argMultimap.getPreamble()));
         Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_CONTACT_PHONE).get());
         Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_CONTACT_EMAIL).get());
         Address address = ParserUtil.parseAddress(argMultimap.getValue(PREFIX_CONTACT_LOCATION).get());
