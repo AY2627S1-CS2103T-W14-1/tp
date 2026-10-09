@@ -50,16 +50,16 @@ CampusContacts is a desktop application for managing contacts in the university 
 **Notes about the command format:**<br>
 
 * Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
-  For example, in `add n/NAME`, replace `NAME` with a value such as `John Doe`.
+  For example, in `add NAME /email EMAIL /phone PHONE /location LOCATION`, replace `NAME` with `John Doe`.
 
 * Items in square brackets are optional.<br>
-  For example, `n/NAME [t/TAG]` can be used as `n/John Doe t/friend` or as `n/John Doe`.
+  For example, `[t/TAG]` means that a tag such as `t/friend` may be supplied or omitted.
 
 * Items followed by `...` can appear zero or more times.<br>
   For example, `[t/TAG]... ` may be omitted, or written as `t/friend` or `t/friend t/family`.
 
-* Parameters can be in any order.<br>
-  For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
+* Prefixed fields can be in any order. For `add`, the name must come before all prefixed fields.<br>
+  For example, `add John Doe /phone 98765432 /location COM1 /email johnd@example.com` is also acceptable.
 
 * Extraneous parameters for commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
@@ -80,7 +80,14 @@ Format: `help`
 
 Adds a person to the contact list.
 
-Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
+Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...`
+
+* The name, email, phone number, and location are all required and must not be blank.
+* Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
+* Separate `/email`, `/phone`, and `/location` from their values with a space.
+* Each of these three prefixes must appear exactly once; repeated prefixes are rejected, even with identical values.
+* Location is stored in the existing address field. It may contain spaces and punctuation.
+* Tags remain optional and use the existing `t/TAG` syntax. The `edit` command retains its existing syntax.
 
 <box type="tip" seamless>
 
@@ -88,8 +95,8 @@ Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
 </box>
 
 Examples:
-* `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
-* `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
+* `add John Doe /email johnd@example.com /phone 98765432 /location COM1, #02-01`
+* `add Betsy Crowe /location COM2 /phone 1234567 /email betsycrowe@example.com t/friend`
 
 ### Listing all persons: `list`
 
@@ -195,7 +202,7 @@ _Details coming soon ..._
 
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-**Add**    | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... ` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
+**Add**    | `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 t/friend t/colleague`
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`

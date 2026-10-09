@@ -147,4 +147,16 @@ public class ArgumentTokenizerTest {
         assertNotEquals(aaa, new Prefix("aab"));
     }
 
+    @Test
+    public void tokenize_slashLeadingOptions_matchWholeOptionNames() {
+        Prefix email = new Prefix("/email");
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(
+                "John Doe /emails ignored /email john@example.com /email", email);
+        assertPreamblePresent(argMultimap, "John Doe /emails ignored");
+        assertArgumentPresent(argMultimap, email, "john@example.com", "");
+
+        argMultimap = ArgumentTokenizer.tokenize("John Doe /emailjohn@example.com", email);
+        assertArgumentAbsent(argMultimap, email);
+    }
+
 }

@@ -40,6 +40,14 @@ public class AddressBookParserTest {
     }
 
     @Test
+    public void parseCommand_addCampusContact() throws Exception {
+        Person person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
+                .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
+        assertEquals(new AddCommand(person), parser.parseCommand(
+                "add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01"));
+    }
+
+    @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
