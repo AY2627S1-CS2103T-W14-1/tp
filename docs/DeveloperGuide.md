@@ -4,7 +4,7 @@
   pageNav: 3
 ---
 
-# AB-3 Developer Guide
+# CampusContacts Developer Guide
 
 <!-- * Table of Contents -->
 <page-nav-print />
@@ -115,6 +115,7 @@ Here are the other classes in `Logic` (omitted from the class diagram above) tha
 How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
+* `AddCommandParser` recognises `/email`, `/phone`, and `/location`, and uses the tokenizer's preamble as the name. It rejects missing fields and duplicate required prefixes, then delegates value validation to `ParserUtil`. Location maps to the existing `Address` value object. Optional tags retain `t/`; edit parsing retains the existing AB3 prefixes. Storage and duplicate-name suffix allocation remain model/storage responsibilities, not parser responsibilities.
 
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
@@ -270,13 +271,13 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
+* is a university student or teaching staff member
+* has a need to find, identify, or contact people within their university community
 * prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
+* can type fast and prefers typing to mouse interactions
 * is reasonably comfortable using CLI apps
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: CampusContacts helps university students and teaching staff find and identify people they interact with, while being faster than using a typical mouse-driven GUI application.
 
 
 ### User stories
@@ -286,55 +287,94 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | Priority | As a …                                    | I want to …                 | So that I can…                                                        |
 |----------|--------------------------------------------|------------------------------|------------------------------------------------------------------------|
 | `* * *`  | new user                                   | see usage instructions       | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person             |                                                                        |
-| `* * *`  | user                                       | delete a person              | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name        | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
-
-*{More to be added}*
+| `* * *`  | student                                    | add a teaching staff member  | easily retrieve their details when I need academic help                |
+| `* * *`  | teaching staff member                      | add a student                | identify and contact them when necessary                               |
+| `* * *`  | user                                       | specify if a contact is a student or staff | distinguish their role in the university               |
+| `* * *`  | user                                       | delete a contact by name     | remove entries that are no longer relevant                             |
+| `* * *`  | user                                       | list all contacts            | see the list of people I have saved                                        |
+| `* * *`  | user                                       | search for a contact by name | quickly find a specific person                                         |
+| `* * *`    | user                                       | edit an existing contact    | keep information accurate when someone's details change            |
+| `* *`    | user                                       | record a contact's faculty/department | remember where they belong within the university               |
+| `* *`    | user                                       | add notes about a contact    | remember the context in which I know them                              |
+| `* *`    | user                                       | filter contacts by student/staff role | narrow down my contact list                                    |
+| `*`      | user                                       | group contacts by modules/projects | find related people much easier                                  |
+| `*`      | user                                       | mark important contacts as favourites | access the people I frequently need much faster                 |
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `CampusContacts` and the **Actor** is the `user`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: Add a contact**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  User requests to add a contact by providing their name, email, phone number, and location.
+2.  System adds the contact and displays a success message.
 
     Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 1a. User provides an invalid argument.
 
-  Use case ends.
+  * 1a1. System shows an error message indicating an argument is not in the correct format.
 
-* 3a. The given index is invalid.
+    Use case ends.
 
-    * 3a1. AddressBook shows an error message.
+* 1b. User adds a contact with a name that already exists.
 
-      Use case resumes at step 2.
+    * 1b1. System automatically appends an underscore and number to the name before adding the contact.
 
-*{More to be added}*
+      Use case ends.
+
+**Use case: Delete a contact**
+
+**MSS**
+
+1.  User requests to delete a specific person by their exact name.
+2.  System deletes the person and displays a success message.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The provided name does not match any existing contact.
+
+    * 1a1. System shows an error message indicating no contact exists with that name.
+
+      Use case ends.
+
+**Use case: Search for a contact**
+
+**MSS**
+
+1.  User requests to search for a contact using a full or partial name.
+2.  System searches through the stored contacts.
+3.  System displays a list of all matching contacts.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. No contacts match the provided search term.
+
+    * 2a1. System displays a message indicating that no matching contacts were found.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
-
-*{More to be added}*
+2.  Should be able to hold up to 1000 contacts without noticeable sluggishness in performance for typical usage.
+3.  Should be able to return and display results within 2 seconds when searching through a contact list of up to 1000 contacts.
+4.  Should gracefully handle identical contact names without crashing.
+5.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
 
 ### Glossary
 
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Private contact detail**: A contact detail that is not meant to be shared with others
+* **Teaching staff**: Professors, lecturers, teaching assistants, or tutors who interact with students within the university
+* **Location**: Represents the primary physical location for a contact, symbolizing a home address or residential hostel for students, and an office or cubicle for teaching staff
 
 --------------------------------------------------------------------------------------------------------------------
 

@@ -3,10 +3,6 @@ package seedu.address.logic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
-import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_AMY;
-import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_AMY;
-import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
-import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
 
@@ -32,6 +28,7 @@ import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
 import seedu.address.testutil.PersonBuilder;
+import seedu.address.testutil.PersonUtil;
 
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
@@ -71,6 +68,20 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_addCampusContact_savesContact() throws Exception {
+        Person person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
+                .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
+        Model expectedModel = new ModelManager();
+        expectedModel.addPerson(person);
+
+        assertCommandSuccess("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01",
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(person)), expectedModel);
+
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        assertEquals(expectedModel.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
+    @Test
     public void execute_storageThrowsIoException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_IO_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()));
@@ -85,6 +96,13 @@ public class LogicManagerTest {
     @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
+    }
+
+    @Test
+    public void execute_unsupportedLegacyCommands_throwsParseException() {
+        assertParseException("edit 1 n/Alex", Messages.MESSAGE_UNKNOWN_COMMAND);
+        assertParseException("find Alex", Messages.MESSAGE_UNKNOWN_COMMAND);
+        assertParseException("clear", Messages.MESSAGE_UNKNOWN_COMMAND);
     }
 
     /**
@@ -164,8 +182,7 @@ public class LogicManagerTest {
         logic = new LogicManager(model, storage);
 
         // Triggers the saveAddressBook method by executing an add command
-        String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + PHONE_DESC_AMY
-                + EMAIL_DESC_AMY + ADDRESS_DESC_AMY;
+        String addCommand = PersonUtil.getAddCommand(new PersonBuilder(AMY).withTags().buildNoIndex());
         Person expectedPerson = new PersonBuilder(AMY).withTags().build();
         ModelManager expectedModel = new ModelManager();
         expectedModel.addPerson(expectedPerson);

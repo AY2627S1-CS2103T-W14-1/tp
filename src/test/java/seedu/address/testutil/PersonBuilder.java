@@ -3,6 +3,7 @@ package seedu.address.testutil;
 import java.util.HashSet;
 import java.util.Set;
 
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -26,6 +27,7 @@ public class PersonBuilder {
     private Email email;
     private Address address;
     private Set<Tag> tags;
+    private PersonIndex personIndex;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -36,6 +38,7 @@ public class PersonBuilder {
         email = new Email(DEFAULT_EMAIL);
         address = new Address(DEFAULT_ADDRESS);
         tags = new HashSet<>();
+        personIndex = PersonIndex.fromZeroBased(0);
     }
 
     /**
@@ -47,6 +50,7 @@ public class PersonBuilder {
         email = personToCopy.getEmail();
         address = personToCopy.getAddress();
         tags = new HashSet<>(personToCopy.getTags());
+        personIndex = personToCopy.getPersonIndex();
     }
 
     /**
@@ -89,7 +93,27 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@code PersonIndex} of the {@code Person} that we are building in one-based.
+     */
+    public PersonBuilder withIndex(int index) {
+        this.personIndex = PersonIndex.fromOneBased(index);
+        return this;
+    }
+
+    /**
+     * Sets the {@code PersonIndex} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withIndex(PersonIndex pIndex) {
+        this.personIndex = pIndex;
+        return this;
+    }
+
     public Person build() {
+        return new Person(name, phone, email, address, tags, personIndex);
+    }
+
+    public Person buildNoIndex() {
         return new Person(name, phone, email, address, tags);
     }
 
