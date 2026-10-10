@@ -71,6 +71,10 @@ public class StringUtil {
      * Converts a name to proper case.
      */
     public static String toProperCase(String name) {
+        if (name == null || name.isBlank()) {
+            return "";
+        }
+
         name = name.trim().replaceAll(" +", " ");
         String[] words = name.split(" ");
 
