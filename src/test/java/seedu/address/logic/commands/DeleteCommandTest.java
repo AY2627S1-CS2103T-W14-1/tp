@@ -16,6 +16,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Person;
+import seedu.address.commons.core.index.PersonIndex;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for
@@ -97,7 +98,8 @@ public class DeleteCommandTest {
     @Test
     public void toStringMethod() {
         DeleteCommand deleteCommand = new DeleteCommand("alice pauline");
-        String expected = DeleteCommand.class.getCanonicalName() + "{targetName=Alice Pauline}";
+        String expected = DeleteCommand.class.getCanonicalName() + "{targetName=Alice Pauline, targetIndex="
+                + PersonIndex.fromOneBased(1) + "}";
         assertEquals(expected, deleteCommand.toString());
     }
 
