@@ -29,10 +29,16 @@ public class DeleteCommand extends Command {
     private final String targetName;
     private final PersonIndex targetIndex;
 
+    /**
+     * Create targeted deletion command for {@code targetName} at default (first) index
+     */
     public DeleteCommand(String targetName) {
         this(targetName, PersonIndex.fromOneBased(1));
     }
 
+    /**
+     * Create targeted deletion command for {@code targetName} at index {@code targetIndex}
+     */
     public DeleteCommand(String targetName, PersonIndex targetIndex) {
         this.targetName = StringUtil.toProperCase(requireNonNull(targetName));
         this.targetIndex = requireNonNull(targetIndex);
