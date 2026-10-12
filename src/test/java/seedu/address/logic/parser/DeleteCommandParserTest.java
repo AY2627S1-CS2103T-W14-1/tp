@@ -3,18 +3,16 @@ package seedu.address.logic.parser;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
-import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.commands.DeleteCommand;
 
 /**
  * As we are only doing white-box testing, our test cases do not cover path variations
- * outside of the DeleteCommand code. For example, inputs "1" and "1 abc" take the
- * same path through the DeleteCommand, and therefore we test only one of them.
- * The path variation for those two cases occurs inside the ParserUtil, and
- * therefore should be covered by the ParserUtilTest.
+ * outside of the DeleteCommand code. The parser normalizes names to proper case
+ * before constructing the command.
  */
 public class DeleteCommandParserTest {
 
@@ -22,11 +20,24 @@ public class DeleteCommandParserTest {
 
     @Test
     public void parse_validArgs_returnsDeleteCommand() {
-        assertParseSuccess(parser, "1", new DeleteCommand(INDEX_FIRST_PERSON));
+        assertParseSuccess(parser, "aLiCe pAuLiNe_3", new DeleteCommand("Alice Pauline",
+                PersonIndex.fromOneBased(3)));
+        assertParseSuccess(parser, " Alice Pauline_2", new DeleteCommand("Alice Pauline",
+                PersonIndex.fromOneBased(2)));
+        assertParseSuccess(parser, " Alice Pauline_1", new DeleteCommand("Alice Pauline",
+                PersonIndex.fromOneBased(1)));
+        assertParseSuccess(parser, " Alice Pauline", new DeleteCommand("Alice Pauline",
+                PersonIndex.fromOneBased(1)));
     }
 
     @Test
     public void parse_invalidArgs_throwsParseException() {
-        assertParseFailure(parser, "a", String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE));
+        String message = String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "", message);
+        assertParseFailure(parser, "alice _3", message);
+        assertParseFailure(parser, "_3", message);
+        assertParseFailure(parser, "alice#p_3", message);
+        assertParseFailure(parser, "alice_0", message);
+        assertParseFailure(parser, "alice_3_4", message);
     }
 }

@@ -80,14 +80,15 @@ Format: `help`
 
 Adds a person to the contact list.
 
-Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...`
+Format: `add NAME /email EMAIL /phone PHONE /location LOCATION` ~~`[t/TAG]...`~~
 
 * The name, email, phone number, and location are all required and must not be blank.
 * Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
 * Separate `/email`, `/phone`, and `/location` from their values with a space.
 * Each of these three prefixes must appear exactly once; repeated prefixes are rejected, even with identical values.
 * Location is stored in the existing address field. It may contain spaces and punctuation.
-* Tags remain optional and use the existing `t/TAG` syntax. The `edit` command retains its existing syntax.
+* ~~Tags remain optional and use the existing `t/TAG` syntax. The `edit` command retains its existing syntax.~~
+Tags are disabled as of the MVP version.
 
 <box type="tip" seamless>
 
@@ -106,6 +107,8 @@ Format: `list`
 
 ### Editing a person: `edit`
 
+`edit` is disabled as of the MVP version. Below is the legacy documentation of the method.
+
 Edits an existing person in the contact list.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
@@ -121,6 +124,8 @@ Examples:
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
 ### Locating persons by name: `find`
+
+`find` is disabled as of the MVP version. Below is the legacy documentation of the method.
 
 Finds persons whose names contain any of the given keywords.
 
@@ -141,15 +146,23 @@ Examples:
 
 Deletes the specified person from the contact list.
 
-Format: `delete INDEX`
+Format: `delete NAME[_INDEX]`
 
-* Deletes the person at the specified `INDEX`.
-* The index refers to the index number shown in the displayed person list.
+* Deletes the person with the specified `NAME`.
+* The index refers to the index number assigned in the specified person's display name.
 * The index **must be a positive integer** 1, 2, 3, ...
+* If the index is omitted, it defaults to 1.
 
 Examples:
-* `list` followed by `delete 2` deletes the 2nd person in the contact list.
-* `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
+
+Using the below list:
+1. Alice_2
+2. Alice_3
+3. Betsy
+4. Betsy_2
+* `delete Alice_2` deletes "Alice_2" in the contact list.
+* Either `delete Betsy` or `delete Betsy_1` deletes "Betsy" in the contact list.
+* `delete Alice` fails to execute, as "Alice" with index 1 does not exist in the contact list.
 
 ### Clearing all entries: `clear`
 
@@ -205,7 +218,7 @@ Action     | Format, Examples
 **Add**    | `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 t/friend t/colleague`
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
-**Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**~~Edit~~**   | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~
+**~~Find~~**   | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~
 **List**   | `list`
 **Help**   | `help`
