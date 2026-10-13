@@ -4,7 +4,6 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
@@ -26,6 +25,9 @@ public class UnindexedPerson {
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
 
+    /**
+     * Creates an unindexed person from the supplied details.
+     */
     public UnindexedPerson(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
         requireAllNonNull(name, phone, email, address, tags);
         this.name = name;

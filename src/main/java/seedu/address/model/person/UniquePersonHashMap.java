@@ -126,27 +126,18 @@ public class UniquePersonHashMap implements Iterable<Person> {
     }
 
     /**
-     * Returns whether a person with the same name and index (if present) exists.
+     * Returns whether an indexed person with the same name and index exists.
+     *
+     * <p>An unindexed person has not yet been assigned a bucket index, so it cannot be a duplicate
+     * of an existing person. The add operation assigns it the next available index.</p>
      */
     public boolean contains(UnindexedPerson toCheck) {
         requireNonNull(toCheck);
-        PersonNameBucket bucket = internalMap.get(getNameKey(toCheck));
-        if (bucket == null) {
+        if (!(toCheck instanceof Person indexedPerson)) {
             return false;
         }
-        if (toCheck instanceof Person indexedPerson) {
-            return bucket.contains(indexedPerson);
-        }
-        return bucket.values().stream().anyMatch(person -> person.equals(toCheck)
-                || sameUnindexedFields(person, toCheck));
-    }
-
-    private boolean sameUnindexedFields(UnindexedPerson first, UnindexedPerson second) {
-        return first.getName().equals(second.getName())
-                && first.getPhone().equals(second.getPhone())
-                && first.getEmail().equals(second.getEmail())
-                && first.getAddress().equals(second.getAddress())
-                && first.getTags().equals(second.getTags());
+        PersonNameBucket bucket = internalMap.get(getNameKey(toCheck));
+        return bucket != null && bucket.contains(indexedPerson);
     }
 
     /**
@@ -270,8 +261,8 @@ public class UniquePersonHashMap implements Iterable<Person> {
             // This path imports ordinary persons, not persisted buckets. Reassign ids so
             // same-named persons receive consecutive bucket ids even if their source object
             // happened to carry an old id.
-            UnindexedPerson unindexedPerson = new UnindexedPerson(person.getName(), person.getPhone(), person.getEmail(),
-                    person.getAddress(), person.getTags());
+            UnindexedPerson unindexedPerson = new UnindexedPerson(person.getName(), person.getPhone(),
+                    person.getEmail(), person.getAddress(), person.getTags());
             replacement.add(unindexedPerson);
         }
 

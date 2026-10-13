@@ -20,14 +20,14 @@ public class UniquePersonHashMapTest {
 
     private final UniquePersonHashMap persons = new UniquePersonHashMap();
 
-    private static Person withId(Person person, int id) {
+    private static Person withId(UnindexedPerson person, int id) {
         return person.withPersonIndex(seedu.address.commons.core.index.PersonIndex.fromZeroBased(id));
     }
 
     @Test
     public void add_sameNameWithDifferentDetails_storesBothPersonsWithSuffixes() {
-        Person firstAlice = new PersonBuilder(ALICE).buildNoIndex();
-        Person anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        UnindexedPerson firstAlice = new PersonBuilder(ALICE).buildNoIndex();
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
 
         persons.add(firstAlice);
         persons.add(anotherAlice);
@@ -39,8 +39,8 @@ public class UniquePersonHashMapTest {
 
     @Test
     public void add_duplicateExactPerson_assignsNextAvailableId() {
-        Person firstAlice = new PersonBuilder(ALICE).buildNoIndex();
-        Person secondAlice = new PersonBuilder(ALICE).buildNoIndex();
+        UnindexedPerson firstAlice = new PersonBuilder(ALICE).buildNoIndex();
+        UnindexedPerson secondAlice = new PersonBuilder(ALICE).buildNoIndex();
 
         persons.add(firstAlice);
         persons.add(secondAlice);
@@ -51,10 +51,10 @@ public class UniquePersonHashMapTest {
 
     @Test
     public void remove_deletedSuffix_reusesSmallestAvailableSuffix() {
-        Person firstAlice = new PersonBuilder(ALICE).buildNoIndex();
-        Person anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
-        Person thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
-        Person replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").buildNoIndex();
+        UnindexedPerson firstAlice = new PersonBuilder(ALICE).buildNoIndex();
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        UnindexedPerson thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
+        UnindexedPerson replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").buildNoIndex();
 
         persons.add(firstAlice);
         persons.add(anotherAlice);
@@ -73,7 +73,7 @@ public class UniquePersonHashMapTest {
 
     @Test
     public void contains_sameNameWithDifferentDetails_returnsFalse() {
-        Person anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
 
         persons.add(ALICE);
 
@@ -83,7 +83,7 @@ public class UniquePersonHashMapTest {
 
     @Test
     public void setPersons_preservesDisplayOrderAndBuildsBuckets() {
-        Person anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
 
         persons.setPersons(List.of(BOB, ALICE, anotherAlice));
 
@@ -94,10 +94,10 @@ public class UniquePersonHashMapTest {
 
     @Test
     public void setPersonBuckets_rebuildsSuffixAllocationState() {
-        Person thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
-        Person replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").buildNoIndex();
+        UnindexedPerson thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
+        UnindexedPerson replacementAlice = new PersonBuilder(ALICE).withEmail("replacement@example.com").buildNoIndex();
         Map<String, Map<Integer, Person>> storedBuckets = Map.of(ALICE.getName().fullName,
-                Map.of(0, ALICE, 2, thirdAlice));
+                Map.of(0, ALICE, 2, withId(thirdAlice, 2)));
 
         persons.setPersonBuckets(storedBuckets);
         persons.add(replacementAlice);
