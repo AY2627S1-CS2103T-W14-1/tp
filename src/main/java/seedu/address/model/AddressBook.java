@@ -8,6 +8,7 @@ import java.util.Map;
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.person.UniquePersonHashMap;
 
 /**
@@ -59,7 +60,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     /**
      * Returns true if a person with the same name and bucket id exists in the address book.
      */
-    public boolean hasPerson(Person person) {
+    public boolean hasPerson(UnindexedPerson person) {
         requireNonNull(person);
         return persons.contains(person);
     }
@@ -68,7 +69,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      * Adds a person to the address book.
      * The person receives the smallest available id in its name bucket when unindexed.
      */
-    public void addPerson(Person p) {
+    public void addPerson(UnindexedPerson p) {
         persons.add(p);
     }
 

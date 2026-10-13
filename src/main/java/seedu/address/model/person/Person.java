@@ -1,30 +1,18 @@
 package seedu.address.model.person;
 
-import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
+import static java.util.Objects.requireNonNull;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
-import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.tag.Tag;
 
 /**
  * Represents a Person in the address book.
  * Guarantees: details are present and not null, field values are validated, immutable.
  */
-public class Person {
-
-    // Identity fields
-    private final Name name;
-    private final Phone phone;
-    private final Email email;
-
-    // Data fields
-    private final Address address;
-    private final Set<Tag> tags = new HashSet<>();
+public class Person extends UnindexedPerson {
 
     // Duplicate handling fields
     private final PersonIndex personIndex;
@@ -33,51 +21,9 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, PersonIndex personIndex) {
-        requireAllNonNull(name, phone, email, address, tags, personIndex);
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.address = address;
-        this.tags.addAll(tags);
+        super(name, phone, email, address, tags);
+        requireNonNull(personIndex);
         this.personIndex = personIndex;
-    }
-
-    /**
-     * Creates a person whose index will be assigned when it is inserted into the address book.
-     */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, phone, email, address, tags);
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.address = address;
-        this.tags.addAll(tags);
-        this.personIndex = null;
-    }
-
-    /**
-     * Returns a copy of this person with the supplied storage index.
-     * @param newPersonIndex index assigned by the person collection
-     * @return an indexed copy of this person
-     */
-    public Person withPersonIndex(PersonIndex newPersonIndex) {
-        return new Person(name, phone, email, address, tags, newPersonIndex);
-    }
-
-    public Name getName() {
-        return name;
-    }
-
-    public Phone getPhone() {
-        return phone;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
-
-    public Address getAddress() {
-        return address;
     }
 
     public PersonIndex getPersonIndex() {
@@ -88,22 +34,14 @@ public class Person {
      * Returns the display name of this person, including the duplicate suffix if indexed > 0.
      * (e.g. "John Tan" for index 0, "John Tan_2" for index 1).
      */
+    @Override
     public String getDisplayName() {
-        if (personIndex != null && personIndex.getZeroBased() > 0) {
-            String suffix = "_" + personIndex.getOneBased();
-            if (!name.fullName.endsWith(suffix)) {
-                return name.fullName + suffix;
-            }
+        if (personIndex.hasNoSuffix()) {
+            return super.getDisplayName();
         }
-        return name.fullName;
-    }
-
-    /**
-     * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
-     * if modification is attempted.
-     */
-    public Set<Tag> getTags() {
-        return Collections.unmodifiableSet(tags);
+        String suffix = "_" + personIndex.getOneBased();
+        Name name = getName();
+        return name.fullName + suffix;
     }
 
     /**
@@ -135,29 +73,19 @@ public class Person {
             return false;
         }
 
-        return name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone)
-                && email.equals(otherPerson.email)
-                && address.equals(otherPerson.address)
-                && tags.equals(otherPerson.tags)
+        return super.equals(otherPerson)
                 && Objects.equals(personIndex, otherPerson.personIndex);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, personIndex);
+        return Objects.hash(getName(), getPhone(), getEmail(), getAddress(), getTags(), personIndex);
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .add("name", name)
-                .add("phone", phone)
-                .add("email", email)
-                .add("address", address)
-                .add("tags", tags)
-                .toString();
+        return super.toString(); // add index later
     }
 
 }

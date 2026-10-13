@@ -22,7 +22,7 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.ShowCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 //import seedu.address.model.person.NameContainsKeywordsPredicate;
-import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 //import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -33,14 +33,14 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_add() throws Exception {
-        Person person = new PersonBuilder().buildNoIndex();
+        UnindexedPerson person = new PersonBuilder().buildNoIndex();
         AddCommand command = (AddCommand) parser.parseCommand(PersonUtil.getAddCommand(person));
         assertEquals(new AddCommand(person), command);
     }
 
     @Test
     public void parseCommand_addCampusContact() throws Exception {
-        Person person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
+        UnindexedPerson person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
                 .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
         assertEquals(new AddCommand(person), parser.parseCommand(
                 "add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01"));

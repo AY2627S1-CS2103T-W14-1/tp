@@ -13,7 +13,7 @@ import java.util.Set;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
-import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -24,14 +24,14 @@ public class PersonUtil {
     /**
      * Returns an add command string for adding the {@code person}.
      */
-    public static String getAddCommand(Person person) {
+    public static String getAddCommand(UnindexedPerson person) {
         return AddCommand.COMMAND_WORD + " " + getPersonDetails(person);
     }
 
     /**
      * Returns the part of command string for the given {@code person}'s details.
      */
-    public static String getPersonDetails(Person person) {
+    public static String getPersonDetails(UnindexedPerson person) {
         StringBuilder sb = new StringBuilder();
         sb.append(person.getName().fullName + " ");
         sb.append(PREFIX_CONTACT_EMAIL + " " + person.getEmail().value + " ");
