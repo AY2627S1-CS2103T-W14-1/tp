@@ -3,10 +3,7 @@ package seedu.address.ui;
 import java.util.logging.Logger;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 
@@ -15,17 +12,39 @@ import seedu.address.commons.core.LogsCenter;
  */
 public class HelpWindow extends UiPart<Stage> {
 
-    public static final String USERGUIDE_URL = "https://ay2627s1-cs2103t-w14-1.github.io/tp/UserGuide.html";
-    public static final String HELP_MESSAGE = "Refer to the user guide: " + USERGUIDE_URL;
+    public static final String HELP_MESSAGE = """
+            CampusContacts command guide
+
+            add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...
+              Adds a contact.
+              Example: add John Tan /email john@u.nus.edu /phone 90000001 /location COM1 t/teammate
+
+            show NAME[_NUMBER]
+              Opens the full details of a contact.
+              Example: show John Tan or show John Tan_2
+
+            delete NAME[_NUMBER]
+              Deletes the selected contact.
+              Example: delete John Tan_2
+
+            list
+              Displays every saved contact.
+
+            clear
+              Deletes every contact after confirmation. Type yes to confirm or no to cancel.
+
+            help
+              Opens this command guide.
+
+            exit
+              Closes CampusContacts.
+            """;
 
     private static final Logger logger = LogsCenter.getLogger(HelpWindow.class);
     private static final String FXML = "HelpWindow.fxml";
 
     @FXML
-    private Button copyButton;
-
-    @FXML
-    private Label helpMessage;
+    private TextArea helpMessage;
 
     /**
      * Creates a new HelpWindow.
@@ -89,14 +108,4 @@ public class HelpWindow extends UiPart<Stage> {
         getRoot().requestFocus();
     }
 
-    /**
-     * Copies the URL to the user guide to the clipboard.
-     */
-    @FXML
-    private void copyUrl() {
-        final Clipboard clipboard = Clipboard.getSystemClipboard();
-        final ClipboardContent url = new ClipboardContent();
-        url.putString(USERGUIDE_URL);
-        clipboard.setContent(url);
-    }
 }
