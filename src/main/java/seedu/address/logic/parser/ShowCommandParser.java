@@ -42,7 +42,8 @@ public class ShowCommandParser implements Parser<ShowCommand> {
             }
             return new ShowCommand(name, PersonIndex.fromOneBased(oneBasedIndex));
         } catch (ParseException exception) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, ShowCommand.MESSAGE_USAGE), exception);
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, ShowCommand.MESSAGE_USAGE), exception);
         }
     }
 }
