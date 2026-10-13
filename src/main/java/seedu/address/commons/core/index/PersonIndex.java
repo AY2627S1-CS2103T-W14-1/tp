@@ -62,4 +62,11 @@ public class PersonIndex {
     public String toString() {
         return new ToStringBuilder(this).add("zeroBasedIndex", zeroBasedIndex).toString();
     }
+
+    /**
+     * @return whether this {@code PersonIndex} is "first"
+     */
+    public boolean hasNoSuffix() {
+        return this.getZeroBased() == 0;
+    }
 }
