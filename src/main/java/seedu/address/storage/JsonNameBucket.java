@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 
 /**
  * Jackson-friendly representation of the id-keyed persons belonging to one name bucket.
@@ -65,11 +66,12 @@ class JsonNameBucket {
                 throw new IllegalValueException(MESSAGE_NULL_PERSON);
             }
 
-            Person person = jsonPerson.getValue().toModelType();
-            if (!baseName.equals(person.getName().fullName)) {
+            UnindexedPerson unindexedPerson = jsonPerson.getValue().toModelType();
+            if (!baseName.equals(unindexedPerson.getName().fullName)) {
                 throw new IllegalValueException(MESSAGE_NAME_MISMATCH);
             }
-            modelPersons.put(id, person);
+            modelPersons.put(id, unindexedPerson.withPersonIndex(
+                    seedu.address.commons.core.index.PersonIndex.fromZeroBased(id)));
         }
         return Collections.unmodifiableMap(modelPersons);
     }

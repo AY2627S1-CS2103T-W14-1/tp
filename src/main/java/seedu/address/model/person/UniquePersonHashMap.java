@@ -115,40 +115,62 @@ public class UniquePersonHashMap implements Iterable<Person> {
         }
     }
 
-    private String getNameKey(Person person) {
+    private String getNameKey(UnindexedPerson person) {
         return person.getName().fullName;
     }
 
-    private PersonNameBucket getBucket(Person person) {
+    private PersonNameBucket getBucket(UnindexedPerson person) {
         return internalMap.computeIfAbsent(
                 getNameKey(person),
                 unused -> new PersonNameBucket());
     }
 
     /**
-     * Returns whether a person with the same name and index exists.
+     * Returns whether a person with the same name and index (if present) exists.
      */
-    public boolean contains(Person toCheck) {
+    public boolean contains(UnindexedPerson toCheck) {
         requireNonNull(toCheck);
-
         PersonNameBucket bucket = internalMap.get(getNameKey(toCheck));
-        return bucket != null && bucket.contains(toCheck);
+        if (bucket == null) {
+            return false;
+        }
+        if (toCheck instanceof Person indexedPerson) {
+            return bucket.contains(indexedPerson);
+        }
+        return bucket.values().stream().anyMatch(person -> person.equals(toCheck)
+                || sameUnindexedFields(person, toCheck));
+    }
+
+    private boolean sameUnindexedFields(UnindexedPerson first, UnindexedPerson second) {
+        return first.getName().equals(second.getName())
+                && first.getPhone().equals(second.getPhone())
+                && first.getEmail().equals(second.getEmail())
+                && first.getAddress().equals(second.getAddress())
+                && first.getTags().equals(second.getTags());
     }
 
     /**
-     * Adds a person, assigning an index when the person is not yet indexed.
+     * Adds an unindexed person, assigning an index when the person is not yet indexed.
+     */
+    public void add(UnindexedPerson toAdd) {
+        requireNonNull(toAdd);
+
+        PersonNameBucket bucket = getBucket(toAdd);
+
+        Person indexedPerson = toAdd.withPersonIndex(
+                PersonIndex.fromZeroBased(bucket.allocateIndex()));
+
+        bucket.add(indexedPerson);
+        refreshInternalList();
+    }
+
+    /**
+     * Adds an indexed person.
      */
     public void add(Person toAdd) {
         requireNonNull(toAdd);
 
         PersonNameBucket bucket = getBucket(toAdd);
-
-        // Parser-created persons do not have a storage index yet. Allocate it here,
-        // at the point where the person is assigned to its name bucket.
-        if (toAdd.getPersonIndex() == null) {
-            toAdd = toAdd.withPersonIndex(
-                    PersonIndex.fromZeroBased(bucket.allocateIndex()));
-        }
 
         if (bucket.contains(toAdd)) {
             throw new DuplicatePersonException();
@@ -239,16 +261,16 @@ public class UniquePersonHashMap implements Iterable<Person> {
     /**
      * Replaces the contents with the supplied persons.
      */
-    public void setPersons(List<Person> persons) {
+    public void setPersons(List<? extends UnindexedPerson> persons) {
         requireAllNonNull(persons);
 
         UniquePersonHashMap replacement = new UniquePersonHashMap();
 
-        for (Person person : persons) {
+        for (UnindexedPerson person : persons) {
             // This path imports ordinary persons, not persisted buckets. Reassign ids so
             // same-named persons receive consecutive bucket ids even if their source object
             // happened to carry an old id.
-            Person unindexedPerson = new Person(person.getName(), person.getPhone(), person.getEmail(),
+            UnindexedPerson unindexedPerson = new UnindexedPerson(person.getName(), person.getPhone(), person.getEmail(),
                     person.getAddress(), person.getTags());
             replacement.add(unindexedPerson);
         }
