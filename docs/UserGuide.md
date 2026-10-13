@@ -33,7 +33,9 @@ CampusContacts is a desktop application for managing contacts in the university 
 
    * `add John Doe /email johnd@example.com /phone 98765432 /location John street, block 123, #01-01` : Adds a contact named `John Doe` to CampusContacts.
 
-   * `delete 3` : Deletes the 3rd contact shown in the current list.
+   * `show John Doe` : Opens John Doe's full contact details.
+
+   * `delete John Doe` : Deletes John Doe from the contact list.
 
    * `clear` : Deletes all contacts.
 
@@ -69,9 +71,7 @@ CampusContacts is a desktop application for managing contacts in the university 
 
 ### Viewing help: `help`
 
-Shows a message explaining how to access the help page.
-
-![help message](images/helpMessage.png)
+Opens an in-app guide containing the available commands and examples.
 
 Format: `help`
 
@@ -80,15 +80,16 @@ Format: `help`
 
 Adds a person to the contact list.
 
-Format: `add NAME /email EMAIL /phone PHONE /location LOCATION` ~~`[t/TAG]...`~~
+Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...`
 
 * The name, email, phone number, and location are all required and must not be blank.
 * Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
 * Separate `/email`, `/phone`, and `/location` from their values with a space.
 * Each of these three prefixes must appear exactly once; repeated prefixes are rejected, even with identical values.
 * Location is stored in the existing address field. It may contain spaces and punctuation.
-* ~~Tags remain optional and use the existing `t/TAG` syntax. The `edit` command retains its existing syntax.~~
-Tags are disabled as of the MVP version.
+* Tags are optional and use the `t/TAG` syntax.
+
+If a contact already has the same name, CampusContacts assigns it a distinct display suffix. For example, adding a second `John Tan` displays it as `John Tan_2`.
 
 <box type="tip" seamless>
 
@@ -105,42 +106,20 @@ Shows a list of all persons in the contact list.
 
 Format: `list`
 
-### Editing a person: `edit`
+### Showing a contact's details: `show`
 
-`edit` is disabled as of the MVP version. Below is the legacy documentation of the method.
+Opens a popup containing a contact's display name, contact ID, phone number, email, location, and tags.
 
-Edits an existing person in the contact list.
+Format: `show NAME[_NUMBER]`
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
-
-* Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, ...
-* At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
-* When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
-* To remove all of a person's tags, enter `t/` without a tag after it.
+* Use the contact's displayed name.
+* The optional `_NUMBER` identifies a particular contact when several contacts have the same name.
+* If the suffix is omitted, CampusContacts selects the unsuffixed contact.
 
 Examples:
-*  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
-*  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
-### Locating persons by name: `find`
-
-`find` is disabled as of the MVP version. Below is the legacy documentation of the method.
-
-Finds persons whose names contain any of the given keywords.
-
-Format: `find KEYWORD [MORE_KEYWORDS]`
-
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
-
-Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `show John Tan` opens details for the unsuffixed John Tan.
+* `show John Tan_2` opens details for the second displayed John Tan.
 
 ### Deleting a person: `delete`
 
@@ -149,26 +128,30 @@ Deletes the specified person from the contact list.
 Format: `delete NAME[_INDEX]`
 
 * Deletes the person with the specified `NAME`.
-* The index refers to the index number assigned in the specified person's display name.
+* The optional number identifies a particular contact with the specified name.
 * The index **must be a positive integer** 1, 2, 3, ...
 * If the index is omitted, it defaults to 1.
 
 Examples:
 
 Using the below list:
-1. Alice_2
-2. Alice_3
+
+1. Alice
+2. Alice_2
 3. Betsy
 4. Betsy_2
-* `delete Alice_2` deletes "Alice_2" in the contact list.
-* Either `delete Betsy` or `delete Betsy_1` deletes "Betsy" in the contact list.
-* `delete Alice` fails to execute, as "Alice" with index 1 does not exist in the contact list.
+
+* `delete Alice_2` deletes the contact displayed as `Alice_2`.
+* Either `delete Betsy` or `delete Betsy_1` deletes the unsuffixed `Betsy`.
+* `delete Alice_3` fails because no contact with that displayed identifier exists.
 
 ### Clearing all entries: `clear`
 
 Clears all entries from the contact list.
 
 Format: `clear`
+
+After entering `clear`, type `yes` to confirm deletion or `no` to cancel.
 
 ### Exiting the program: `exit`
 
@@ -217,8 +200,8 @@ Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 t/friend t/colleague`
 **Clear**  | `clear`
-**Delete** | `delete INDEX`<br> e.g., `delete 3`
-**~~Edit~~**   | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~
-**~~Find~~**   | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~
+**Delete** | `delete NAME[_NUMBER]`<br> e.g., `delete James Ho_2`
 **List**   | `list`
+**Show**   | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`
 **Help**   | `help`
+**Exit**   | `exit`
