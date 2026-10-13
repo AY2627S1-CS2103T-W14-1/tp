@@ -36,6 +36,7 @@ public class MainWindow extends UiPart<Stage> {
     private PersonListPanel personListPanel;
     private ResultDisplay resultDisplay;
     private HelpWindow helpWindow;
+    private ContactDetailsWindow contactDetailsWindow;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -164,6 +165,9 @@ public class MainWindow extends UiPart<Stage> {
                 (int) primaryStage.getX(), (int) primaryStage.getY());
         logic.setGuiSettings(guiSettings);
         helpWindow.hide();
+        if (contactDetailsWindow != null) {
+            contactDetailsWindow.hide();
+        }
         primaryStage.hide();
     }
 
@@ -186,6 +190,10 @@ public class MainWindow extends UiPart<Stage> {
                 handleHelp();
             }
 
+            if (commandResult.isShowPersonDetails()) {
+                showContactDetails(commandResult);
+            }
+
             if (commandResult.isExit()) {
                 handleExit();
             }
@@ -196,5 +204,14 @@ public class MainWindow extends UiPart<Stage> {
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
         }
+    }
+
+    /** Opens a fresh window for the contact selected by the show command. */
+    private void showContactDetails(CommandResult commandResult) {
+        if (contactDetailsWindow != null && contactDetailsWindow.isShowing()) {
+            contactDetailsWindow.hide();
+        }
+        contactDetailsWindow = new ContactDetailsWindow(commandResult.getPersonToShow());
+        contactDetailsWindow.show();
     }
 }
