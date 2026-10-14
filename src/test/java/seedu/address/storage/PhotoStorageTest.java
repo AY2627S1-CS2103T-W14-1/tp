@@ -30,4 +30,28 @@ public class PhotoStorageTest {
         assertEquals("image content", Files.readString(copiedPath));
         assertTrue(photo.getRelativePath().startsWith("photos/"));
     }
+
+    @Test
+    public void deletePhoto_managedPhoto_deletesCopiedFile() throws Exception {
+        Path sourcePath = testFolder.resolve("source.png");
+        Files.writeString(sourcePath, "image content");
+        PhotoStorage photoStorage = new PhotoStorage(testFolder.resolve("campuscontacts.json"));
+        Photo photo = photoStorage.copyPhoto(sourcePath);
+
+        photoStorage.deletePhoto(photo);
+
+        assertTrue(Files.notExists(testFolder.resolve(photo.getRelativePath())));
+        assertTrue(Files.exists(sourcePath));
+    }
+
+    @Test
+    public void deletePhoto_externalReference_doesNotDeleteFile() throws Exception {
+        Path externalPath = testFolder.resolve("external.png");
+        Files.writeString(externalPath, "image content");
+        PhotoStorage photoStorage = new PhotoStorage(testFolder.resolve("campuscontacts.json"));
+
+        photoStorage.deletePhoto(new Photo("external.png"));
+
+        assertTrue(Files.exists(externalPath));
+    }
 }

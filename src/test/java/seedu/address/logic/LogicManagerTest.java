@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,6 +100,36 @@ public class LogicManagerTest {
         JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
         Person savedPerson = storage.readAddressBook().orElseThrow().getPersonList().get(0);
         assertEquals(relativePhotoPath, savedPerson.getPhoto().orElseThrow().getRelativePath());
+    }
+
+    @Test
+    public void execute_duplicateAddWithPhoto_removesCopiedPhoto() throws Exception {
+        Path sourcePhoto = temporaryFolder.resolve("source.png");
+        Files.writeString(sourcePhoto, "image content");
+        String contact = "John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01";
+
+        logic.execute("add " + contact);
+
+        assertCommandException("add " + contact + " /photo " + sourcePhoto,
+                AddCommand.MESSAGE_DUPLICATE_PERSON);
+        try (Stream<Path> photoFiles = Files.list(temporaryFolder.resolve("photos"))) {
+            assertTrue(photoFiles.findAny().isEmpty());
+        }
+    }
+
+    @Test
+    public void execute_deleteContactWithPhoto_removesCopiedPhoto() throws Exception {
+        Path sourcePhoto = temporaryFolder.resolve("source.png");
+        Files.writeString(sourcePhoto, "image content");
+        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
+                + sourcePhoto);
+        Path copiedPhoto = temporaryFolder.resolve(model.getFilteredPersonList().get(0)
+                .getPhoto().orElseThrow().getRelativePath());
+
+        logic.execute("delete John Doe");
+
+        assertTrue(Files.notExists(copiedPhoto));
+        assertTrue(Files.exists(sourcePhoto));
     }
 
     @Test

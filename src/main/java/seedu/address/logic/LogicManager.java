@@ -2,7 +2,9 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
@@ -17,6 +19,7 @@ import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Photo;
 import seedu.address.storage.Storage;
 
 /**
@@ -49,6 +52,7 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
+        Set<Photo> photosBeforeCommand = getReferencedPhotos();
         CommandResult commandResult;
         Command command;
 
@@ -78,6 +82,8 @@ public class LogicManager implements Logic {
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
 
+        deleteUnreferencedPhotos(photosBeforeCommand);
+
         return commandResult;
     }
 
@@ -86,15 +92,46 @@ public class LogicManager implements Logic {
      */
     private CommandResult executeCommand(Command command) throws CommandException {
         if (command instanceof AddCommand addCommand && addCommand.getPhotoSource().isPresent()) {
+            Photo copiedPhoto;
             try {
-                AddCommand commandWithPhoto = addCommand.withPhoto(
-                        storage.copyPhoto(addCommand.getPhotoSource().get()));
-                return commandWithPhoto.execute(model);
+                copiedPhoto = storage.copyPhoto(addCommand.getPhotoSource().get());
             } catch (IOException exception) {
                 throw new CommandException("Could not import the photo: " + exception.getMessage(), exception);
             }
+
+            try {
+                return addCommand.withPhoto(copiedPhoto).execute(model);
+            } catch (CommandException exception) {
+                deletePhotoQuietly(copiedPhoto);
+                throw exception;
+            }
         }
         return command.execute(model);
+    }
+
+    /** Returns every photo currently referenced by an address-book contact. */
+    private Set<Photo> getReferencedPhotos() {
+        return model.getAddressBook().getPersonList().stream()
+                .map(Person::getPhoto)
+                .flatMap(java.util.Optional::stream)
+                .collect(Collectors.toSet());
+    }
+
+    /** Deletes photo files that were referenced before a successful command but are no longer referenced. */
+    private void deleteUnreferencedPhotos(Set<Photo> photosBeforeCommand) {
+        Set<Photo> currentPhotos = getReferencedPhotos();
+        photosBeforeCommand.stream()
+                .filter(photo -> !currentPhotos.contains(photo))
+                .forEach(this::deletePhotoQuietly);
+    }
+
+    /** Attempts cleanup without changing the result of an otherwise completed command. */
+    private void deletePhotoQuietly(Photo photo) {
+        try {
+            storage.deletePhoto(photo);
+        } catch (IOException exception) {
+            logger.warning("Could not remove unused photo " + photo + ": " + exception.getMessage());
+        }
     }
 
     @Override

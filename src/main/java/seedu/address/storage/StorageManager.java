@@ -73,4 +73,9 @@ public class StorageManager implements Storage {
         return photoStorage.copyPhoto(sourcePath);
     }
 
+    @Override
+    public void deletePhoto(Photo photo) throws IOException {
+        photoStorage.deletePhoto(photo);
+    }
+
 }

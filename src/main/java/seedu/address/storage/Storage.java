@@ -63,4 +63,12 @@ public interface Storage {
      */
     Photo copyPhoto(Path sourcePath) throws IOException;
 
+    /**
+     * Deletes a managed photo referenced by the address book.
+     *
+     * @param photo the photo reference to remove
+     * @throws IOException if the photo could not be deleted
+     */
+    void deletePhoto(Photo photo) throws IOException;
+
 }

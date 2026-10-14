@@ -41,6 +41,19 @@ public class PhotoStorage {
         return new Photo(PHOTO_DIRECTORY_NAME + "/" + targetFileName);
     }
 
+    /**
+     * Deletes the managed file represented by {@code photo}. References outside the photo directory are ignored.
+     */
+    public void deletePhoto(Photo photo) throws IOException {
+        requireNonNull(photo);
+
+        Path dataDirectory = photoDirectory.getParent();
+        Path targetPath = dataDirectory.resolve(photo.getRelativePath()).normalize();
+        if (targetPath.startsWith(photoDirectory)) {
+            Files.deleteIfExists(targetPath);
+        }
+    }
+
     private static String getExtension(Path path) {
         Path fileName = path.getFileName();
         if (fileName == null) {
