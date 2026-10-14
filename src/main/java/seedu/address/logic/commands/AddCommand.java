@@ -3,8 +3,8 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.nio.file.Path;
@@ -14,6 +14,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Photo;
 import seedu.address.model.person.UnindexedPerson;
 
 /**
@@ -65,6 +66,14 @@ public class AddCommand extends Command {
     /** Returns the optional validated source path supplied by the user. */
     public Optional<Path> getPhotoSource() {
         return photoSource;
+    }
+
+    /**
+     * Returns a copy of this command whose person uses the imported photo reference.
+     */
+    public AddCommand withPhoto(Photo photo) {
+        requireNonNull(photo);
+        return new AddCommand(toAdd.withPhoto(photo));
     }
 
     @Override

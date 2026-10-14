@@ -8,6 +8,7 @@ import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Photo;
 
 /**
  * API of the Storage component
@@ -53,5 +54,13 @@ public interface Storage {
      * @throws IOException if there was any problem writing to the file.
      */
     void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException;
+
+    /**
+     * Copies a source image into the application's photo directory and returns its relative reference.
+     *
+     * @param sourcePath an existing photo file
+     * @throws IOException if the photo could not be copied
+     */
+    Photo copyPhoto(Path sourcePath) throws IOException;
 
 }

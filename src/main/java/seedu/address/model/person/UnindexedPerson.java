@@ -56,6 +56,13 @@ public class UnindexedPerson {
         return new Person(name, phone, email, address, tags, newPersonIndex, photo);
     }
 
+    /**
+     * Returns a copy of this person with the supplied photo reference.
+     */
+    public UnindexedPerson withPhoto(Photo newPhoto) {
+        return new UnindexedPerson(name, phone, email, address, tags, newPhoto);
+    }
+
     public Name getName() {
         return name;
     }

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.CancelCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
@@ -55,7 +56,7 @@ public class LogicManager implements Logic {
             command = pendingCommand;
             pendingCommand = null;
             if (commandText.equals("yes")) {
-                commandResult = command.execute(model);
+                commandResult = executeCommand(command);
             } else {
                 commandResult = (new CancelCommand()).execute(model);
             }
@@ -65,7 +66,7 @@ public class LogicManager implements Logic {
                 pendingCommand = command;
                 commandResult = (new ConfirmCommand(command)).execute(model);
             } else {
-                commandResult = command.execute(model);
+                commandResult = executeCommand(command);
             }
         }
 
@@ -78,6 +79,22 @@ public class LogicManager implements Logic {
         }
 
         return commandResult;
+    }
+
+    /**
+     * Imports an optional add-command photo before applying the command to the model.
+     */
+    private CommandResult executeCommand(Command command) throws CommandException {
+        if (command instanceof AddCommand addCommand && addCommand.getPhotoSource().isPresent()) {
+            try {
+                AddCommand commandWithPhoto = addCommand.withPhoto(
+                        storage.copyPhoto(addCommand.getPhotoSource().get()));
+                return commandWithPhoto.execute(model);
+            } catch (IOException exception) {
+                throw new CommandException("Could not import the photo: " + exception.getMessage(), exception);
+            }
+        }
+        return command.execute(model);
     }
 
     @Override
