@@ -125,19 +125,11 @@ public class UniquePersonHashMap implements Iterable<Person> {
                 unused -> new PersonNameBucket());
     }
 
-    /**
-     * Returns whether an indexed person with the same name and index exists.
-     *
-     * <p>An unindexed person has not yet been assigned a bucket index, so it cannot be a duplicate
-     * of an existing person. The add operation assigns it the next available index.</p>
-     */
+    /** Returns whether a person with the same contact details already exists in the name bucket. */
     public boolean contains(UnindexedPerson toCheck) {
         requireNonNull(toCheck);
-        if (!(toCheck instanceof Person indexedPerson)) {
-            return false;
-        }
         PersonNameBucket bucket = internalMap.get(getNameKey(toCheck));
-        return bucket != null && bucket.contains(indexedPerson);
+        return bucket != null && bucket.values().stream().anyMatch(toCheck::equals);
     }
 
     /**
@@ -145,6 +137,9 @@ public class UniquePersonHashMap implements Iterable<Person> {
      */
     public void add(UnindexedPerson toAdd) {
         requireNonNull(toAdd);
+        if (contains(toAdd)) {
+            throw new DuplicatePersonException();
+        }
 
         PersonNameBucket bucket = getBucket(toAdd);
 
