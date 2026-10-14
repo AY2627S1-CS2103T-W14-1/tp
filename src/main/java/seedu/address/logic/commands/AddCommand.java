@@ -3,8 +3,12 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
+
+import java.nio.file.Path;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
@@ -25,6 +29,7 @@ public class AddCommand extends Command {
             + PREFIX_CONTACT_EMAIL + " EMAIL "
             + PREFIX_CONTACT_PHONE + " PHONE "
             + PREFIX_CONTACT_LOCATION + " LOCATION "
+            + "[" + PREFIX_CONTACT_PHOTO + " FILE_PATH] "
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " "
             + "John Doe "
@@ -38,13 +43,28 @@ public class AddCommand extends Command {
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 
     private final UnindexedPerson toAdd;
+    private final Optional<Path> photoSource;
 
     /**
      * Creates an AddCommand to add the specified {@code UnindexedPerson}.
      */
     public AddCommand(UnindexedPerson person) {
+        this(person, Optional.empty());
+    }
+
+    /**
+     * Creates an AddCommand with an optional source image that will be imported in a later storage step.
+     */
+    public AddCommand(UnindexedPerson person, Optional<Path> photoSource) {
         requireNonNull(person);
+        requireNonNull(photoSource);
         toAdd = person;
+        this.photoSource = photoSource;
+    }
+
+    /** Returns the optional validated source path supplied by the user. */
+    public Optional<Path> getPhotoSource() {
+        return photoSource;
     }
 
     @Override
@@ -72,13 +92,15 @@ public class AddCommand extends Command {
             return false;
         }
 
-        return toAdd.equals(otherAddCommand.toAdd);
+        return toAdd.equals(otherAddCommand.toAdd)
+                && photoSource.equals(otherAddCommand.photoSource);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .add("toAdd", toAdd)
+                .add("photoSource", photoSource)
                 .toString();
     }
 }
