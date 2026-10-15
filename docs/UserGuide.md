@@ -105,6 +105,21 @@ Shows a list of all persons in the contact list.
 
 Format: `list`
 
+### Sorting persons: `sort`
+
+Sorts the displayed persons by name or phone number.
+
+Format: `sort FIELD [asc|desc]`
+
+* `FIELD` must be either `name` or `phone`.
+* The sort direction defaults to ascending.
+* Sorting changes the displayed order only and does not change the saved address-book data.
+
+Examples:
+
+* `sort name` sorts contacts alphabetically by name.
+* `sort phone desc` sorts contacts by phone number in descending order.
+
 ### Editing a person: `edit`
 
 `edit` is disabled as of the MVP version. Below is the legacy documentation of the method.
@@ -221,4 +236,5 @@ Action     | Format, Examples
 **~~Edit~~**   | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~
 **~~Find~~**   | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~
 **List**   | `list`
+**Sort**   | `sort FIELD [asc|desc]`<br> e.g. `sort phone desc`
 **Help**   | `help`
