@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.util.List;
@@ -38,5 +39,17 @@ public class SortCommandTest {
         assertEquals(List.of("87652533", "94351253", "9482224", "9482427", "9482442",
                 "95352563", "98765432"),
                 model.getFilteredPersonList().stream().map(person -> person.getPhone().value).toList());
+    }
+
+    @Test
+    public void execute_sortPreferenceIsAvailableToNextModel() {
+        ModelManager model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        new SortCommand(PersonSortField.PHONE, true).execute(model);
+
+        ModelManager reopenedModel = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+
+        assertEquals(model.getFilteredPersonList(), reopenedModel.getFilteredPersonList());
+        assertEquals(PersonSortField.PHONE, reopenedModel.getUserPrefs().getSortField());
+        assertTrue(reopenedModel.getUserPrefs().isSortDescending());
     }
 }

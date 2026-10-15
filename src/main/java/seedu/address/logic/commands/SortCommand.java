@@ -2,10 +2,7 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Comparator;
-
 import seedu.address.model.Model;
-import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonSortField;
 
 /** Sorts the displayed persons by a supported field. */
@@ -36,11 +33,7 @@ public class SortCommand extends Command {
     public CommandResult execute(Model model) {
         requireNonNull(model);
 
-        Comparator<Person> comparator = field.getComparator();
-        if (descending) {
-            comparator = comparator.reversed();
-        }
-        model.updatePersonListSort(comparator);
+        model.updatePersonListSort(field, descending);
 
         String direction = descending ? "desc" : "asc";
         return new CommandResult(String.format(MESSAGE_SUCCESS_FORMAT, field, direction));

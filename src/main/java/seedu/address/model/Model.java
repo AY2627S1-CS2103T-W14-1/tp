@@ -1,11 +1,11 @@
 package seedu.address.model;
 
-import java.util.Comparator;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonSortField;
 
 /**
  * The API of the Model component.
@@ -70,6 +70,6 @@ public interface Model {
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
 
-    /** Updates the comparator used for the displayed person list. */
-    void updatePersonListSort(Comparator<Person> comparator);
+    /** Updates and persists the sort used for the displayed person list. */
+    void updatePersonListSort(PersonSortField field, boolean descending);
 }

@@ -3,7 +3,6 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
-import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -13,6 +12,7 @@ import javafx.collections.transformation.SortedList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonSortField;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -37,6 +37,7 @@ public class ModelManager implements Model {
         this.userPrefs = new UserPrefs(userPrefs);
         filteredPersons = new FilteredList<>(this.addressBook.getPersonList());
         sortedPersons = new SortedList<>(filteredPersons);
+        applySortPreference();
     }
 
     public ModelManager() {
@@ -115,7 +116,18 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void updatePersonListSort(Comparator<Person> comparator) {
+    public void updatePersonListSort(PersonSortField field, boolean descending) {
+        requireNonNull(field);
+        userPrefs.setSortField(field);
+        userPrefs.setSortDescending(descending);
+        applySortPreference();
+    }
+
+    private void applySortPreference() {
+        var comparator = userPrefs.getSortField().getComparator();
+        if (userPrefs.isSortDescending()) {
+            comparator = comparator.reversed();
+        }
         sortedPersons.setComparator(comparator);
     }
 
