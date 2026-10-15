@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.model.AddressBook;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.PersonSortField;
+import seedu.address.testutil.PersonBuilder;
 
 public class SortCommandTest {
 
@@ -39,6 +41,20 @@ public class SortCommandTest {
         assertEquals(List.of("87652533", "94351253", "9482224", "9482427", "9482442",
                 "95352563", "98765432"),
                 model.getFilteredPersonList().stream().map(person -> person.getPhone().value).toList());
+    }
+
+    @Test
+    public void execute_sortByNameDescending_reversesDuplicateNameIndexes() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(new PersonBuilder().withName("ALEX").buildNoIndex());
+        addressBook.addPerson(new PersonBuilder().withName("ALEX").buildNoIndex());
+        addressBook.addPerson(new PersonBuilder().withName("ALEX").buildNoIndex());
+        ModelManager model = new ModelManager(addressBook, new UserPrefs());
+
+        new SortCommand(PersonSortField.NAME, true).execute(model);
+
+        assertEquals(List.of("ALEX_3", "ALEX_2", "ALEX"),
+                model.getFilteredPersonList().stream().map(person -> person.getDisplayName()).toList());
     }
 
     @Test

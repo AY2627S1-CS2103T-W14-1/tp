@@ -124,11 +124,7 @@ public class ModelManager implements Model {
     }
 
     private void applySortPreference() {
-        var comparator = userPrefs.getSortField().getComparator();
-        if (userPrefs.isSortDescending()) {
-            comparator = comparator.reversed();
-        }
-        sortedPersons.setComparator(comparator);
+        sortedPersons.setComparator(userPrefs.getSortField().getComparator(userPrefs.isSortDescending()));
     }
 
     @Override

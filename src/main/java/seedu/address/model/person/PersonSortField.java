@@ -19,6 +19,21 @@ public enum PersonSortField {
         return comparator;
     }
 
+    /**
+     * Returns the comparator for this field and direction.
+     *
+     * <p>Name sorting uses the person index as a tie-breaker so duplicate names
+     * appear in reverse index order when sorting names descending. Other fields
+     * retain their existing comparison behavior.</p>
+     */
+    public Comparator<Person> getComparator(boolean descending) {
+        Comparator<Person> result = comparator;
+        if (this == NAME) {
+            result = result.thenComparingInt(person -> person.getPersonIndex().getZeroBased());
+        }
+        return descending ? result.reversed() : result;
+    }
+
     /** Returns the sort field represented by the given user input. */
     public static PersonSortField fromUserInput(String userInput) {
         for (PersonSortField field : values()) {
