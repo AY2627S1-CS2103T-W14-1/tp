@@ -247,15 +247,15 @@ _Details coming soon ..._
 
 ## Command summary
 
-| Action       | Format, Examples                                                                                                                                                            |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Action       | Format, Examples                                                                                                                                                           |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Add**      | `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 t/friend t/colleague` |
-| **Clear**    | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                  |
-| **Delete**   | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                          |
-| **~~Edit~~** | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~                                           |
-| **~~Find~~** | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~                                                                                                              |
-| **List**     | `list`                                                                                                                                                                      |
+| **Clear**    | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                 |
+| **Delete**   | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                         |
+| **~~Edit~~** | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~                                          |
+| **~~Find~~** | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~                                                                                                             |
+| **List**     | `list`                                                                                                                                                                     |
 | **Show**     | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`
-| **Sort**     | `sort FIELD [asc|desc]`<br> e.g. `sort phone desc`
-| **Help**     | `help`                                                                                                                                                                      |
-| **Exit**     | `exit`                                                                                                                                                                      |
+| **Sort**     | `sort FIELD [asc\|desc]`<br> e.g. `sort phone desc`
+| **Help**     | `help`                                                                                                                                                                     |
+| **Exit**     | `exit`                                                                                                                                                                     |
