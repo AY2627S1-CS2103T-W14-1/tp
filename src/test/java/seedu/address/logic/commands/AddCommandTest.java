@@ -23,6 +23,7 @@ import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonSortField;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandTest {
@@ -119,7 +120,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public void addPerson(Person person) {
+        public void addPerson(UnindexedPerson person) {
             throw new AssertionError("This method should fail here.");
         }
 
@@ -134,7 +135,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public boolean hasPerson(Person person) {
+        public boolean hasPerson(UnindexedPerson person) {
             throw new AssertionError("This method should not be called.");
         }
 
@@ -176,9 +177,9 @@ public class AddCommandTest {
         }
 
         @Override
-        public boolean hasPerson(Person person) {
+        public boolean hasPerson(UnindexedPerson person) {
             requireNonNull(person);
-            return this.person.isSamePerson(person);
+            return person.equals(this.person);
         }
     }
 
@@ -186,16 +187,16 @@ public class AddCommandTest {
      * A Model stub that always accepts the person being added.
      */
     private class ModelStubAcceptingPersonAdded extends ModelStub {
-        final ArrayList<Person> personsAdded = new ArrayList<>();
+        final ArrayList<UnindexedPerson> personsAdded = new ArrayList<>();
 
         @Override
-        public boolean hasPerson(Person person) {
+        public boolean hasPerson(UnindexedPerson person) {
             requireNonNull(person);
-            return personsAdded.stream().anyMatch(person::isSamePerson);
+            return personsAdded.stream().anyMatch(person::equals);
         }
 
         @Override
-        public void addPerson(Person person) {
+        public void addPerson(UnindexedPerson person) {
             requireNonNull(person);
             personsAdded.add(person);
         }

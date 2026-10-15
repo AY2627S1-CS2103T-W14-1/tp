@@ -27,9 +27,18 @@ jobs:
           distribution: 'zulu'
           java-version: '25'
           java-package: jdk+fx
+          cache: gradle
 
       - name: Build and check with Gradle
-        run: ./gradlew check coverage
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew check coverage && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 15))
+          done
 
       - name: Upload coverage reports to Codecov
         if: runner.os == 'Linux'

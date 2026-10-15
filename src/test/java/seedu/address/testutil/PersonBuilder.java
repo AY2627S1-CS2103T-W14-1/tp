@@ -9,6 +9,7 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 import seedu.address.model.util.SampleDataUtil;
 
@@ -113,8 +114,8 @@ public class PersonBuilder {
         return new Person(name, phone, email, address, tags, personIndex);
     }
 
-    public Person buildNoIndex() {
-        return new Person(name, phone, email, address, tags);
+    public UnindexedPerson buildNoIndex() {
+        return new UnindexedPerson(name, phone, email, address, tags);
     }
 
 }

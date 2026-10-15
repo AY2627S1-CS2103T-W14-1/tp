@@ -13,7 +13,8 @@
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+* This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
+* Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ The following provides a quick overview of the main components and their interac
 
 **Main components of the architecture**
 
-**`Main`** (consisting of classes [`Main`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
+**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
 * At shut down, it shuts down the other components and invokes cleanup methods where necessary.
 
@@ -50,7 +51,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows the general interaction between components when the user issues a command. In CampusContacts, a contact is addressed by its name and, when required, its displayed suffix (for example, `delete John Tan_2`).
 
 <puml src="diagrams/ArchitectureSequenceDiagram.puml" width="574" />
 
@@ -67,13 +68,13 @@ The sections below give more details of each component.
 
 ### UI component
 
-The **API** of this component is specified in [`Ui.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/Ui.java)
+The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/ui/Ui.java)
 
 <puml src="diagrams/UiClassDiagram.puml" alt="Structure of the UI Component"/>
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StatusBarFooter`,  `HelpWindow`, and `ContactDetailsWindow`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
-The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
+The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
 The `UI` component,
 
@@ -81,18 +82,19 @@ The `UI` component,
 * listens for changes to `Model` data so that the UI can be updated with the modified data.
 * keeps a reference to the `Logic` component, because the `UI` relies on the `Logic` to execute commands.
 * depends on some classes in the `Model` component because it displays `Person` objects from the model.
+* opens a `ContactDetailsWindow` when a successful `show` command returns a selected contact in its `CommandResult`.
 
 ### Logic component
 
-**API** : [`Logic.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/logic/Logic.java)
+**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/logic/Logic.java)
 
 Here's a (partial) class diagram of the `Logic` component:
 
 <puml src="diagrams/LogicClassDiagram.puml" width="550"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete 1")` API call as an example.
+The sequence diagram below illustrates the interactions within the `Logic` component. The current delete command identifies a contact by name and optional suffix, for example `execute("delete John Tan_2")`.
 
-<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete 1` Command" />
+<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for a delete command" />
 
 <box type="info" seamless>
 
@@ -116,16 +118,19 @@ How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 * `AddCommandParser` recognises `/email`, `/phone`, and `/location`, and uses the tokenizer's preamble as the name. It rejects missing fields and duplicate required prefixes, then delegates value validation to `ParserUtil`. Location maps to the existing `Address` value object. Optional tags retain `t/`; edit parsing retains the existing AB3 prefixes. Storage and duplicate-name suffix allocation remain model/storage responsibilities, not parser responsibilities.
+* `ShowCommandParser` and `DeleteCommandParser` accept `NAME[_NUMBER]`. The optional number selects a particular contact from a name bucket; omitting it selects the unsuffixed contact.
 
 ### Model component
-**API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
+**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/model/Model.java)
 
 <puml src="diagrams/ModelClassDiagram.puml" width="450" />
 
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores address book data in a `UniquePersonHashMap`. It groups contacts by their base name and stores each group in a `TreeMap<Integer, Person>`.
+* gives each stored contact a `PersonIndex`. The first contact in a name bucket has index `0` and is displayed without a suffix; subsequent contacts are displayed with a suffix derived from their index, such as `John Tan_2`.
+* keeps an unmodifiable flattened `ObservableList<Person>` ordered by base name and then bucket index. This preserves a straightforward list for the existing UI and filtered views.
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
@@ -141,7 +146,7 @@ The `Model` component,
 
 ### Storage component
 
-**API** : [`Storage.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/storage/Storage.java)
+**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-W14-1/tp/tree/master/src/main/java/seedu/address/storage/Storage.java)
 
 <puml src="diagrams/StorageClassDiagram.puml" width="550" />
 
@@ -149,6 +154,8 @@ The `Storage` component,
 * can save both address book data and user preference data in JSON format, and read them back into corresponding objects.
 * is implemented by `StorageManager`, which delegates the actual JSON file access to `JsonAddressBookStorage` and `JsonUserPrefsStorage` (one class per data file).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
+* saves contacts as nested name buckets under `personsByName`. Each bucket stores a map from the zero-based `PersonIndex` to the contact data.
+* supports legacy flat `persons` JSON files when loading. They are converted into buckets in memory and are saved in the new nested form on the next write.
 
 ### Common classes
 
@@ -159,6 +166,45 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Contact identity and name-bucket storage
+
+CampusContacts allows several contacts to share the same name. `AddressBook` owns a `UniquePersonHashMap`, whose outer `TreeMap` groups contacts by name. Each group is a `PersonNameBucket` containing:
+
+* a `TreeMap<Integer, Person>` for deterministic ordering by `PersonIndex`;
+* a priority queue of released indexes, so the smallest available index is reused after a deletion; and
+* the next new index to use when there is no released index.
+
+When an `UnindexedPerson` is added, `UniquePersonHashMap` allocates an index and creates the corresponding indexed `Person`. Removing a contact releases its index. The map then refreshes its flattened observable list so the existing list UI remains in sync.
+
+The storage snapshot is structured as follows:
+
+```json
+{
+  "personsByName": {
+    "John Tan": {
+      "persons": {
+        "0": { "name": "John Tan", "phone": "90000001" },
+        "1": { "name": "John Tan", "phone": "90000002" }
+      }
+    }
+  }
+}
+```
+
+On startup, `JsonSerializableAddressBook` validates each bucket, recreates the indexed `Person` objects from the nested map keys, and passes the result to `AddressBook#setPersonBuckets`. The name bucket rebuilds its released-index queue and next-index value once. Normal add, delete, and edit operations use the in-memory map; `LogicManager` subsequently saves a snapshot through `Storage`.
+
+### Show contact details feature
+
+The `show NAME[_NUMBER]` command lets users view the complete stored details of a specific contact without changing the contact list.
+
+1. `AddressBookParser` delegates the command text to `ShowCommandParser`.
+1. `ShowCommand` looks for the matching name and `PersonIndex` in the filtered contact list.
+1. On success, it returns a `CommandResult` containing the selected `Person`.
+1. `MainWindow` recognises that result and opens `ContactDetailsWindow`.
+1. The popup displays the contact's display name, ID, phone number, email, location, and tags.
+
+The popup is deliberately a UI concern: the command resolves a model object but does not save or modify any data.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -178,11 +224,11 @@ Step 1. The user launches the application for the first time. The `VersionedAddr
 
 <puml src="diagrams/UndoRedoState0.puml" alt="UndoRedoState0" />
 
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
+Step 2. The user executes `delete John Tan_2` command to delete the second John Tan in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete John Tan_2` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
 
 <puml src="diagrams/UndoRedoState1.puml" alt="UndoRedoState1" />
 
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
+Step 3. The user executes `add David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
 
 <puml src="diagrams/UndoRedoState2.puml" alt="UndoRedoState2" />
 
@@ -226,7 +272,7 @@ Step 5. The user then decides to execute the command `list`. Commands that do no
 
 <puml src="diagrams/UndoRedoState4.puml" alt="UndoRedoState4" />
 
-Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …` command. This is the behavior that most modern desktop applications follow.
+Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add David …` command. This is the behavior that most modern desktop applications follow.
 
 <puml src="diagrams/UndoRedoState5.puml" alt="UndoRedoState5" />
 
@@ -291,6 +337,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | teaching staff member                      | add a student                | identify and contact them when necessary                               |
 | `* * *`  | user                                       | specify if a contact is a student or staff | distinguish their role in the university               |
 | `* * *`  | user                                       | delete a contact by name     | remove entries that are no longer relevant                             |
+| `* * *`  | user                                       | view a saved contact's full details | identify the correct person before contacting or deleting them |
 | `* * *`  | user                                       | list all contacts            | see the list of people I have saved                                        |
 | `* * *`  | user                                       | search for a contact by name | quickly find a specific person                                         |
 | `* * *`    | user                                       | edit an existing contact    | keep information accurate when someone's details change            |
@@ -323,7 +370,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 1b. User adds a contact with a name that already exists.
 
-    * 1b1. System automatically appends an underscore and number to the name before adding the contact.
+    * 1b1. System assigns the contact an index in that name bucket and displays a suffix when needed to distinguish it.
 
       Use case ends.
 
@@ -331,7 +378,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **MSS**
 
-1.  User requests to delete a specific person by their exact name.
+1.  User requests to delete a specific person by their exact display name, optionally including its suffix.
 2.  System deletes the person and displays a success message.
 
     Use case ends.
@@ -343,6 +390,23 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 1a1. System shows an error message indicating no contact exists with that name.
 
       Use case ends.
+
+**Use case: Show a contact's details**
+
+**MSS**
+
+1. User requests the full details of a contact using its display name, for example `show John Tan_2`.
+2. System opens a popup containing the contact's saved details.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. The provided name and suffix do not identify a contact in the current list.
+
+  * 1a1. System shows an error message and does not open a popup.
+
+    Use case ends.
 
 **Use case: Search for a contact**
 
@@ -375,6 +439,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
 * **Teaching staff**: Professors, lecturers, teaching assistants, or tutors who interact with students within the university
 * **Location**: Represents the primary physical location for a contact, symbolizing a home address or residential hostel for students, and an office or cubicle for teaching staff
+* **PersonIndex**: A zero-based identifier unique within contacts that share the same base name. It is used for storage and to derive a displayed suffix.
+* **Name bucket**: The group of contacts with the same base name.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -406,19 +472,43 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Showing a contact's details
+
+1. Showing an unsuffixed contact
+
+   1. Prerequisites: Add a contact named `John Tan`.
+
+   1. Test case: `show John Tan`<br>
+      Expected: A contact-details popup opens and shows John Tan's saved phone, email, location, and tags.
+
+1. Showing a duplicate-name contact
+
+   1. Prerequisites: Add two contacts named `John Tan` with different phone numbers.
+
+   1. Test case: `show John Tan_2`<br>
+      Expected: A popup opens for the second John Tan and displays its matching phone number.
+
+1. Invalid contact identifier
+
+   1. Test case: `show Unknown Person`<br>
+      Expected: No popup opens. The result area displays an error message.
+
 ### Deleting a person
 
 1. Deleting a person while all persons are being shown
 
    1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   1. Test case: `delete John Tan`<br>
+      Expected: The unsuffixed John Tan contact is deleted. The status message shows the deleted contact's details.
 
-   1. Test case: `delete 0`<br>
+   1. Test case: `delete John Tan_2`<br>
+      Expected: The contact displayed as John Tan_2 is deleted, while the unsuffixed John Tan remains.
+
+   1. Test case: `delete John Tan_0`<br>
       Expected: No person is deleted. The status message shows error details.
 
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
+   1. Other incorrect delete commands to try: `delete`, `delete John Tan_`, `delete John Tan_0`<br>
       Expected: Similar to previous.
 
 1. _{ more test cases … }_
@@ -427,6 +517,15 @@ testers are expected to do more *exploratory* testing.
 
 1. Dealing with missing/corrupted data files
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Close the application and open `data/campuscontacts.json` in a text editor.
+
+   1. Test case: Change a nested contact's `name` to a different name from its `personsByName` bucket key, then launch the application.<br>
+      Expected: The invalid data is rejected and the application starts with an empty address book.
+
+1. Persisting duplicate-name contacts
+
+   1. Prerequisites: Add two contacts named `John Tan`, close the application, then relaunch it.
+
+   1. Expected: Both contacts remain available with the same display identifiers. `data/campuscontacts.json` stores them inside `personsByName` under `John Tan`.
 
 1. _{ more test cases … }_

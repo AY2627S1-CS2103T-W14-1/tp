@@ -1,5 +1,7 @@
 package seedu.address.commons.core.index;
 
+import java.util.Objects;
+
 import seedu.address.commons.util.ToStringBuilder;
 
 /**
@@ -8,7 +10,7 @@ import seedu.address.commons.util.ToStringBuilder;
  * Similar to {@code Index}, {@code PersonIndex} is designed as a safe wrapper to track id for persons.
  */
 public class PersonIndex {
-    private int zeroBasedIndex;
+    private final int zeroBasedIndex;
 
     /**
      * PersonIndex can only be created by calling {@link PersonIndex#fromZeroBased(int)} or
@@ -59,7 +61,19 @@ public class PersonIndex {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(zeroBasedIndex);
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this).add("zeroBasedIndex", zeroBasedIndex).toString();
+    }
+
+    /**
+     * @return whether this {@code PersonIndex} is "first"
+     */
+    public boolean hasNoSuffix() {
+        return this.getZeroBased() == 0;
     }
 }

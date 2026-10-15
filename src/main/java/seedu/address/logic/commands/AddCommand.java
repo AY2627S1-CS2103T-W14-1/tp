@@ -10,7 +10,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
-import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 
 /**
  * Adds a person to the address book.
@@ -37,12 +37,12 @@ public class AddCommand extends Command {
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 
-    private final Person toAdd;
+    private final UnindexedPerson toAdd;
 
     /**
-     * Creates an AddCommand to add the specified {@code Person}
+     * Creates an AddCommand to add the specified {@code UnindexedPerson}.
      */
-    public AddCommand(Person person) {
+    public AddCommand(UnindexedPerson person) {
         requireNonNull(person);
         toAdd = person;
     }
@@ -51,6 +51,8 @@ public class AddCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
+        // if it's decided that AddCommands should not be called with indexed Person,
+        // the following if-block can be removed
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }

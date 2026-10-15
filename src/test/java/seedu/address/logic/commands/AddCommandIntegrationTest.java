@@ -12,6 +12,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.testutil.PersonBuilder;
 
 /**
@@ -48,7 +49,7 @@ public class AddCommandIntegrationTest {
     @Test
     public void execute_duplicatePerson_success() {
         Person personInList = model.getAddressBook().getPersonList().get(0);
-        Person sameInfoPerson = new PersonBuilder(personInList).buildNoIndex();
+        UnindexedPerson sameInfoPerson = new PersonBuilder(personInList).buildNoIndex();
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(sameInfoPerson);
         assertCommandSuccess(new AddCommand(sameInfoPerson), model,

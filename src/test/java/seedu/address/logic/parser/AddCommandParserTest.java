@@ -23,8 +23,8 @@ import seedu.address.logic.commands.AddCommand;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
@@ -40,7 +40,7 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_allRequiredFields_success() {
-        Person expectedPerson = new PersonBuilder(BOB).withTags().buildNoIndex();
+        UnindexedPerson expectedPerson = new PersonBuilder(BOB).withTags().buildNoIndex();
         assertParseSuccess(parser, VALID_ARGUMENTS, new AddCommand(expectedPerson));
     }
 
@@ -69,7 +69,8 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_optionalTags_success() {
-        Person expectedPerson = new PersonBuilder(BOB).withTags(VALID_TAG_FRIEND, VALID_TAG_HUSBAND).buildNoIndex();
+        UnindexedPerson expectedPerson = new PersonBuilder(BOB)
+                .withTags(VALID_TAG_FRIEND, VALID_TAG_HUSBAND).buildNoIndex();
         assertParseSuccess(parser, VALID_ARGUMENTS + TAG_DESC_FRIEND + TAG_DESC_HUSBAND,
                 new AddCommand(expectedPerson));
         assertParseSuccess(parser, VALID_NAME_BOB + TAG_DESC_FRIEND + EMAIL_ARGUMENT + TAG_DESC_HUSBAND

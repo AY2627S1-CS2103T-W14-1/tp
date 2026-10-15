@@ -13,6 +13,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonSortField;
+import seedu.address.model.person.UnindexedPerson;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -75,7 +76,7 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public boolean hasPerson(Person person) {
+    public boolean hasPerson(UnindexedPerson person) {
         requireNonNull(person);
         return addressBook.hasPerson(person);
     }
@@ -86,7 +87,7 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void addPerson(Person person) {
+    public void addPerson(UnindexedPerson person) {
         addressBook.addPerson(person);
         updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
     }
