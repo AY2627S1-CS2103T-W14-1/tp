@@ -111,14 +111,16 @@ Sorts the displayed persons by name or phone number.
 
 Format: `sort FIELD [asc|desc]`
 
-* `FIELD` must be either `name` or `phone`.
-* The sort direction defaults to ascending.
-* Sorting changes the displayed order only and does not change the saved address-book data.
+- `FIELD` must be either `name` or `phone`.
+- The sort direction defaults to ascending.
+- Sorting changes the displayed order only and does not change the saved address-book data.
+- Specifically, when using `sort name desc`, the indices following the name are also placed in reverse order.
 
 Examples:
 
-* `sort name` sorts contacts alphabetically by name.
-* `sort phone desc` sorts contacts by phone number in descending order.
+- `sort name` sorts contacts alphabetically by name.
+- `sort phone desc` sorts contacts by phone number in descending order.
+- `sort name desc` applied to `[Alice, Alice_2, Bob]` displays `[Bob, Alice_2, Alice]`
 
 ### Editing a person: `edit`
 
@@ -128,15 +130,15 @@ Edits an existing person in the contact list.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
 
-* Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, ...
-* At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
-* When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
-* To remove all of a person's tags, enter `t/` without a tag after it.
+- Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, ...
+- At least one of the optional fields must be provided.
+- Existing values will be updated to the input values.
+- When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
+- To remove all of a person's tags, enter `t/` without a tag after it.
 
 Examples:
-*  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
-*  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
+-  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
+-  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
 ### Showing a contact's details: `show`
 
@@ -161,15 +163,15 @@ Finds persons whose names contain any of the given keywords.
 
 Format: `find KEYWORD [MORE_KEYWORDS]`
 
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+- The search is case-insensitive; for example, `hans` matches `Hans`.
+- Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
+- The search considers only names.
+- Only full words match; for example, `Han` does not match `Hans`.
+- Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
 
 Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
+- `find John` returns `john` and `John Doe`
+- `find alex david` returns `Alex Yeoh`, `David Li`<br>
   ![result for 'find alex david'](images/findAlexDavidResult.png)
 
 ### Deleting a person: `delete`
