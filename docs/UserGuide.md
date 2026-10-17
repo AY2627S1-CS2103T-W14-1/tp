@@ -30,7 +30,7 @@ CampusContacts is a desktop application for managing contacts in the university 
    Some example commands you can try:
    - `list` : Lists all contacts.
 
-   - `add John Doe /email johnd@example.com /phone 98765432 /location John street, block 123, #01-01` : Adds a contact named `John Doe` to CampusContacts.
+   - `add John Doe /email johnd@example.com /phone 98765432 /location John street, block 123, #01-01 /photo C:\Users\Student\Pictures\john.jpg` : Adds a contact named `John Doe` with an optional photo.
 
    - `show John Doe` : Opens John Doe's full contact details.
 
@@ -78,13 +78,16 @@ Format: `help`
 
 Adds a person to the contact list.
 
-Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...`
+Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...`
 
 - The name, email, phone number, and location are all required and must not be blank.
 - Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
 - Separate `/email`, `/phone`, and `/location` from their values with a space.
 - Each of these three prefixes must appear exactly once; repeated prefixes are rejected, even with identical values.
 - Location is stored in the existing address field. It may contain spaces and punctuation.
+- `/photo` is optional. Its value must be the path to a readable PNG, JPG, JPEG, or GIF file.
+- CampusContacts copies the selected image into its own data folder. You may safely move or delete the original image after adding the contact.
+- When different contacts use the same source image, CampusContacts saves separate copies for them.
 - Tags are optional and use the `t/TAG` syntax.
 
 If a contact already has the same name, CampusContacts assigns it a distinct display suffix. For example, adding a second `John Tan` displays it as `John Tan_2`.
@@ -98,6 +101,7 @@ Examples:
 
 - `add John Doe /email johnd@example.com /phone 98765432 /location COM1, #02-01`
 - `add Betsy Crowe /location COM2 /phone 1234567 /email betsycrowe@example.com t/friend`
+- `add Alex Tan /email alex@u.nus.edu /phone 91234567 /location COM1 /photo C:\Users\Student\Pictures\alex.jpg`
 
 ### Listing all persons: `list`
 
@@ -142,7 +146,7 @@ Examples:
 
 ### Showing a contact's details: `show`
 
-Opens a popup containing a contact's display name, contact ID, phone number, email, location, and tags.
+Opens a popup containing a contact's display name, contact ID, phone number, email, location, tags, and photo when one was added.
 
 Format: `show NAME[_NUMBER]`
 
@@ -216,6 +220,8 @@ Format: `exit`
 
 CampusContacts automatically saves data after every command. You do not need to save manually.
 
+Photos are stored separately in `[JAR file location]/data/photos`. Do not rename or delete files in this folder while their contacts still exist; otherwise their details popup will show that the photo is unavailable.
+
 ### Editing the data file
 
 CampusContacts data is saved automatically as a JSON file `[JAR file location]/data/campuscontacts.json`. Advanced users are welcome to update data directly by editing that data file.
@@ -236,7 +242,7 @@ _Details coming soon ..._
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous CampusContacts home folder.
+**A**: Install the app on the other computer, then copy both `data/campuscontacts.json` and the `data/photos` folder from your previous CampusContacts home folder.
 
 ---
 
@@ -251,7 +257,7 @@ _Details coming soon ..._
 
 | Action       | Format, Examples                                                                                                                                                           |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Add**      | `add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 t/friend t/colleague` |
+| **Add**      | `add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 /photo C:\Users\Student\Pictures\james.jpg` |
 | **Clear**    | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                 |
 | **Delete**   | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                         |
 | **~~Edit~~** | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~                                          |
