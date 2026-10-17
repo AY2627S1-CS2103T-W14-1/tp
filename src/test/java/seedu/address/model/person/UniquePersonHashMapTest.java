@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.testutil.PersonBuilder;
 
@@ -39,14 +38,15 @@ public class UniquePersonHashMapTest {
     }
 
     @Test
-    public void add_duplicateExactPerson_throwsDuplicatePersonException() {
+    public void add_duplicateExactPerson_assignsNextAvailableId() {
         UnindexedPerson firstAlice = new PersonBuilder(ALICE).buildNoIndex();
         UnindexedPerson secondAlice = new PersonBuilder(ALICE).buildNoIndex();
 
         persons.add(firstAlice);
+        persons.add(secondAlice);
 
-        assertThrows(DuplicatePersonException.class, () -> persons.add(secondAlice));
-        assertEquals(Map.of(0, ALICE), persons.getPersonBuckets().get(ALICE.getName().fullName));
+        assertEquals(Map.of(0, ALICE, 1, withId(secondAlice, 1)),
+                persons.getPersonBuckets().get(ALICE.getName().fullName));
     }
 
     @Test

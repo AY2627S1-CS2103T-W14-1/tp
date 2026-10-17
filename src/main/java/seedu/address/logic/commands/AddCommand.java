@@ -80,8 +80,8 @@ public class AddCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        // if it's decided that AddCommands should not be called with indexed Person,
-        // the following if-block can be removed
+        // User-entered contacts are unindexed and receive a new bucket id. This protects
+        // internal callers from attempting to insert an existing indexed record again.
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
