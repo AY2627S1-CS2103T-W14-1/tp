@@ -70,12 +70,14 @@ public class LogicManagerTest {
 
     @Test
     public void execute_addCampusContact_savesContact() throws Exception {
-        UnindexedPerson person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
-                .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
+        UnindexedPerson person = new PersonBuilder().withName("John Doe").withRole("student")
+                .withEmail("johnd@example.com").withPhone("98765432").withAddress("COM1 02 01").withTags()
+                .buildNoIndex();
         Model expectedModel = new ModelManager();
         expectedModel.addPerson(person);
 
-        assertCommandSuccess("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01",
+        assertCommandSuccess("add John Doe /role student /email johnd@example.com /phone 98765432"
+                + " /location COM1 02 01",
                 String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(person)), expectedModel);
 
         JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));

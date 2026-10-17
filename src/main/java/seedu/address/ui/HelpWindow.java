@@ -15,9 +15,9 @@ public class HelpWindow extends UiPart<Stage> {
     public static final String HELP_MESSAGE = """
             CampusContacts command guide
 
-            add NAME /email EMAIL /phone PHONE /location LOCATION [t/TAG]...
+            add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [t/TAG]...
               Adds a contact.
-              Example: add John Tan /email john@u.nus.edu /phone 90000001 /location COM1 t/teammate
+              Example: add John Tan /role student /email john@u.nus.edu /phone 90000001 /location COM1 t/teammate
 
             show NAME[_NUMBER]
               Opens the full details of a contact.

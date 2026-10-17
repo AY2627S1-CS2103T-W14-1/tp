@@ -15,6 +15,7 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Role;
 import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 
@@ -27,6 +28,7 @@ class JsonAdaptedPerson {
     public static final String NULL_TAG_MESSAGE = "Person tags must not contain null entries.";
 
     private final String name;
+    private final String role;
     private final String phone;
     private final String email;
     private final String address;
@@ -36,10 +38,11 @@ class JsonAdaptedPerson {
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
      */
     @JsonCreator
-    public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
-            @JsonProperty("email") String email, @JsonProperty("address") String address,
-            @JsonProperty("tags") List<JsonAdaptedTag> tags) {
+    public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("role") String role,
+            @JsonProperty("phone") String phone, @JsonProperty("email") String email,
+            @JsonProperty("address") String address, @JsonProperty("tags") List<JsonAdaptedTag> tags) {
         this.name = name;
+        this.role = role;
         this.phone = phone;
         this.email = email;
         this.address = address;
@@ -53,6 +56,7 @@ class JsonAdaptedPerson {
      */
     public JsonAdaptedPerson(Person source) {
         name = source.getName().fullName;
+        role = source.getRole().role;
         phone = source.getPhone().value;
         email = source.getEmail().value;
         address = source.getAddress().value;
@@ -83,6 +87,14 @@ class JsonAdaptedPerson {
         }
         final Name modelName = new Name(name);
 
+        if (role == null) {
+            throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Role.class.getSimpleName()));
+        }
+        if (!Role.isValidRole(role)) {
+            throw new IllegalValueException(Role.MESSAGE_CONSTRAINTS);
+        }
+        final Role modelRole = new Role(role);
+
         if (phone == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName()));
         }
@@ -108,7 +120,7 @@ class JsonAdaptedPerson {
         final Address modelAddress = new Address(address);
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
-        return new UnindexedPerson(modelName, modelPhone, modelEmail, modelAddress, modelTags);
+        return new UnindexedPerson(modelName, modelRole, modelPhone, modelEmail, modelAddress, modelTags);
     }
 
 }

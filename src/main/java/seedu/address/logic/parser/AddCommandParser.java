@@ -4,6 +4,7 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.Set;
@@ -15,6 +16,7 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Role;
 import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 
@@ -30,21 +32,24 @@ public class AddCommandParser implements Parser<AddCommand> {
      */
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
+                ArgumentTokenizer.tokenize(args, PREFIX_CONTACT_ROLE, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
                         PREFIX_CONTACT_LOCATION, PREFIX_TAG);
 
-        if (!arePrefixesPresent(argMultimap, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE, PREFIX_CONTACT_LOCATION)
+        if (!arePrefixesPresent(argMultimap, PREFIX_CONTACT_ROLE, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
+                PREFIX_CONTACT_LOCATION)
                 || argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE, PREFIX_CONTACT_LOCATION);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CONTACT_ROLE, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
+                PREFIX_CONTACT_LOCATION);
         Name name = ParserUtil.parseName(argMultimap.getPreamble());
+        Role role = ParserUtil.parseRole(argMultimap.getValue(PREFIX_CONTACT_ROLE).get());
         Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_CONTACT_PHONE).get());
         Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_CONTACT_EMAIL).get());
         Address address = ParserUtil.parseAddress(argMultimap.getValue(PREFIX_CONTACT_LOCATION).get());
         Set<Tag> tagList = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
-        UnindexedPerson person = new UnindexedPerson(name, phone, email, address, tagList);
+        UnindexedPerson person = new UnindexedPerson(name, role, phone, email, address, tagList);
 
         return new AddCommand(person);
     }

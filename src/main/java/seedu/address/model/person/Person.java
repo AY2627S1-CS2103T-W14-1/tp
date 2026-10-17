@@ -20,8 +20,9 @@ public class Person extends UnindexedPerson {
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, PersonIndex personIndex) {
-        super(name, phone, email, address, tags);
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags,
+                  PersonIndex personIndex) {
+        super(name, role, phone, email, address, tags);
         requireNonNull(personIndex);
         this.personIndex = personIndex;
     }
@@ -80,7 +81,7 @@ public class Person extends UnindexedPerson {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(getName(), getPhone(), getEmail(), getAddress(), getTags(), personIndex);
+        return Objects.hash(getName(), getRole(), getPhone(), getEmail(), getAddress(), getTags(), personIndex);
     }
 
     @Override

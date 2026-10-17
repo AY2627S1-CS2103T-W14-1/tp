@@ -18,6 +18,7 @@ public class UnindexedPerson {
 
     // Identity fields
     private final Name name;
+    private final Role role;
     private final Phone phone;
     private final Email email;
 
@@ -28,9 +29,10 @@ public class UnindexedPerson {
     /**
      * Creates an unindexed person from the supplied details.
      */
-    public UnindexedPerson(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, phone, email, address, tags);
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags) {
+        requireAllNonNull(name, role, phone, email, address, tags);
         this.name = name;
+        this.role = role;
         this.phone = phone;
         this.email = email;
         this.address = address;
@@ -43,11 +45,21 @@ public class UnindexedPerson {
      * @return an indexed copy of this person
      */
     public Person withPersonIndex(PersonIndex newPersonIndex) {
-        return new Person(name, phone, email, address, tags, newPersonIndex);
+        if (this.role.equals(new Role("student"))) {
+            return new Student(name, phone, email, address, tags, newPersonIndex);
+        } else if (this.role.equals(new Role("professor"))) {
+            return new Professor(name, phone, email, address, tags, newPersonIndex);
+        } else {
+            throw new IllegalArgumentException("Invalid person");
+        }
     }
 
     public Name getName() {
         return name;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public Phone getPhone() {
@@ -94,6 +106,7 @@ public class UnindexedPerson {
         }
 
         return name.equals(otherPerson.name)
+                && role.equals(otherPerson.role)
                 && phone.equals(otherPerson.phone)
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
@@ -104,6 +117,7 @@ public class UnindexedPerson {
     public String toString() {
         return new ToStringBuilder(this)
                 .add("name", name)
+                .add("role", role)
                 .add("phone", phone)
                 .add("email", email)
                 .add("address", address)

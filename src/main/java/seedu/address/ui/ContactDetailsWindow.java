@@ -17,6 +17,8 @@ public class ContactDetailsWindow extends UiPart<Stage> {
     @FXML
     private Label contactId;
     @FXML
+    private Label role;
+    @FXML
     private Label phone;
     @FXML
     private Label email;
@@ -34,6 +36,7 @@ public class ContactDetailsWindow extends UiPart<Stage> {
         name.setText(person.getDisplayName());
         contactId.setText(person.getPersonIndex() == null
                 ? "Not assigned" : Integer.toString(person.getPersonIndex().getOneBased()));
+        role.setText(person.getRole().toString());
         phone.setText(person.getPhone().value);
         email.setText(person.getEmail().value);
         locationLabel.setText(person.getAddress().value);
