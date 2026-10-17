@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonSortField;
 import seedu.address.model.person.UnindexedPerson;
 
 /**
@@ -69,4 +70,7 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
+
+    /** Updates and persists the sort used for the displayed person list. */
+    void updatePersonListSort(PersonSortField field, boolean descending);
 }
