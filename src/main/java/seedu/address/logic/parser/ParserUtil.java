@@ -2,8 +2,12 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
@@ -21,6 +25,7 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_INVALID_PHOTO_PATH = "Photo must be a readable PNG, JPG, JPEG, or GIF file.";
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
@@ -120,5 +125,37 @@ public class ParserUtil {
             tagSet.add(parseTag(tagName));
         }
         return tagSet;
+    }
+
+    /**
+     * Parses a photo source path and verifies that it is a readable supported image file.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the specified path is invalid or does not refer to a supported image file.
+     */
+    public static Path parsePhotoPath(String photoPath) throws ParseException {
+        requireNonNull(photoPath);
+
+        final Path path;
+        try {
+            path = Path.of(photoPath.trim()).toAbsolutePath().normalize();
+        } catch (InvalidPathException exception) {
+            throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
+        }
+
+        if (!Files.isRegularFile(path) || !Files.isReadable(path) || !hasSupportedImageExtension(path)) {
+            throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
+        }
+        return path;
+    }
+
+    private static boolean hasSupportedImageExtension(Path path) {
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+
+        String name = fileName.toString().toLowerCase(Locale.ROOT);
+        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif");
     }
 }

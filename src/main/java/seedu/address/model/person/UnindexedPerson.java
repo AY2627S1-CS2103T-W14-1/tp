@@ -4,6 +4,7 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
@@ -24,17 +25,26 @@ public class UnindexedPerson {
     // Data fields
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
+    private final Photo photo;
 
     /**
      * Creates an unindexed person from the supplied details.
      */
     public UnindexedPerson(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
+        this(name, phone, email, address, tags, null);
+    }
+
+    /**
+     * Creates an unindexed person from the supplied details and an optional photo reference.
+     */
+    public UnindexedPerson(Name name, Phone phone, Email email, Address address, Set<Tag> tags, Photo photo) {
         requireAllNonNull(name, phone, email, address, tags);
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+        this.photo = photo;
     }
 
     /**
@@ -43,7 +53,14 @@ public class UnindexedPerson {
      * @return an indexed copy of this person
      */
     public Person withPersonIndex(PersonIndex newPersonIndex) {
-        return new Person(name, phone, email, address, tags, newPersonIndex);
+        return new Person(name, phone, email, address, tags, newPersonIndex, photo);
+    }
+
+    /**
+     * Returns a copy of this person with the supplied photo reference.
+     */
+    public UnindexedPerson withPhoto(Photo newPhoto) {
+        return new UnindexedPerson(name, phone, email, address, tags, newPhoto);
     }
 
     public Name getName() {
@@ -60,6 +77,13 @@ public class UnindexedPerson {
 
     public Address getAddress() {
         return address;
+    }
+
+    /**
+     * Returns the optional relative path to this person's copied photo.
+     */
+    public Optional<Photo> getPhoto() {
+        return Optional.ofNullable(photo);
     }
 
     /**

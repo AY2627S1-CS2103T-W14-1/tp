@@ -88,6 +88,14 @@ public class PersonTest {
         // different tags -> returns false
         editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
         assertFalse(ALICE.equals(editedAlice));
+
+    }
+
+    @Test
+    public void getPhoto_personWithPhoto_returnsPhoto() {
+        Person person = new PersonBuilder().withPhoto("photos/amy.png").build();
+
+        assertEquals("photos/amy.png", person.getPhoto().get().getRelativePath());
     }
 
     @Test

@@ -12,11 +12,17 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_HUSBAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
@@ -35,6 +41,9 @@ public class AddCommandParserTest {
     private static final String VALID_ARGUMENTS = VALID_NAME_BOB + EMAIL_ARGUMENT + PHONE_ARGUMENT + LOCATION_ARGUMENT;
     private static final String INVALID_FORMAT =
             String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
+
+    @TempDir
+    public Path testFolder;
 
     private final AddCommandParser parser = new AddCommandParser();
 
@@ -77,6 +86,22 @@ public class AddCommandParserTest {
                 + PHONE_ARGUMENT + LOCATION_ARGUMENT, new AddCommand(expectedPerson));
         assertParseSuccess(parser, VALID_ARGUMENTS + TAG_DESC_FRIEND + TAG_DESC_FRIEND,
                 new AddCommand(new PersonBuilder(BOB).withTags(VALID_TAG_FRIEND).buildNoIndex()));
+    }
+
+    @Test
+    public void parse_photoPath_success() throws Exception {
+        Path imageFile = Files.createFile(testFolder.resolve("bob.png"));
+        AddCommand expectedCommand = new AddCommand(new PersonBuilder(BOB).withTags().buildNoIndex(),
+                Optional.of(imageFile.toAbsolutePath()));
+
+        assertParseSuccess(parser, VALID_ARGUMENTS + " " + PREFIX_CONTACT_PHOTO + " " + imageFile,
+                expectedCommand);
+    }
+
+    @Test
+    public void parse_invalidPhotoPath_failure() {
+        assertParseFailure(parser, VALID_ARGUMENTS + " " + PREFIX_CONTACT_PHOTO + " missing.png",
+                ParserUtil.MESSAGE_INVALID_PHOTO_PATH);
     }
 
     @Test

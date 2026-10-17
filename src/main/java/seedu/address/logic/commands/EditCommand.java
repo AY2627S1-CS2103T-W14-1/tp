@@ -103,7 +103,7 @@ public class EditCommand extends Command {
         // PersonIndex cannot be changed without a deletion
 
         return new Person(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
-                personToEdit.getPersonIndex());
+                personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
     }
 
     @Override

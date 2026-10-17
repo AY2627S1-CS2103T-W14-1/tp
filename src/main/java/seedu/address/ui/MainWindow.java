@@ -211,7 +211,7 @@ public class MainWindow extends UiPart<Stage> {
         if (contactDetailsWindow != null && contactDetailsWindow.isShowing()) {
             contactDetailsWindow.hide();
         }
-        contactDetailsWindow = new ContactDetailsWindow(commandResult.getPersonToShow());
+        contactDetailsWindow = new ContactDetailsWindow(commandResult.getPersonToShow(), dataFilePath);
         contactDetailsWindow.show();
     }
 }

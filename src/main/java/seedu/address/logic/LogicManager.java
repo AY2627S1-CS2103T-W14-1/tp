@@ -2,11 +2,14 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.CancelCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
@@ -16,6 +19,7 @@ import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Photo;
 import seedu.address.storage.Storage;
 
 /**
@@ -48,6 +52,7 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
+        Set<Photo> photosBeforeCommand = getReferencedPhotos();
         CommandResult commandResult;
         Command command;
 
@@ -55,7 +60,7 @@ public class LogicManager implements Logic {
             command = pendingCommand;
             pendingCommand = null;
             if (commandText.equals("yes")) {
-                commandResult = command.execute(model);
+                commandResult = executeCommand(command);
             } else {
                 commandResult = (new CancelCommand()).execute(model);
             }
@@ -65,7 +70,7 @@ public class LogicManager implements Logic {
                 pendingCommand = command;
                 commandResult = (new ConfirmCommand(command)).execute(model);
             } else {
-                commandResult = command.execute(model);
+                commandResult = executeCommand(command);
             }
         }
 
@@ -77,7 +82,56 @@ public class LogicManager implements Logic {
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
 
+        deleteUnreferencedPhotos(photosBeforeCommand);
+
         return commandResult;
+    }
+
+    /**
+     * Imports an optional add-command photo before applying the command to the model.
+     */
+    private CommandResult executeCommand(Command command) throws CommandException {
+        if (command instanceof AddCommand addCommand && addCommand.getPhotoSource().isPresent()) {
+            Photo copiedPhoto;
+            try {
+                copiedPhoto = storage.copyPhoto(addCommand.getPhotoSource().get());
+            } catch (IOException exception) {
+                throw new CommandException("Could not import the photo: " + exception.getMessage(), exception);
+            }
+
+            try {
+                return addCommand.withPhoto(copiedPhoto).execute(model);
+            } catch (CommandException exception) {
+                deletePhotoQuietly(copiedPhoto);
+                throw exception;
+            }
+        }
+        return command.execute(model);
+    }
+
+    /** Returns every photo currently referenced by an address-book contact. */
+    private Set<Photo> getReferencedPhotos() {
+        return model.getAddressBook().getPersonList().stream()
+                .map(Person::getPhoto)
+                .flatMap(java.util.Optional::stream)
+                .collect(Collectors.toSet());
+    }
+
+    /** Deletes photo files that were referenced before a successful command but are no longer referenced. */
+    private void deleteUnreferencedPhotos(Set<Photo> photosBeforeCommand) {
+        Set<Photo> currentPhotos = getReferencedPhotos();
+        photosBeforeCommand.stream()
+                .filter(photo -> !currentPhotos.contains(photo))
+                .forEach(this::deletePhotoQuietly);
+    }
+
+    /** Attempts cleanup without changing the result of an otherwise completed command. */
+    private void deletePhotoQuietly(Photo photo) {
+        try {
+            storage.deletePhoto(photo);
+        } catch (IOException exception) {
+            logger.warning("Could not remove unused photo " + photo + ": " + exception.getMessage());
+        }
     }
 
     @Override
