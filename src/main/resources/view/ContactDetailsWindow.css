@@ -4,6 +4,10 @@
     -fx-text-fill: white;
 }
 
+#photoStatus {
+    -fx-font-style: italic;
+}
+
 .root {
     -fx-background-color: derive(#1d1d1d, 20%);
 }

@@ -1,6 +1,7 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORMAT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
@@ -12,10 +13,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Photo;
 import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
@@ -37,6 +40,16 @@ public class JsonAdaptedPersonTest {
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
         assertEquals(new PersonBuilder(BENSON).buildNoIndex(), person.toModelType()); // no index for now
+    }
+
+    @Test
+    public void toModelType_personWithPhoto_returnsPersonWithPhoto() throws Exception {
+        PersonBuilder personBuilder = new PersonBuilder(BENSON).withPhoto("photos/benson.png");
+        JsonAdaptedPerson person = new JsonAdaptedPerson(personBuilder.build());
+
+        assertEquals(personBuilder.buildNoIndex(), person.toModelType());
+        assertEquals("photos/benson.png", person.toModelType().getPhoto().orElseThrow().getRelativePath());
+        assertTrue(JsonUtil.toJsonString(person).contains("photos/benson.png"));
     }
 
     @Test
@@ -106,6 +119,14 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person =
                 new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS, invalidTags);
         assertThrows(IllegalValueException.class, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidPhotoPath_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_TAGS, "photos/" + Character.toString(0) + ".png");
+
+        assertThrows(IllegalValueException.class, Photo.MESSAGE_CONSTRAINTS, person::toModelType);
     }
 
 }

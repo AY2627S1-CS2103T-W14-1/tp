@@ -1,14 +1,18 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,6 +84,38 @@ public class LogicManagerTest {
 
         JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
         assertEquals(expectedModel.getAddressBook(), storage.readAddressBook().orElseThrow());
+    }
+
+    @Test
+    public void execute_addCampusContactWithPhoto_copiesPhotoAndSavesReference() throws Exception {
+        Path sourcePhoto = temporaryFolder.resolve("source.png");
+        writePng(sourcePhoto);
+
+        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
+                + sourcePhoto);
+
+        Person addedPerson = model.getFilteredPersonList().get(0);
+        String relativePhotoPath = addedPerson.getPhoto().orElseThrow().getRelativePath();
+        assertTrue(Files.exists(temporaryFolder.resolve(relativePhotoPath)));
+
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        Person savedPerson = storage.readAddressBook().orElseThrow().getPersonList().get(0);
+        assertEquals(relativePhotoPath, savedPerson.getPhoto().orElseThrow().getRelativePath());
+    }
+
+    @Test
+    public void execute_deleteContactWithPhoto_removesCopiedPhoto() throws Exception {
+        Path sourcePhoto = temporaryFolder.resolve("source.png");
+        writePng(sourcePhoto);
+        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
+                + sourcePhoto);
+        Path copiedPhoto = temporaryFolder.resolve(model.getFilteredPersonList().get(0)
+                .getPhoto().orElseThrow().getRelativePath());
+
+        logic.execute("delete John Doe");
+
+        assertTrue(Files.notExists(copiedPhoto));
+        assertTrue(Files.exists(sourcePhoto));
     }
 
     @Test
@@ -187,5 +223,9 @@ public class LogicManagerTest {
         ModelManager expectedModel = new ModelManager();
         expectedModel.addPerson(expectedPerson);
         assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
+    }
+
+    private static void writePng(Path target) throws IOException {
+        ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", target.toFile());
     }
 }

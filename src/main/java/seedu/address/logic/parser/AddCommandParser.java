@@ -4,8 +4,11 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -31,22 +34,28 @@ public class AddCommandParser implements Parser<AddCommand> {
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
-                        PREFIX_CONTACT_LOCATION, PREFIX_TAG);
+                        PREFIX_CONTACT_LOCATION, PREFIX_CONTACT_PHOTO, PREFIX_TAG);
 
         if (!arePrefixesPresent(argMultimap, PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE, PREFIX_CONTACT_LOCATION)
                 || argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE, PREFIX_CONTACT_LOCATION);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CONTACT_EMAIL, PREFIX_CONTACT_PHONE,
+                PREFIX_CONTACT_LOCATION, PREFIX_CONTACT_PHOTO);
         Name name = ParserUtil.parseName(argMultimap.getPreamble());
         Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_CONTACT_PHONE).get());
         Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_CONTACT_EMAIL).get());
         Address address = ParserUtil.parseAddress(argMultimap.getValue(PREFIX_CONTACT_LOCATION).get());
         Set<Tag> tagList = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
+        Optional<Path> photoSource = Optional.empty();
+        if (argMultimap.getValue(PREFIX_CONTACT_PHOTO).isPresent()) {
+            photoSource = Optional.of(ParserUtil.parsePhotoPath(
+                    argMultimap.getValue(PREFIX_CONTACT_PHOTO).get()));
+        }
         UnindexedPerson person = new UnindexedPerson(name, phone, email, address, tagList);
 
-        return new AddCommand(person);
+        return new AddCommand(person, photoSource);
     }
 
     /**

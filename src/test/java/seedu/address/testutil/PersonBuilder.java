@@ -9,6 +9,7 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Photo;
 import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.tag.Tag;
 import seedu.address.model.util.SampleDataUtil;
@@ -29,6 +30,7 @@ public class PersonBuilder {
     private Address address;
     private Set<Tag> tags;
     private PersonIndex personIndex;
+    private Photo photo;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -40,6 +42,7 @@ public class PersonBuilder {
         address = new Address(DEFAULT_ADDRESS);
         tags = new HashSet<>();
         personIndex = PersonIndex.fromZeroBased(0);
+        photo = null;
     }
 
     /**
@@ -52,6 +55,7 @@ public class PersonBuilder {
         address = personToCopy.getAddress();
         tags = new HashSet<>(personToCopy.getTags());
         personIndex = personToCopy.getPersonIndex();
+        photo = personToCopy.getPhoto().orElse(null);
     }
 
     /**
@@ -110,12 +114,20 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the relative photo path of the person being built.
+     */
+    public PersonBuilder withPhoto(String relativePath) {
+        this.photo = new Photo(relativePath);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, email, address, tags, personIndex);
+        return new Person(name, phone, email, address, tags, personIndex, photo);
     }
 
     public UnindexedPerson buildNoIndex() {
-        return new UnindexedPerson(name, phone, email, address, tags);
+        return new UnindexedPerson(name, phone, email, address, tags, photo);
     }
 
 }
