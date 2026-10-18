@@ -3,7 +3,6 @@ package seedu.address.ui;
 import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
