@@ -17,9 +17,11 @@ import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailur
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -90,9 +92,10 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_photoPath_success() throws Exception {
-        Path imageFile = Files.createFile(testFolder.resolve("bob.png"));
+        Path imageFile = testFolder.resolve("bob.png");
+        ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "png", imageFile.toFile());
         AddCommand expectedCommand = new AddCommand(new PersonBuilder(BOB).withTags().buildNoIndex(),
-                Optional.of(imageFile.toAbsolutePath()));
+                Optional.of(imageFile.toAbsolutePath().normalize()));
 
         assertParseSuccess(parser, VALID_ARGUMENTS + " " + PREFIX_CONTACT_PHOTO + " " + imageFile,
                 expectedCommand);
@@ -102,6 +105,15 @@ public class AddCommandParserTest {
     public void parse_invalidPhotoPath_failure() {
         assertParseFailure(parser, VALID_ARGUMENTS + " " + PREFIX_CONTACT_PHOTO + " missing.png",
                 ParserUtil.MESSAGE_INVALID_PHOTO_PATH);
+    }
+
+    @Test
+    public void parse_invalidPhotoContents_failure() throws Exception {
+        Path textFileWithImageExtension = testFolder.resolve("not-an-image.png");
+        Files.writeString(textFileWithImageExtension, "not an image");
+
+        assertParseFailure(parser, VALID_ARGUMENTS + " " + PREFIX_CONTACT_PHOTO + " "
+                + textFileWithImageExtension, ParserUtil.MESSAGE_INVALID_PHOTO_PATH);
     }
 
     @Test

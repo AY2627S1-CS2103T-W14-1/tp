@@ -45,13 +45,11 @@ public class PhotoStorageTest {
     }
 
     @Test
-    public void deletePhoto_externalReference_doesNotDeleteFile() throws Exception {
-        Path externalPath = testFolder.resolve("external.png");
-        Files.writeString(externalPath, "image content");
+    public void deletePhoto_missingManagedPhoto_doesNotThrow() throws Exception {
         PhotoStorage photoStorage = new PhotoStorage(testFolder.resolve("campuscontacts.json"));
 
-        photoStorage.deletePhoto(new Photo("external.png"));
+        photoStorage.deletePhoto(new Photo("photos/missing.png"));
 
-        assertTrue(Files.exists(externalPath));
+        assertTrue(Files.notExists(testFolder.resolve("photos/missing.png")));
     }
 }

@@ -7,8 +7,12 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
@@ -143,7 +147,8 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
         }
 
-        if (!Files.isRegularFile(path) || !Files.isReadable(path) || !hasSupportedImageExtension(path)) {
+        if (!Files.isRegularFile(path) || !Files.isReadable(path)
+                || !hasSupportedImageExtension(path) || !hasReadableImageContents(path)) {
             throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
         }
         return path;
@@ -157,5 +162,37 @@ public class ParserUtil {
 
         String name = fileName.toString().toLowerCase(Locale.ROOT);
         return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif");
+    }
+
+    private static boolean hasReadableImageContents(Path path) {
+        try (ImageInputStream imageStream = ImageIO.createImageInputStream(path.toFile())) {
+            if (imageStream == null) {
+                return false;
+            }
+
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageStream);
+            if (!readers.hasNext()) {
+                return false;
+            }
+
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(imageStream);
+                return hasExpectedImageFormat(path, reader.getFormatName()) && reader.read(0) != null;
+            } finally {
+                reader.dispose();
+            }
+        } catch (java.io.IOException | RuntimeException exception) {
+            return false;
+        }
+    }
+
+    private static boolean hasExpectedImageFormat(Path path, String formatName) {
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        String normalizedFormatName = formatName.toLowerCase(Locale.ROOT);
+        return (fileName.endsWith(".png") && normalizedFormatName.equals("png"))
+                || ((fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"))
+                && normalizedFormatName.equals("jpeg"))
+                || (fileName.endsWith(".gif") && normalizedFormatName.equals("gif"));
     }
 }
