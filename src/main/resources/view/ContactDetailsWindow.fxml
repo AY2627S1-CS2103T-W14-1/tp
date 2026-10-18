@@ -26,7 +26,7 @@
           <Insets top="20" right="24" bottom="20" left="24" />
         </padding>
         <Label fx:id="name" id="contactName" />
-        <GridPane hgap="14" vgap="10">
+        <GridPane hgap="14">
           <columnConstraints>
             <ColumnConstraints minWidth="90" />
             <ColumnConstraints minWidth="260" />
@@ -42,8 +42,18 @@
             <Label fx:id="email" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label text="Location" GridPane.rowIndex="4" />
             <Label fx:id="locationLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label text="Tags" GridPane.rowIndex="5" />
-            <Label fx:id="tags" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label fx:id="majorLabel" text="Major" GridPane.rowIndex="5" />
+            <Label fx:id="major" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label fx:id="yearLabel" text="Year" GridPane.rowIndex="6" />
+            <Label fx:id="year" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label fx:id="facultyLabel" text="Faculty" GridPane.rowIndex="7" />
+            <Label fx:id="faculty" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Label fx:id="departmentLabel" text="Department" GridPane.rowIndex="8" />
+            <Label fx:id="department" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <Label fx:id="hoursLabel" text="Hours" GridPane.rowIndex="9" />
+            <Label fx:id="hours" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Tags" GridPane.rowIndex="10" />
+            <Label fx:id="tags" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10" />
           </children>
         </GridPane>
         <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
