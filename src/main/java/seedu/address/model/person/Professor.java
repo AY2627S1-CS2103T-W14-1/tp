@@ -18,4 +18,11 @@ public class Professor extends Person {
         super(name, new Role("professor"), phone, email, address, tags, personIndex);
     }
 
+    /**
+     * Additional constructor: Major and Year fields are optional (may be null).
+     */
+    public Professor(Name name, Phone phone, Email email, Address address, Faculty faculty, Department department,
+                     Hours hours, Set<Tag> tags, PersonIndex personIndex) {
+        super(name, new Role("professor"), phone, email, address, faculty, department, hours, tags, personIndex);
+    }
 }

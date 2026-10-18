@@ -37,6 +37,9 @@ public class AddCommand extends Command {
             + PREFIX_TAG + "friends "
             + PREFIX_TAG + "owesMoney";
 
+    public static final String INVALID_STUDENT_PARAMETERS = "Student cannot have faculty, department or office hours.";
+    public static final String INVALID_PROFESSOR_PARAMETERS = "Professor cannot have major or year.";
+
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 

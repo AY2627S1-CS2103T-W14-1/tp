@@ -18,4 +18,11 @@ public class Student extends Person {
         super(name, new Role("student"), phone, email, address, tags, personIndex);
     }
 
+    /**
+     * Additional constructor: Major and Year fields are optional (may be null).
+     */
+    public Student(Name name, Phone phone, Email email, Address address, Major major, Year year, Set<Tag> tags,
+                   PersonIndex personIndex) {
+        super(name, new Role("student"), phone, email, address, major, year, tags, personIndex);
+    }
 }

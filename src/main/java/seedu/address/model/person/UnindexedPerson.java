@@ -25,6 +25,11 @@ public class UnindexedPerson {
     // Data fields
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
+    private final Major major;
+    private final Year year;
+    private final Faculty faculty;
+    private final Department department;
+    private final Hours hours;
 
     /**
      * Creates an unindexed person from the supplied details.
@@ -37,6 +42,68 @@ public class UnindexedPerson {
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+        this.major = new Major(null);
+        this.year = new Year(null);
+        this.faculty = new Faculty(null);
+        this.department = new Department(null);
+        this.hours = new Hours(null);
+    }
+
+    /**
+     * Creates an unindexed Student with additional (optional) details.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                           Set<Tag> tags) {
+        requireAllNonNull(name, role, phone, email, address, tags);
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.tags.addAll(tags);
+        this.major = major != null ? major : new Major(null);
+        this.year = year != null ? year : new Year(null);
+        this.faculty = new Faculty(null);
+        this.department = new Department(null);
+        this.hours = new Hours(null);
+    }
+
+    /**
+     * Creates an unindexed Professor with additional (optional) details.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
+                           Department department, Hours hours, Set<Tag> tags) {
+        requireAllNonNull(name, role, phone, email, address, tags);
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.tags.addAll(tags);
+        this.major = new Major(null);
+        this.year = new Year(null);
+        this.faculty = faculty != null ? faculty : new Faculty(null);
+        this.department = department != null ? department : new Department(null);
+        this.hours = hours != null ? hours : new Hours(null);
+    }
+
+    /**
+     * Creates an unindexed Person with some potentially null details.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                           Faculty faculty, Department department, Hours hours, Set<Tag> tags) {
+        requireAllNonNull(name, role, phone, email, address, tags);
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.tags.addAll(tags);
+        this.major = major != null ? major : new Major(null);
+        this.year = year != null ? year : new Year(null);
+        this.faculty = faculty != null ? faculty : new Faculty(null);
+        this.department = department != null ? department : new Department(null);
+        this.hours = hours != null ? hours : new Hours(null);
     }
 
     /**
@@ -46,9 +113,9 @@ public class UnindexedPerson {
      */
     public Person withPersonIndex(PersonIndex newPersonIndex) {
         if (this.role.equals(new Role("student"))) {
-            return new Student(name, phone, email, address, tags, newPersonIndex);
+            return new Student(name, phone, email, address, major, year, tags, newPersonIndex);
         } else if (this.role.equals(new Role("professor"))) {
-            return new Professor(name, phone, email, address, tags, newPersonIndex);
+            return new Professor(name, phone, email, address, faculty, department, hours, tags, newPersonIndex);
         } else {
             throw new IllegalArgumentException("Invalid person");
         }
@@ -72,6 +139,26 @@ public class UnindexedPerson {
 
     public Address getAddress() {
         return address;
+    }
+
+    public Major getMajor() {
+        return major;
+    }
+
+    public Year getYear() {
+        return year;
+    }
+
+    public Faculty getFaculty() {
+        return faculty;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public Hours getHours() {
+        return hours;
     }
 
     /**
@@ -110,6 +197,11 @@ public class UnindexedPerson {
                 && phone.equals(otherPerson.phone)
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
+                && major.equals(otherPerson.major)
+                && year.equals(otherPerson.year)
+                && faculty.equals(otherPerson.faculty)
+                && department.equals(otherPerson.department)
+                && hours.equals(otherPerson.hours)
                 && tags.equals(otherPerson.tags);
     }
 
@@ -121,6 +213,11 @@ public class UnindexedPerson {
                 .add("phone", phone)
                 .add("email", email)
                 .add("address", address)
+                .add("major", major)
+                .add("year", year)
+                .add("faculty", faculty)
+                .add("department", department)
+                .add("hours", hours)
                 .add("tags", tags)
                 .toString();
     }

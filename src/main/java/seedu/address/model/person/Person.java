@@ -27,6 +27,26 @@ public class Person extends UnindexedPerson {
         this.personIndex = personIndex;
     }
 
+    /**
+     * Additional constructor for Student: Major and Year fields are optional (may be null).
+     */
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                  Set<Tag> tags, PersonIndex personIndex) {
+        super(name, role, phone, email, address, major, year, tags);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
+    /**
+     * Additional constructor for Professor: Faculty, Department and Hours fields are optional (may be null).
+     */
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
+                  Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex) {
+        super(name, role, phone, email, address, faculty, department, hours, tags);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
     public PersonIndex getPersonIndex() {
         return personIndex;
     }
