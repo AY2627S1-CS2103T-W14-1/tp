@@ -3,13 +3,20 @@ package seedu.address.logic.parser;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,8 +38,12 @@ public class EditCommandParser implements Parser<EditCommand> {
      */
     public EditCommand parse(String args) throws ParseException {
         requireNonNull(args);
-        ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS, PREFIX_TAG);
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args,
+                PREFIX_CONTACT_NAME, PREFIX_NAME,
+                PREFIX_CONTACT_PHONE, PREFIX_PHONE,
+                PREFIX_CONTACT_EMAIL, PREFIX_EMAIL,
+                PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS,
+                PREFIX_CONTACT_TAG, PREFIX_TAG);
 
         Index index;
 
@@ -42,23 +53,46 @@ public class EditCommandParser implements Parser<EditCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS);
+        argMultimap.verifyNoDuplicatePrefixesFor(
+                PREFIX_CONTACT_NAME, PREFIX_NAME,
+                PREFIX_CONTACT_PHONE, PREFIX_PHONE,
+                PREFIX_CONTACT_EMAIL, PREFIX_EMAIL,
+                PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
-        if (argMultimap.getValue(PREFIX_NAME).isPresent()) {
-            editPersonDescriptor.setName(ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get()));
+        // Parse Name (supports /name or n/)
+        Optional<String> nameValue = argMultimap.getValue(PREFIX_CONTACT_NAME)
+                .or(() -> argMultimap.getValue(PREFIX_NAME));
+        if (nameValue.isPresent()) {
+            editPersonDescriptor.setName(ParserUtil.parseName(nameValue.get()));
         }
-        if (argMultimap.getValue(PREFIX_PHONE).isPresent()) {
-            editPersonDescriptor.setPhone(ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get()));
+
+        // Parse Phone (supports /phone or p/)
+        Optional<String> phoneValue = argMultimap.getValue(PREFIX_CONTACT_PHONE)
+                .or(() -> argMultimap.getValue(PREFIX_PHONE));
+        if (phoneValue.isPresent()) {
+            editPersonDescriptor.setPhone(ParserUtil.parsePhone(phoneValue.get()));
         }
-        if (argMultimap.getValue(PREFIX_EMAIL).isPresent()) {
-            editPersonDescriptor.setEmail(ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get()));
+
+        // Parse Email (supports /email or e/)
+        Optional<String> emailValue = argMultimap.getValue(PREFIX_CONTACT_EMAIL)
+                .or(() -> argMultimap.getValue(PREFIX_EMAIL));
+        if (emailValue.isPresent()) {
+            editPersonDescriptor.setEmail(ParserUtil.parseEmail(emailValue.get()));
         }
-        if (argMultimap.getValue(PREFIX_ADDRESS).isPresent()) {
-            editPersonDescriptor.setAddress(ParserUtil.parseAddress(argMultimap.getValue(PREFIX_ADDRESS).get()));
+
+        // Parse Location / Address (supports /location or a/)
+        Optional<String> locationValue = argMultimap.getValue(PREFIX_CONTACT_LOCATION)
+                .or(() -> argMultimap.getValue(PREFIX_ADDRESS));
+        if (locationValue.isPresent()) {
+            editPersonDescriptor.setAddress(ParserUtil.parseAddress(locationValue.get()));
         }
-        parseTagsForEdit(argMultimap.getAllValues(PREFIX_TAG)).ifPresent(editPersonDescriptor::setTags);
+
+        // Parse Tags (supports /tag or t/)
+        List<String> rawTags = new ArrayList<>(argMultimap.getAllValues(PREFIX_TAG));
+        rawTags.addAll(argMultimap.getAllValues(PREFIX_CONTACT_TAG));
+        parseTagsForEdit(rawTags).ifPresent(editPersonDescriptor::setTags);
 
         if (!editPersonDescriptor.isAnyFieldEdited()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);

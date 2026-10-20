@@ -205,4 +205,14 @@ public class EditCommandParserTest {
 
         assertParseSuccess(parser, userInput, expectedCommand);
     }
+
+    @Test
+    public void parse_campusContactsPrefixes_success() {
+        Index targetIndex = INDEX_SECOND_PERSON;
+        String userInput = targetIndex.getOneBased() + " /phone 91234567 /email test@example.com /location UTown";
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withPhone("91234567").withEmail("test@example.com").withAddress("UTown").build();
+        EditCommand expectedCommand = new EditCommand(targetIndex, descriptor);
+        assertParseSuccess(parser, userInput, expectedCommand);
+    }
 }
