@@ -2,48 +2,48 @@
 !include style.puml
 skinparam ArrowFontStyle plain
 
-participant "f:FavouriteCommand" as FavouriteCommand LOGIC_COLOR
+participant "f:SetFavouriteCommand" as SetFavouriteCommand LOGIC_COLOR
 participant "m:ModelManager" as ModelManager MODEL_COLOR
 participant "a:AddressBook" as AddressBook MODEL_COLOR
-participant "l:FavouritesCommand" as FavouritesCommand LOGIC_COLOR
+participant "l:ListFavouritesCommand" as ListFavouritesCommand LOGIC_COLOR
 
-[-> FavouriteCommand : execute(m)
-activate FavouriteCommand
-FavouriteCommand -> ModelManager : getAddressBook()
+[-> SetFavouriteCommand : execute(m)
+activate SetFavouriteCommand
+SetFavouriteCommand -> ModelManager : getAddressBook()
 activate ModelManager
-ModelManager --> FavouriteCommand : a
+ModelManager --> SetFavouriteCommand : a
 deactivate ModelManager
-FavouriteCommand -> AddressBook : getPersonList()
+SetFavouriteCommand -> AddressBook : getPersonList()
 activate AddressBook
-AddressBook --> FavouriteCommand : contacts
+AddressBook --> SetFavouriteCommand : contacts
 deactivate AddressBook
-note over FavouriteCommand : Match the contact's name and suffix.
+note over SetFavouriteCommand : Match the contact's name and suffix.
 alt target exists
-    FavouriteCommand -> ModelManager : setFavourite(target, true)
+    SetFavouriteCommand -> ModelManager : setFavourite(target, true)
     activate ModelManager
     ModelManager -> AddressBook : setFavourite(target, true)
     activate AddressBook
     AddressBook --> ModelManager
     deactivate AddressBook
-    ModelManager --> FavouriteCommand
+    ModelManager --> SetFavouriteCommand
     deactivate ModelManager
-    [<-- FavouriteCommand : result
+    [<-- SetFavouriteCommand : result
 else target missing
-    [<-- FavouriteCommand : throws CommandException
+    [<-- SetFavouriteCommand : throws CommandException
 end
-deactivate FavouriteCommand
+deactivate SetFavouriteCommand
 
-[-> FavouritesCommand : execute(m)
-activate FavouritesCommand
-FavouritesCommand -> ModelManager : showFavouritePersons()
+[-> ListFavouritesCommand : execute(m)
+activate ListFavouritesCommand
+ListFavouritesCommand -> ModelManager : showFavouritePersons()
 activate ModelManager
 ModelManager -> ModelManager : updateFilteredPersonList(a::isFavourite)
-ModelManager --> FavouritesCommand
+ModelManager --> ListFavouritesCommand
 deactivate ModelManager
-FavouritesCommand -> ModelManager : getFilteredPersonList()
+ListFavouritesCommand -> ModelManager : getFilteredPersonList()
 activate ModelManager
-ModelManager --> FavouritesCommand : favourite contacts
+ModelManager --> ListFavouritesCommand : favourite contacts
 deactivate ModelManager
-[<-- FavouritesCommand : result with count or empty-state message
-deactivate FavouritesCommand
+[<-- ListFavouritesCommand : result with count or empty-state message
+deactivate ListFavouritesCommand
 @enduml

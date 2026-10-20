@@ -9,30 +9,30 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.PersonIndex;
-import seedu.address.logic.commands.FavouriteCommand;
-import seedu.address.logic.commands.FavouritesCommand;
+import seedu.address.logic.commands.ListFavouritesCommand;
+import seedu.address.logic.commands.SetFavouriteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
-class FavouriteCommandParserTest {
+class SetFavouriteCommandParserTest {
     @Test
     void parseCommand_validIdentifiers_usesSharedNameGrammar() throws Exception {
         AddressBookParser parser = new AddressBookParser();
         for (String word : List.of("favourite", "unfavourite")) {
             boolean isFavourite = word.equals("favourite");
-            assertEquals(new FavouriteCommand("John Tan", PersonIndex.fromOneBased(1), isFavourite),
+            assertEquals(new SetFavouriteCommand("John Tan", PersonIndex.fromOneBased(1), isFavourite),
                     parser.parseCommand(word + "   john tan   "));
-            assertEquals(new FavouriteCommand("John Tan", PersonIndex.fromOneBased(2), isFavourite),
+            assertEquals(new SetFavouriteCommand("John Tan", PersonIndex.fromOneBased(2), isFavourite),
                     parser.parseCommand(word + " John Tan_2"));
         }
-        assertInstanceOf(FavouritesCommand.class, parser.parseCommand("favourites   "));
+        assertInstanceOf(ListFavouritesCommand.class, parser.parseCommand("favourites   "));
     }
 
     @Test
     void parse_invalidIdentifier_rejectsForBothOperations() {
         for (String args : List.of("", " ", "John_0", "John_-1", "John_2147483648", "John_", "John_two",
                 "John_2_3", "John _2", "_2", "John&", "John_2 extra")) {
-            assertThrows(ParseException.class, () -> new FavouriteCommandParser(true).parse(args), args);
-            assertThrows(ParseException.class, () -> new FavouriteCommandParser(false).parse(args), args);
+            assertThrows(ParseException.class, () -> new SetFavouriteCommandParser(true).parse(args), args);
+            assertThrows(ParseException.class, () -> new SetFavouriteCommandParser(false).parse(args), args);
         }
     }
 

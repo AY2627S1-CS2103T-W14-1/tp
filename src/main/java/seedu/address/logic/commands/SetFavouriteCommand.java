@@ -10,7 +10,7 @@ import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
 /** Marks or unmarks a contact as a favourite, independently of the displayed filter. */
-public class FavouriteCommand extends Command {
+public class SetFavouriteCommand extends Command {
     public static final String COMMAND_WORD = "favourite";
     public static final String UNFAVOURITE_COMMAND_WORD = "unfavourite";
     public static final String MESSAGE_SUCCESS = "Favourite contact: %s";
@@ -21,7 +21,7 @@ public class FavouriteCommand extends Command {
     private final boolean isFavourite;
 
     /** Creates a command selecting the supplied name and suffix. */
-    public FavouriteCommand(String targetName, PersonIndex targetIndex, boolean isFavourite) {
+    public SetFavouriteCommand(String targetName, PersonIndex targetIndex, boolean isFavourite) {
         this.targetName = StringUtil.toProperCase(requireNonNull(targetName));
         this.targetIndex = requireNonNull(targetIndex);
         this.isFavourite = isFavourite;
@@ -52,7 +52,7 @@ public class FavouriteCommand extends Command {
         if (other == this) {
             return true;
         }
-        if (!(other instanceof FavouriteCommand otherCommand)) {
+        if (!(other instanceof SetFavouriteCommand otherCommand)) {
             return false;
         }
         return targetName.equals(otherCommand.targetName) && targetIndex.equals(otherCommand.targetIndex)

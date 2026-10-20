@@ -209,9 +209,9 @@ The popup is deliberately a UI concern: the command resolves a model object but 
 
 ### Favourite contacts
 
-`FavouriteCommand` marks or unmarks a contact using the existing `NameIndexParser` grammar.
+`SetFavouriteCommand` marks or unmarks a contact using the existing `NameIndexParser` grammar.
 It searches the whole address book, so users can mark a contact even when it is hidden by a filter.
-`FavouritesCommand` shows the selected contacts in the user's chosen sort order.
+`ListFavouritesCommand` shows the selected contacts in the user's chosen sort order.
 
 `AddressBook` stores favourites as a set of display identifiers: a name and its optional suffix.
 These identifiers are unique because contact names cannot contain underscores. Storing selections

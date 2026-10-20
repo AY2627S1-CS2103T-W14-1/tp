@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import seedu.address.model.Model;
 
 /** Replaces the current filter with the user's favourite contacts. */
-public class FavouritesCommand extends Command {
+public class ListFavouritesCommand extends Command {
     public static final String COMMAND_WORD = "favourites";
     public static final String MESSAGE_USAGE = "favourites: Lists favourite contacts.\nParameters: none";
     public static final String MESSAGE_EMPTY = "No favourite contacts yet. Use favourite NAME[_NUMBER] to add one.";

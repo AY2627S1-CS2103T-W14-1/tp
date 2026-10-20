@@ -20,14 +20,14 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonSortField;
 import seedu.address.testutil.PersonBuilder;
 
-class FavouriteCommandTest {
+class SetFavouriteCommandTest {
     private final ModelManager model = new ModelManager();
 
     @Test
     void execute_markHiddenContactAndRepeat_selectsFromWholeAddressBook() throws Exception {
         model.addPerson(ALICE);
         model.updateFilteredPersonList(person -> false);
-        FavouriteCommand command = new FavouriteCommand("alice pauline", ALICE.getPersonIndex(), true);
+        SetFavouriteCommand command = new SetFavouriteCommand("alice pauline", ALICE.getPersonIndex(), true);
         assertEquals("Favourite contact: Alice Pauline", command.execute(model).getFeedbackToUser());
         command.execute(model);
         assertEquals(Set.of(ALICE.getDisplayName()), model.getAddressBook().getFavouriteContacts());
@@ -38,8 +38,8 @@ class FavouriteCommandTest {
     void execute_duplicateName_targetsOnlySpecifiedSuffix() throws Exception {
         model.addPerson(ALICE);
         model.addPerson(new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex());
-        new FavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true).execute(model);
-        new FavouritesCommand().execute(model);
+        new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true).execute(model);
+        new ListFavouritesCommand().execute(model);
         assertEquals(List.of("Alice Pauline_2"), model.getFilteredPersonList().stream()
                 .map(Person::getDisplayName).toList());
     }
@@ -47,9 +47,9 @@ class FavouriteCommandTest {
     @Test
     void execute_unfavouriteInFavouriteView_removesImmediately() throws Exception {
         model.addPerson(ALICE);
-        new FavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), true).execute(model);
-        new FavouritesCommand().execute(model);
-        FavouriteCommand unmark = new FavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false);
+        new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), true).execute(model);
+        new ListFavouritesCommand().execute(model);
+        SetFavouriteCommand unmark = new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false);
         assertEquals("Contact is not a favourite: Alice Pauline", unmark.execute(model).getFeedbackToUser());
         assertTrue(model.getFilteredPersonList().isEmpty());
         unmark.execute(model);
@@ -59,9 +59,9 @@ class FavouriteCommandTest {
     @Test
     void execute_missingContactOrSuffix_doesNotChangeModel() {
         model.addPerson(ALICE);
-        assertCommandFailure(new FavouriteCommand("Unknown Person", ALICE.getPersonIndex(), true), model,
+        assertCommandFailure(new SetFavouriteCommand("Unknown Person", ALICE.getPersonIndex(), true), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
-        assertCommandFailure(new FavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true), model,
+        assertCommandFailure(new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
     }
 
@@ -73,7 +73,7 @@ class FavouriteCommandTest {
         model.setFavourite(BENSON, true);
         model.updateFilteredPersonList(person -> false);
         model.updatePersonListSort(PersonSortField.NAME, true);
-        assertEquals("Listed 2 favourite contact(s).", new FavouritesCommand().execute(model).getFeedbackToUser());
+        assertEquals("Listed 2 favourite contact(s).", new ListFavouritesCommand().execute(model).getFeedbackToUser());
         assertEquals(List.of(BENSON, ALICE), model.getFilteredPersonList());
         model.setFavourite(BENSON, false);
         new ListCommand().execute(model);
@@ -82,7 +82,8 @@ class FavouriteCommandTest {
 
     @Test
     void execute_emptyFavouriteView_reportsHowToAddOne() {
-        assertEquals(FavouritesCommand.MESSAGE_EMPTY, new FavouritesCommand().execute(model).getFeedbackToUser());
+        assertEquals(ListFavouritesCommand.MESSAGE_EMPTY,
+                new ListFavouritesCommand().execute(model).getFeedbackToUser());
         model.addPerson(ALICE);
         assertEquals(List.of(ALICE), model.getFilteredPersonList());
     }
@@ -103,13 +104,13 @@ class FavouriteCommandTest {
 
     @Test
     void equals_comparesTargetAndOperation() {
-        FavouriteCommand mark = new FavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), true);
+        SetFavouriteCommand mark = new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), true);
         assertTrue(mark.equals(mark));
-        assertTrue(mark.equals(new FavouriteCommand("alice pauline", ALICE.getPersonIndex(), true)));
-        assertFalse(mark.equals(new FavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false)));
-        assertFalse(mark.equals(new FavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true)));
-        assertFalse(mark.equals(new FavouriteCommand("Benson Meier", BENSON.getPersonIndex(), true)));
+        assertTrue(mark.equals(new SetFavouriteCommand("alice pauline", ALICE.getPersonIndex(), true)));
+        assertFalse(mark.equals(new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false)));
+        assertFalse(mark.equals(new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true)));
+        assertFalse(mark.equals(new SetFavouriteCommand("Benson Meier", BENSON.getPersonIndex(), true)));
         assertFalse(mark.equals(null));
-        assertFalse(mark.equals(new FavouritesCommand()));
+        assertFalse(mark.equals(new ListFavouritesCommand()));
     }
 }
