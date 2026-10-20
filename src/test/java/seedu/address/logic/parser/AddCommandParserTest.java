@@ -1,6 +1,8 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.AddCommand.INVALID_PROFESSOR_PARAMETERS;
+import static seedu.address.logic.commands.AddCommand.INVALID_STUDENT_PARAMETERS;
 import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_FRIEND;
 import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_HUSBAND;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
@@ -12,8 +14,8 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_HUSBAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalPersons.BOB;
@@ -22,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.TreeSet;
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
@@ -30,10 +33,16 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Department;
 import seedu.address.model.person.Email;
+import seedu.address.model.person.Faculty;
+import seedu.address.model.person.Hours;
+import seedu.address.model.person.Major;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Role;
 import seedu.address.model.person.UnindexedPerson;
+import seedu.address.model.person.Year;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
@@ -199,5 +208,59 @@ public class AddCommandParserTest {
         assertParseSuccess(parser, VALID_NAME_BOB + EMAIL_ARGUMENT + ROLE_ARGUMENT + PHONE_ARGUMENT
                         + " /location " + location,
                 new AddCommand(new PersonBuilder(BOB).withAddress(location).withTags().buildNoIndex()));
+    }
+
+    @Test
+    public void parse_studentWithValidParameters_success() {
+        assertParseSuccess(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /major Computer Science /year 2",
+                new AddCommand(new UnindexedPerson(new Name("John Tan"), new Role("student"), new Phone("98672103"),
+                        new Email("johntan@example.com"), new Address("Bedok"), new Major("Computer Science"),
+                        new Year("2"), null, null, null, new TreeSet<Tag>(), null)));
+    }
+
+    @Test
+    public void parse_professorWithValidParameters_success() {
+        assertParseSuccess(parser, VALID_ARGUMENTS + " /faculty Faculty of Arts and Social Sciences "
+                + "/department Department of Economics /hours 8am-5pm",
+                new AddCommand(new UnindexedPerson(new Name("Bob Choo"), new Role("professor"), new Phone("22222222"),
+                        new Email("bob@example.com"), new Address("Block 123, Bobby Street 3"), null, null,
+                        new Faculty("Faculty of Arts and Social Sciences"), new Department("Department of Economics"),
+                        new Hours("8am-5pm"), new TreeSet<Tag>(), null)));
+    }
+
+    @Test
+    public void parse_studentWithNotApplicableParameters_failure() {
+        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /faculty Faculty of Science", INVALID_STUDENT_PARAMETERS);
+        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /department Department of Mathematics", INVALID_STUDENT_PARAMETERS);
+        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /hours 8am-5pm", INVALID_STUDENT_PARAMETERS);
+    }
+
+    @Test
+    public void parse_professorWithNotApplicableParameters_failure() {
+        assertParseFailure(parser, "John Tan /role professor /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /major Computer Science", INVALID_PROFESSOR_PARAMETERS);
+        assertParseFailure(parser, "John Tan /role professor /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /year 2", INVALID_PROFESSOR_PARAMETERS);
+    }
+
+    @Test
+    public void parse_studentWithInvalidParameters_failure() {
+        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /major Computer-Science", Major.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                + "/location Bedok /year 0", Year.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_professorWithInvalidParameters_failure() {
+        assertParseFailure(parser, VALID_ARGUMENTS + " /faculty School_Of_Computing",
+                Faculty.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, VALID_ARGUMENTS + " /department Bu5ine55 Analytic5",
+                Department.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, VALID_ARGUMENTS + " /hours ", Hours.MESSAGE_CONSTRAINTS);
     }
 }

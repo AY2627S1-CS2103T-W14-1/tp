@@ -10,13 +10,14 @@ import java.util.Objects;
  */
 public class Major {
 
-    public static final String MESSAGE_CONSTRAINTS = "Majors can take any values, and should not be blank";
+    public static final String MESSAGE_CONSTRAINTS =
+            "Majors should only contain alphabetical characters and spaces, and should not be blank";
 
     /*
      * The first character of the major must not be a whitespace,
      * otherwise " " (a blank string) becomes a valid input.
      */
-    public static final String VALIDATION_REGEX = "[^\\s].*";
+    public static final String VALIDATION_REGEX = "[\\p{Alpha}][\\p{Alpha} ]*";
 
     public final String value;
 

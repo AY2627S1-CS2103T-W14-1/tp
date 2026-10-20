@@ -263,7 +263,7 @@ public class UniquePersonHashMap implements Iterable<Person> {
             // happened to carry an old id.
             UnindexedPerson unindexedPerson = new UnindexedPerson(person.getName(), person.getRole(), person.getPhone(),
                     person.getEmail(), person.getAddress(), person.getMajor(), person.getYear(), person.getFaculty(),
-                    person.getDepartment(), person.getHours(), person.getTags());
+                    person.getDepartment(), person.getHours(), person.getTags(), person.getPhoto().orElse(null));
             replacement.add(unindexedPerson);
         }
 

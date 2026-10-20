@@ -20,8 +20,8 @@ import seedu.address.model.person.Major;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
-import seedu.address.model.person.Role;
 import seedu.address.model.person.Photo;
+import seedu.address.model.person.Role;
 import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.person.Year;
 import seedu.address.model.tag.Tag;
@@ -57,7 +57,7 @@ class JsonAdaptedPerson {
             @JsonProperty("address") String address, @JsonProperty("tags") List<JsonAdaptedTag> tags,
             @JsonProperty("major") String major, @JsonProperty("year") String year,
             @JsonProperty("faculty") String faculty, @JsonProperty("department") String department,
-            @JsonProperty("hours") String hours), @JsonProperty("photo") String photo) {
+            @JsonProperty("hours") String hours, @JsonProperty("photo") String photo) {
         this.name = name;
         this.role = role;
         this.phone = phone;
@@ -77,8 +77,10 @@ class JsonAdaptedPerson {
     /**
      * Constructs a person without a photo reference. Kept for existing tests and legacy JSON data.
      */
-    public JsonAdaptedPerson(String name, String phone, String email, String address, List<JsonAdaptedTag> tags) {
-        this(name, phone, email, address, tags, null);
+    public JsonAdaptedPerson(String name, String role, String phone, String email, String address,
+                             List<JsonAdaptedTag> tags, String major, String year, String faculty, String department,
+                             String hours) {
+        this(name, role, phone, email, address, tags, major, year, faculty, department, hours, null);
     }
 
     /**
@@ -181,9 +183,9 @@ class JsonAdaptedPerson {
         final Hours modelHours = new Hours(hours);
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
-        
+
         final Photo modelPhoto;
-      
+
         try {
             modelPhoto = photo == null ? null : new Photo(photo);
         } catch (IllegalArgumentException exception) {

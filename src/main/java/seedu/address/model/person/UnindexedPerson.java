@@ -43,7 +43,8 @@ public class UnindexedPerson {
     /**
      * Creates an unindexed person from the supplied details and an optional photo reference.
      */
-    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags, Photo photo) {
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags,
+                           Photo photo) {
         requireAllNonNull(name, phone, email, address, tags);
         this.name = name;
         this.role = role;
@@ -58,7 +59,7 @@ public class UnindexedPerson {
         this.hours = new Hours(null);
         this.photo = photo;
     }
-  
+
     /**
      * Creates an unindexed Student with additional (optional) details.
      */
@@ -86,7 +87,7 @@ public class UnindexedPerson {
         this.hours = new Hours(null);
         this.photo = photo;
     }
-  
+
     /**
      * Creates an unindexed Professor with additional (optional) details.
      */
@@ -154,7 +155,8 @@ public class UnindexedPerson {
      * Returns a copy of this person with the supplied photo reference.
      */
     public UnindexedPerson withPhoto(Photo newPhoto) {
-        return new UnindexedPerson(name, phone, email, address, major, year, faculty, department, hours, tags, newPhoto);
+        return new UnindexedPerson(name, role, phone, email, address, major, year, faculty, department, hours, tags,
+                newPhoto);
     }
 
     public Name getName() {

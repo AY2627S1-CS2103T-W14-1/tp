@@ -62,7 +62,7 @@ public class LogicManagerTest {
 
     @Test
     public void execute_commandExecutionError_throwsCommandException() {
-        String deleteCommand = "delete 9";
+        String deleteCommand = "delete SeeEssTwoOneOhThreeTee";
         assertCommandException(deleteCommand, MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
     }
 
@@ -93,8 +93,8 @@ public class LogicManagerTest {
         Path sourcePhoto = temporaryFolder.resolve("source.png");
         writePng(sourcePhoto);
 
-        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
-                + sourcePhoto);
+        logic.execute("add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1 "
+                + "02 01 /photo " + sourcePhoto);
 
         Person addedPerson = model.getFilteredPersonList().get(0);
         String relativePhotoPath = addedPerson.getPhoto().orElseThrow().getRelativePath();
@@ -109,8 +109,8 @@ public class LogicManagerTest {
     public void execute_deleteContactWithPhoto_removesCopiedPhoto() throws Exception {
         Path sourcePhoto = temporaryFolder.resolve("source.png");
         writePng(sourcePhoto);
-        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
-                + sourcePhoto);
+        logic.execute("add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1"
+                + "02 01 /photo " + sourcePhoto);
         Path copiedPhoto = temporaryFolder.resolve(model.getFilteredPersonList().get(0)
                 .getPhoto().orElseThrow().getRelativePath());
 

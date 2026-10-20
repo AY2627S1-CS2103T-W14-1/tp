@@ -18,8 +18,8 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
-import seedu.address.model.person.Role;
 import seedu.address.model.person.Photo;
+import seedu.address.model.person.Role;
 import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
@@ -152,8 +152,9 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_invalidPhotoPath_throwsIllegalValueException() {
-        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
-                VALID_TAGS, "photos/" + Character.toString(0) + ".png");
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_ROLE, VALID_PHONE, VALID_EMAIL,
+                VALID_ADDRESS, VALID_TAGS, null, null, null, null, null,
+                "photos/" + Character.toString(0) + ".png");
 
         assertThrows(IllegalValueException.class, Photo.MESSAGE_CONSTRAINTS, person::toModelType);
     }
