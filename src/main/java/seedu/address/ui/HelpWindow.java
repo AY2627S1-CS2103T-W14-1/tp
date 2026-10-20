@@ -15,17 +15,18 @@ public class HelpWindow extends UiPart<Stage> {
     public static final String HELP_MESSAGE = """
             CampusContacts command guide
 
-            add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...
+            add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...
               Adds a contact. /photo is optional; supported image types are PNG, JPG, JPEG, and GIF.
               The selected image is copied into CampusContacts and shown by the show command.
-              Example: add John Tan /email john@u.nus.edu /phone 90000001 /location COM1
+              Example: add John Tan /role student /email john@u.nus.edu /phone 90000001 /location COM1
                        /photo C:\\Users\\Student\\Pictures\\john.jpg t/teammate
 
             show NAME[_NUMBER]
               Opens the full details of a contact.
               Example: show John Tan or show John Tan_2
 
-            find [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [t/TAG]...
+            find [/name NAME] [/role ROLE] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR]
+             [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG]...
               Finds contacts matching the specified criteria.
               (/name can be omitted for quick name searches).
               Example: find John /location COM1 t/teammate
@@ -36,6 +37,14 @@ public class HelpWindow extends UiPart<Stage> {
 
             list
               Displays every saved contact.
+
+            favourite NAME[_NUMBER] / unfavourite NAME[_NUMBER]
+              Marks or unmarks a contact, including contacts outside the current view.
+              Example: favourite John Tan_2
+
+            favourites
+              Lists favourite contacts in the selected sort order. Use list to return to all contacts.
+              Selections survive restarts and are removed when their contact is deleted.
 
             clear
               Deletes every contact after confirmation. Type yes to confirm or no to cancel.

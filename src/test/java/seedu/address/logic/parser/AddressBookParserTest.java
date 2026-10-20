@@ -43,10 +43,11 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_addCampusContact() throws Exception {
-        UnindexedPerson person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
-                .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
+        UnindexedPerson person = new PersonBuilder().withName("John Doe").withRole("student")
+                .withEmail("johnd@example.com").withPhone("98765432").withAddress("COM1 02 01")
+                .withTags().buildNoIndex();
         assertEquals(new AddCommand(person), parser.parseCommand(
-                "add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01"));
+                "add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1 02 01"));
     }
 
     @Test
@@ -115,6 +116,7 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_unknownCommand_throwsParseException() {
-        assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, () -> parser.parseCommand("unknownCommand"));
+        assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, ()
+            -> parser.parseCommand("unknownCommand"));
     }
 }

@@ -46,4 +46,23 @@ public class PersonMatchesCriteriaPredicateTest {
                 Collections.emptyList(), List.of("owesMoney"));
         assertTrue(predicate.test(BENSON));
     }
+
+    @Test
+    public void test_roleMatches_returnsTrue() {
+        // ALICE is a student
+        PersonMatchesCriteriaPredicate studentPredicate = new PersonMatchesCriteriaPredicate(
+                Collections.emptyList(), List.of("student"), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList());
+        assertTrue(studentPredicate.test(ALICE));
+
+        // BENSON is a professor
+        PersonMatchesCriteriaPredicate profPredicate = new PersonMatchesCriteriaPredicate(
+                Collections.emptyList(), List.of("professor"), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList());
+        assertTrue(profPredicate.test(BENSON));
+    }
 }

@@ -41,6 +41,15 @@ public class FindCommandParserTest {
     }
 
     @Test
+    public void parse_validNewProfilePrefixArgs_returnsFindCommand() {
+        FindCommand expectedFindCommand =
+                new FindCommand(new PersonMatchesCriteriaPredicate(List.of(), List.of("student"),
+                        List.of(), List.of(), List.of(), List.of("Computer", "Science"), List.of("2"),
+                        List.of(), List.of(), List.of(), List.of()));
+        assertParseSuccess(parser, " /role student /major Computer Science /year 2", expectedFindCommand);
+    }
+
+    @Test
     public void parse_bothPreambleAndNamePrefix_throwsParseException() {
         assertParseFailure(parser, "Alice /name Bob",
                 "Please specify name either directly or using /name, not both.\n"

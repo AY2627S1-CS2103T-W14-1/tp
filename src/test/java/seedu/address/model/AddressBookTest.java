@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -130,6 +131,11 @@ public class AddressBookTest {
             UniquePersonHashMap buckets = new UniquePersonHashMap();
             buckets.setPersons(persons);
             return buckets.getPersonBuckets();
+        }
+
+        @Override
+        public Set<String> getFavouriteContacts() {
+            return Set.of();
         }
     }
 
