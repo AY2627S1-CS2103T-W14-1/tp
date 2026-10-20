@@ -60,6 +60,16 @@ public class AddCommandParser implements Parser<AddCommand> {
         Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_CONTACT_PHONE).get());
         Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_CONTACT_EMAIL).get());
         Address address = ParserUtil.parseAddress(argMultimap.getValue(PREFIX_CONTACT_LOCATION).get());
+        if (role.equals(new Role("student")) && areAnyPrefixesPresent(argMultimap, PREFIX_CONTACT_FACULTY,
+                PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                    AddCommand.INVALID_STUDENT_PARAMETERS));
+        }
+        if (role.equals(new Role("professor")) && areAnyPrefixesPresent(argMultimap, PREFIX_CONTACT_MAJOR,
+                PREFIX_CONTACT_YEAR)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                    AddCommand.INVALID_PROFESSOR_PARAMETERS));
+        }
         Major major = argMultimap.getValue(PREFIX_CONTACT_MAJOR).isPresent()
                 ? ParserUtil.parseMajor(argMultimap.getValue(PREFIX_CONTACT_MAJOR).get())
                 : null;
@@ -76,16 +86,6 @@ public class AddCommandParser implements Parser<AddCommand> {
                 ? ParserUtil.parseHours(argMultimap.getValue(PREFIX_CONTACT_OFFICE_HOURS).get())
                 : null;
         Set<Tag> tagList = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
-        if (role.equals(new Role("student")) && areAnyPrefixesPresent(argMultimap, PREFIX_CONTACT_FACULTY,
-                PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS)) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
-                AddCommand.INVALID_STUDENT_PARAMETERS));
-        }
-        if (role.equals(new Role("professor")) && areAnyPrefixesPresent(argMultimap, PREFIX_CONTACT_MAJOR,
-                PREFIX_CONTACT_YEAR)) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
-                AddCommand.INVALID_PROFESSOR_PARAMETERS));
-        }
         UnindexedPerson person = new UnindexedPerson(name, role, phone, email, address, major, year, faculty,
                 department, hours, tagList);
 

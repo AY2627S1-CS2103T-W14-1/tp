@@ -262,7 +262,8 @@ public class UniquePersonHashMap implements Iterable<Person> {
             // same-named persons receive consecutive bucket ids even if their source object
             // happened to carry an old id.
             UnindexedPerson unindexedPerson = new UnindexedPerson(person.getName(), person.getRole(), person.getPhone(),
-                    person.getEmail(), person.getAddress(), person.getTags());
+                    person.getEmail(), person.getAddress(), person.getMajor(), person.getYear(), person.getFaculty(),
+                    person.getDepartment(), person.getHours(), person.getTags());
             replacement.add(unindexedPerson);
         }
 
