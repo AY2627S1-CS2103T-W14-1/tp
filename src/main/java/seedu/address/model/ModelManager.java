@@ -25,6 +25,7 @@ public class ModelManager implements Model {
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
     private final SortedList<Person> sortedPersons;
+    private boolean isFavouritesView;
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -68,6 +69,9 @@ public class ModelManager implements Model {
     @Override
     public void setAddressBook(ReadOnlyAddressBook addressBook) {
         this.addressBook.resetData(addressBook);
+        if (isFavouritesView) {
+            showFavouritePersons();
+        }
     }
 
     @Override
@@ -97,6 +101,9 @@ public class ModelManager implements Model {
         requireAllNonNull(target, editedPerson);
 
         addressBook.setPerson(target, editedPerson);
+        if (isFavouritesView) {
+            showFavouritePersons();
+        }
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -113,7 +120,22 @@ public class ModelManager implements Model {
     @Override
     public void updateFilteredPersonList(Predicate<Person> predicate) {
         requireNonNull(predicate);
+        isFavouritesView = false;
         filteredPersons.setPredicate(predicate);
+    }
+
+    @Override
+    public void setFavourite(Person person, boolean isFavourite) {
+        addressBook.setFavourite(person, isFavourite);
+        if (isFavouritesView) {
+            showFavouritePersons();
+        }
+    }
+
+    @Override
+    public void showFavouritePersons() {
+        updateFilteredPersonList(addressBook::isFavourite);
+        isFavouritesView = true;
     }
 
     @Override

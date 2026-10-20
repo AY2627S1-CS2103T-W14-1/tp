@@ -1,15 +1,18 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Photo;
@@ -37,5 +40,13 @@ class FavouriteStorageTest {
                 List.of(new JsonAdaptedPerson(ALICE)), null);
         assertTrue(legacy.toModelType().getFavouriteContacts().isEmpty());
         assertEquals(List.of(ALICE), legacy.toModelType().getPersonList());
+    }
+
+    @Test
+    void read_nullOrWrongShapeEntry_reportsDataError() {
+        assertThrows(IOException.class, () -> JsonUtil.fromJsonString(
+                "{\"favouriteContacts\":[null]}", JsonSerializableAddressBook.class));
+        assertThrows(IOException.class, () -> JsonUtil.fromJsonString(
+                "{\"favouriteContacts\":{\"name\":\"Alice\"}}", JsonSerializableAddressBook.class));
     }
 }

@@ -73,4 +73,10 @@ public interface Model {
 
     /** Updates and persists the sort used for the displayed person list. */
     void updatePersonListSort(PersonSortField field, boolean descending);
+
+    /** Updates the favourite status of an existing contact. */
+    void setFavourite(Person person, boolean isFavourite);
+
+    /** Shows only favourite contacts, in the selected sort order. */
+    void showFavouritePersons();
 }
