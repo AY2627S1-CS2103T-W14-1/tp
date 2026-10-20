@@ -15,7 +15,7 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
-* Lim Zi Chao (`lzc-nus`) used OpenAI Codex for the favourites feature's design, implementation, tests, documentation and verification.
+* `lzc-nus` used OpenAI Codex to assist with design, implementation, tests and documentation for the favourites feature.
 
 --------------------------------------------------------------------------------------------------------------------
 
