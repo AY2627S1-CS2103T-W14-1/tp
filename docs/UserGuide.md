@@ -163,9 +163,9 @@ Examples:
 
 Format: `recent` (no arguments)
 
-Displays up to ten distinct contacts successfully selected with `show NAME[_NUMBER]`, most recent first.
+Shows the last ten different contacts opened with `show NAME[_NUMBER]`, most recent first.
 Opening the same contact again moves it to the front; opening an eleventh distinct contact removes the oldest
-from history, not from the address book. Failed `show` lookups do not change history. A save error also leaves
+from history, not from the address book. If `show` cannot find the contact, history stays unchanged. A save error also leaves
 history unchanged and prevents the popup from opening. Running `recent`, `list` or `sort` does not count as a visit.
 
 `recent` replaces the current filter and temporarily uses history order rather than your selected sort.
@@ -175,9 +175,9 @@ currently displayed matches as usual; run `recent` again to restore latest-first
 As with the existing `show` command, only contacts in the currently displayed list can be opened:
 run `list` first if the contact you want is hidden.
 
-History is saved automatically with your contacts and survives restart, but the active filtered view is not
-restored. Deleting a contact removes it from history, and a new contact reusing that name/suffix does not
-inherit its visit. Confirmed `clear` also clears history; cancelling it does not. Older data files start with
+History is saved automatically with your contacts. After a restart, run `recent` to see it again.
+Deleting a contact removes it from history. A new contact using the same name and suffix starts without
+a visit. Confirmed `clear` also clears history; cancelling it does not. Older data files start with
 empty history. If you manually edit `recentContacts` in the data file, stale references and repeats are
 discarded and only the first ten distinct existing identifiers are retained.
 

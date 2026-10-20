@@ -15,7 +15,7 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
-* Lim Zi Chao (`lzc-nus`) used OpenAI Codex to assist with recent contacts' design, implementation, tests, documentation and verification. AI assistance does not substitute for the contributor's responsibility to understand and review the changes.
+* Lim Zi Chao (`lzc-nus`) used OpenAI Codex for recent contacts' design, implementation, tests, documentation and verification.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -210,32 +210,31 @@ selection in the recently viewed history, saves the address book, then returns t
 
 ### Recently viewed contacts
 
-`AddressBook` owns a bounded, most-recent-first list of display identifiers, exposed through an immutable snapshot.
-The existing name/suffix invariant makes identifiers unique without copying profiles or introducing another ID scheme.
-On a repeat visit it removes the previous entry and prepends the identifier; an eleventh distinct entry evicts the oldest.
-This is browsing history, not the last-added/edited feature tracked separately in issue #56.
+`AddressBook` stores up to ten recently viewed contact identifiers, newest first. Each identifier is the
+contact's existing name and optional suffix. Reopening a contact moves it to the front. Opening an eleventh
+distinct contact removes the oldest entry. Callers receive an immutable copy of the history.
 
 <puml src="diagrams/RecentContactsSequenceDiagram.puml" alt="Recording a profile selection and handling save errors" />
 
-`ShowCommand` retains responsibility for resolving an existing contact in the displayed list and returning it in
-`CommandResult`. `LogicManager` records the selected contact before the existing save, and restores the previous
-history if saving throws `IOException` (including permission errors). Only a successful save returns the result
-to `MainWindow` for opening the existing details popup. A failed lookup never reaches history recording.
+`ShowCommand` finds a contact in the displayed list and returns it in `CommandResult`.
+`LogicManager` then records the visit and saves the address book. If saving throws `IOException`, including
+a permission error, it restores the previous history and reports the error instead of opening the popup.
+A failed contact lookup leaves history unchanged.
 
-`RecentCommand` asks `ModelManager` to replace the current filter with history membership and use the history rank
-as the `SortedList` comparator. It does not overwrite `UserPrefs`' sort choice. While the recent view is active,
-a successful visit refreshes rank order. General filtering/list/add restores the saved comparator; an explicit
-sort orders the current matches normally until `recent` is requested again.
+`RecentCommand` asks `ModelManager` to show contacts in history order using the existing `FilteredList`
+and `SortedList`. This does not change the sort preference in `UserPrefs`. Reopening a contact refreshes
+an active recent view. `list`, add or another filter restores the saved sort order. An explicit `sort`
+orders the current results normally; `recent` returns them to history order.
 
-`JsonSerializableAddressBook` stores a `recentContacts` array next to `personsByName`. Missing/null arrays in older
-files mean empty history. On load, stale identifiers/repeats are removed and the first ten distinct existing contacts
-are retained; null entries and invalid JSON shapes use the existing loading-error path. Deletion removes history
-before suffix reuse; successful edits transfer an identifier without moving its position; reset/clear replaces history.
+`JsonSerializableAddressBook` writes a `recentContacts` array alongside `personsByName`.
+A missing or null array loads as empty history. Loading removes missing contacts and repeated identifiers,
+then keeps the first ten entries. Null entries or an invalid array structure cause a data-loading error.
+Deleting a contact removes its history entry before the suffix can be reused. Editing a contact preserves
+its position in history, and replacing or clearing the address book also replaces the history.
 
-A timestamp on every profile was considered, but would couple browsing state to every profile copy and require
-tie-breaking/time control. A ten-entry ordered list expresses the exact contract deterministically with no clock
-or new dependency. Tests cover ordering, capacity, duplicate suffixes, filter/sort interactions, persistence,
-photos, deletion/clear and failed-save rollback.
+An ordered list is enough for this feature: it avoids timestamps, tied visit times and changes to profile
+constructors. Tests cover the ten-contact limit, repeat visits, duplicate names, filters, sorting, storage,
+photos, deletion, clear confirmation and failed saves. Manual checks are listed below.
 
 ### \[Proposed\] Undo/redo feature
 
