@@ -26,6 +26,7 @@ class JsonSerializableAddressBook {
     static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
+    private final List<String> recentContacts = new ArrayList<>();
     @JsonIgnore
     private final List<JsonAdaptedPerson> legacyPersons = new ArrayList<>();
     @JsonIgnore
@@ -36,13 +37,17 @@ class JsonSerializableAddressBook {
      */
     @JsonCreator
     public JsonSerializableAddressBook(@JsonProperty("personsByName") Map<String, JsonNameBucket> personsByName,
-            @JsonProperty("persons") List<JsonAdaptedPerson> persons) {
+            @JsonProperty("persons") List<JsonAdaptedPerson> persons,
+            @JsonProperty("recentContacts") List<String> recentContacts) {
         hasNameBuckets = personsByName != null;
         if (personsByName != null) {
             this.personsByName.putAll(personsByName);
         }
         if (persons != null) {
             legacyPersons.addAll(persons);
+        }
+        if (recentContacts != null) {
+            this.recentContacts.addAll(recentContacts);
         }
     }
 
@@ -55,6 +60,7 @@ class JsonSerializableAddressBook {
         hasNameBuckets = true;
         source.getPersonBuckets().forEach((name, bucket) ->
                 personsByName.put(name, JsonNameBucket.fromModel(bucket)));
+        recentContacts.addAll(source.getRecentContacts());
     }
 
     /**
@@ -64,6 +70,9 @@ class JsonSerializableAddressBook {
      */
     public AddressBook toModelType() throws IllegalValueException {
         AddressBook addressBook = new AddressBook();
+        if (recentContacts.contains(null)) {
+            throw new IllegalValueException("Recent contact identifiers must not be null.");
+        }
         if (hasNameBuckets) {
             Map<String, Map<Integer, Person>> modelBuckets = new TreeMap<>();
             for (Map.Entry<String, JsonNameBucket> jsonBucket : personsByName.entrySet()) {
@@ -77,6 +86,7 @@ class JsonSerializableAddressBook {
             } catch (IllegalArgumentException exception) {
                 throw new IllegalValueException(exception.getMessage(), exception);
             }
+            addressBook.setRecentContacts(recentContacts);
             return addressBook;
         }
 
@@ -87,6 +97,7 @@ class JsonSerializableAddressBook {
             UnindexedPerson person = jsonAdaptedPerson.toModelType();
             addressBook.addPerson(person);
         }
+        addressBook.setRecentContacts(recentContacts);
         return addressBook;
     }
 

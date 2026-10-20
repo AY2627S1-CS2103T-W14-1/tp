@@ -131,6 +131,11 @@ public class AddressBookTest {
             buckets.setPersons(persons);
             return buckets.getPersonBuckets();
         }
+
+        @Override
+        public List<String> getRecentContacts() {
+            return List.of();
+        }
     }
 
 }
