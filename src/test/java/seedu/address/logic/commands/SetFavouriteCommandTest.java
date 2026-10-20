@@ -28,8 +28,8 @@ class SetFavouriteCommandTest {
         model.addPerson(ALICE);
         model.updateFilteredPersonList(person -> false);
         SetFavouriteCommand command = new SetFavouriteCommand("alice pauline", ALICE.getPersonIndex(), true);
-        assertEquals("Favourite contact: Alice Pauline", command.execute(model).getFeedbackToUser());
-        command.execute(model);
+        assertEquals("Added to favourites: Alice Pauline", command.execute(model).getFeedbackToUser());
+        assertEquals("Already in favourites: Alice Pauline", command.execute(model).getFeedbackToUser());
         assertEquals(Set.of(ALICE.getDisplayName()), model.getAddressBook().getFavouriteContacts());
         assertTrue(model.getFilteredPersonList().isEmpty());
     }
@@ -38,7 +38,9 @@ class SetFavouriteCommandTest {
     void execute_duplicateName_targetsOnlySpecifiedSuffix() throws Exception {
         model.addPerson(ALICE);
         model.addPerson(new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex());
-        new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true).execute(model);
+        SetFavouriteCommand mark = new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true);
+        assertEquals("Added to favourites: Alice Pauline_2", mark.execute(model).getFeedbackToUser());
+        assertEquals("Already in favourites: Alice Pauline_2", mark.execute(model).getFeedbackToUser());
         new ListFavouritesCommand().execute(model);
         assertEquals(List.of("Alice Pauline_2"), model.getFilteredPersonList().stream()
                 .map(Person::getDisplayName).toList());
@@ -50,10 +52,19 @@ class SetFavouriteCommandTest {
         new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), true).execute(model);
         new ListFavouritesCommand().execute(model);
         SetFavouriteCommand unmark = new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false);
-        assertEquals("Contact is not a favourite: Alice Pauline", unmark.execute(model).getFeedbackToUser());
+        assertEquals("Removed from favourites: Alice Pauline", unmark.execute(model).getFeedbackToUser());
         assertTrue(model.getFilteredPersonList().isEmpty());
-        unmark.execute(model);
+        assertEquals("Not in favourites: Alice Pauline", unmark.execute(model).getFeedbackToUser());
         assertTrue(model.getAddressBook().getFavouriteContacts().isEmpty());
+    }
+
+    @Test
+    void execute_unfavouriteUnmarkedContact_reportsUnchangedState() throws Exception {
+        model.addPerson(ALICE);
+        SetFavouriteCommand unmark = new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false);
+        assertEquals("Not in favourites: Alice Pauline", unmark.execute(model).getFeedbackToUser());
+        assertTrue(model.getAddressBook().getFavouriteContacts().isEmpty());
+        assertEquals(List.of(ALICE), model.getFilteredPersonList());
     }
 
     @Test

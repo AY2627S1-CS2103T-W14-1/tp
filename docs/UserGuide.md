@@ -122,7 +122,9 @@ Formats:
 Use the same name/suffix identifiers as `show`, not a row number. Names are case-insensitive.
 Omitting the suffix selects the unsuffixed contact, not every contact with that name.
 Marking or unmarking works across the whole address book, even if the contact is hidden by the current filter.
-Repeating either command leaves the contact in the same state.
+Marking a contact reports `Added to favourites`; unmarking it reports `Removed from favourites`.
+Repeating either command leaves the contact in the same state and reports `Already in favourites`
+or `Not in favourites`, respectively.
 An unknown name or suffix reports an error without changing favourites.
 
 `favourites` replaces the current filter and displays favourite contacts in your selected `sort` order.

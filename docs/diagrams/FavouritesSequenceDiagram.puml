@@ -19,6 +19,10 @@ AddressBook --> SetFavouriteCommand : contacts
 deactivate AddressBook
 note over SetFavouriteCommand : Match the contact's name and suffix.
 alt target exists
+    SetFavouriteCommand -> AddressBook : getFavouriteContacts()
+    activate AddressBook
+    AddressBook --> SetFavouriteCommand : favourite identifiers
+    deactivate AddressBook
     SetFavouriteCommand -> ModelManager : setFavourite(target, true)
     activate ModelManager
     ModelManager -> AddressBook : setFavourite(target, true)
@@ -27,7 +31,7 @@ alt target exists
     deactivate AddressBook
     ModelManager --> SetFavouriteCommand
     deactivate ModelManager
-    [<-- SetFavouriteCommand : result
+    [<-- SetFavouriteCommand : result with changed or unchanged status
 else target missing
     [<-- SetFavouriteCommand : throws CommandException
 end

@@ -7,14 +7,17 @@ import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
 
 /** Marks or unmarks a contact as a favourite, independently of the displayed filter. */
 public class SetFavouriteCommand extends Command {
     public static final String COMMAND_WORD = "favourite";
     public static final String UNFAVOURITE_COMMAND_WORD = "unfavourite";
-    public static final String MESSAGE_SUCCESS = "Favourite contact: %s";
-    public static final String MESSAGE_REMOVED = "Contact is not a favourite: %s";
+    public static final String MESSAGE_ADDED = "Added to favourites: %s";
+    public static final String MESSAGE_REMOVED = "Removed from favourites: %s";
+    public static final String MESSAGE_ALREADY_FAVOURITE = "Already in favourites: %s";
+    public static final String MESSAGE_NOT_FAVOURITE = "Not in favourites: %s";
 
     private final String targetName;
     private final PersonIndex targetIndex;
@@ -37,14 +40,21 @@ public class SetFavouriteCommand extends Command {
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        Person target = model.getAddressBook().getPersonList().stream()
+        ReadOnlyAddressBook addressBook = model.getAddressBook();
+        Person target = addressBook.getPersonList().stream()
                 .filter(person -> person.getName().fullName.equals(targetName))
                 .filter(person -> person.getPersonIndex().equals(targetIndex))
                 .findFirst()
                 .orElseThrow(() -> new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME));
+        boolean wasFavourite = addressBook.getFavouriteContacts().contains(target.getDisplayName());
         model.setFavourite(target, isFavourite);
-        return new CommandResult(String.format(isFavourite ? MESSAGE_SUCCESS : MESSAGE_REMOVED,
-                target.getDisplayName()));
+        String message;
+        if (isFavourite) {
+            message = wasFavourite ? MESSAGE_ALREADY_FAVOURITE : MESSAGE_ADDED;
+        } else {
+            message = wasFavourite ? MESSAGE_REMOVED : MESSAGE_NOT_FAVOURITE;
+        }
+        return new CommandResult(String.format(message, target.getDisplayName()));
     }
 
     @Override
