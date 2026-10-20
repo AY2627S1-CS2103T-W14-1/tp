@@ -3,7 +3,9 @@ package seedu.address.storage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,6 +28,7 @@ class JsonSerializableAddressBook {
     static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
+    private final Set<String> favouriteContacts = new TreeSet<>();
     @JsonIgnore
     private final List<JsonAdaptedPerson> legacyPersons = new ArrayList<>();
     @JsonIgnore
@@ -36,13 +39,17 @@ class JsonSerializableAddressBook {
      */
     @JsonCreator
     public JsonSerializableAddressBook(@JsonProperty("personsByName") Map<String, JsonNameBucket> personsByName,
-            @JsonProperty("persons") List<JsonAdaptedPerson> persons) {
+            @JsonProperty("persons") List<JsonAdaptedPerson> persons,
+            @JsonProperty("favouriteContacts") Set<String> favouriteContacts) {
         hasNameBuckets = personsByName != null;
         if (personsByName != null) {
             this.personsByName.putAll(personsByName);
         }
         if (persons != null) {
             legacyPersons.addAll(persons);
+        }
+        if (favouriteContacts != null) {
+            this.favouriteContacts.addAll(favouriteContacts);
         }
     }
 
@@ -55,6 +62,7 @@ class JsonSerializableAddressBook {
         hasNameBuckets = true;
         source.getPersonBuckets().forEach((name, bucket) ->
                 personsByName.put(name, JsonNameBucket.fromModel(bucket)));
+        favouriteContacts.addAll(source.getFavouriteContacts());
     }
 
     /**
@@ -77,6 +85,7 @@ class JsonSerializableAddressBook {
             } catch (IllegalArgumentException exception) {
                 throw new IllegalValueException(exception.getMessage(), exception);
             }
+            addressBook.setFavouriteContacts(favouriteContacts);
             return addressBook;
         }
 
@@ -87,6 +96,7 @@ class JsonSerializableAddressBook {
             UnindexedPerson person = jsonAdaptedPerson.toModelType();
             addressBook.addPerson(person);
         }
+        addressBook.setFavouriteContacts(favouriteContacts);
         return addressBook;
     }
 

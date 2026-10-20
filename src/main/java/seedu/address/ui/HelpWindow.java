@@ -32,6 +32,14 @@ public class HelpWindow extends UiPart<Stage> {
             list
               Displays every saved contact.
 
+            favourite NAME[_NUMBER] / unfavourite NAME[_NUMBER]
+              Marks or unmarks a contact, including contacts outside the current view.
+              Example: favourite John Tan_2
+
+            favourites
+              Lists favourite contacts in the selected sort order. Use list to return to all contacts.
+              Selections survive restarts and are removed when their contact is deleted.
+
             clear
               Deletes every contact after confirmation. Type yes to confirm or no to cancel.
 
