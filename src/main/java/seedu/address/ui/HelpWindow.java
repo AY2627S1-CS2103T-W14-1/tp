@@ -25,6 +25,11 @@ public class HelpWindow extends UiPart<Stage> {
               Opens the full details of a contact.
               Example: show John Tan or show John Tan_2
 
+            find [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [t/TAG]...
+              Finds contacts matching the specified criteria.
+              (/name can be omitted for quick name searches).
+              Example: find John /location COM1 t/teammate
+
             delete NAME[_NUMBER]
               Deletes the selected contact.
               Example: delete John Tan_2

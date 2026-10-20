@@ -7,8 +7,11 @@ import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 //import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
-//import java.util.List;
-//import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.AddCommand;
@@ -21,7 +24,7 @@ import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.ShowCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-//import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.PersonMatchesCriteriaPredicate;
 import seedu.address.model.person.UnindexedPerson;
 //import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
@@ -80,12 +83,11 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_find() throws Exception {
-        assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, () ->
-                parser.parseCommand(FindCommand.COMMAND_WORD + " Alex"));
-        // List<String> keywords = List.of("foo", "bar", "baz");
-        // FindCommand command = (FindCommand) parser.parseCommand(
-        //         FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
-        // assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+        List<String> keywords = Arrays.asList("foo", "bar", "baz");
+        FindCommand command = (FindCommand) parser.parseCommand(
+                FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new FindCommand(new PersonMatchesCriteriaPredicate(keywords, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList())), command);
     }
 
     @Test

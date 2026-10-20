@@ -159,24 +159,22 @@ Examples:
 - `show John Tan` opens details for the unsuffixed John Tan.
 - `show John Tan_2` opens details for the second displayed John Tan.
 
-### Locating persons by name: `find`
+### Finding contacts: `find`
 
-`find` is disabled as of the MVP version. Below is the legacy documentation of the method.
+Finds contacts whose details match the specified keywords (case-insensitive substring match).
 
-Finds persons whose names contain any of the given keywords.
+Format: `find [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [t/TAG or /tag TAG]...`
 
-Format: `find KEYWORD [MORE_KEYWORDS]`
-
-- The search is case-insensitive; for example, `hans` matches `Hans`.
-- Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-- The search considers only names.
-- Only full words match; for example, `Han` does not match `Hans`.
-- Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+* The search is case-insensitive (e.g. `john` matches `John`).
+* Substring matching is supported (e.g. `COM` matches `COM1`, `ali` matches `Alice`, `@u.nus` matches email).
+* If multiple different fields are specified, only contacts matching **all** criteria will be returned.
+* If multiple keywords are given for the same field, contacts matching **any** of the keywords will be returned.
+* You can search by name directly without prefix (e.g. `find Alice Bob`) or with `/name Alice`.
 
 Examples:
-- `find John` returns `john` and `John Doe`
-- `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `find John` returns all contacts whose names contain `john`.
+* `find /location COM1 t/colleague` returns contacts located in COM1 who have the tag `colleague`.
+* `find /phone 9876 /email u.nus.edu` returns contacts matching both phone and email domain.
 
 ### Deleting a person: `delete`
 
@@ -255,15 +253,15 @@ _Details coming soon ..._
 
 ## Command summary
 
-| Action       | Format, Examples                                                                                                                                                           |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Action       | Format, Examples                                                                                                                                                                                                     |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Add**      | `add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 /photo C:\Users\Student\Pictures\james.jpg` |
-| **Clear**    | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                 |
-| **Delete**   | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                         |
-| **~~Edit~~** | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~                                          |
-| **~~Find~~** | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~                                                                                                             |
-| **List**     | `list`                                                                                                                                                                     |
-| **Show**     | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`
-| **Sort**     | `sort FIELD [asc\|desc]`<br> e.g. `sort phone desc`
-| **Help**     | `help`                                                                                                                                                                     |
-| **Exit**     | `exit`                                                                                                                                                                     |
+| **Clear**    | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                                                           |
+| **Delete**   | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                                                                   |
+| **~~Edit~~** | ~~`edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`~~                                                                                    |
+| **Find**     | `find [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [t/TAG]...`<br> e.g., `find John /location COM1 t/colleague`                                                                                   |
+| **List**     | `list`                                                                                                                                                                                                               |
+| **Show**     | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`                                                                                                                                                                     |
+| **Sort**     | `sort FIELD [asc\|desc]`<br> e.g. `sort phone desc`                                                                                                                                                                  |
+| **Help**     | `help`                                                                                                                                                                                                               |
+| **Exit**     | `exit`                                                                                                                                                                                                               |

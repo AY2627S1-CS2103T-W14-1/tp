@@ -138,7 +138,6 @@ public class LogicManagerTest {
     @Test
     public void execute_unsupportedLegacyCommands_throwsParseException() {
         assertParseException("edit 1 n/Alex", Messages.MESSAGE_UNKNOWN_COMMAND);
-        assertParseException("find Alex", Messages.MESSAGE_UNKNOWN_COMMAND);
     }
 
     /**
