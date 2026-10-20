@@ -26,6 +26,9 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Professor;
+import seedu.address.model.person.Role;
+import seedu.address.model.person.Student;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -102,8 +105,15 @@ public class EditCommand extends Command {
         Set<Tag> updatedTags = editPersonDescriptor.getTags().orElse(personToEdit.getTags());
         // PersonIndex cannot be changed without a deletion
 
-        return new Person(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
-                personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
+        if (personToEdit.getRole().equals(new Role("student"))) {
+            return new Student(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
+                    personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
+        } else if (personToEdit.getRole().equals(new Role("professor"))) {
+            return new Professor(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
+                    personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
+        } else {
+            throw new IllegalArgumentException("Invalid person");
+        }
     }
 
     @Override

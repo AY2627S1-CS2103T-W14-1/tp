@@ -15,10 +15,10 @@ public class HelpWindow extends UiPart<Stage> {
     public static final String HELP_MESSAGE = """
             CampusContacts command guide
 
-            add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...
+            add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...
               Adds a contact. /photo is optional; supported image types are PNG, JPG, JPEG, and GIF.
               The selected image is copied into CampusContacts and shown by the show command.
-              Example: add John Tan /email john@u.nus.edu /phone 90000001 /location COM1
+              Example: add John Tan /role student /email john@u.nus.edu /phone 90000001 /location COM1
                        /photo C:\\Users\\Student\\Pictures\\john.jpg t/teammate
 
             show NAME[_NUMBER]
