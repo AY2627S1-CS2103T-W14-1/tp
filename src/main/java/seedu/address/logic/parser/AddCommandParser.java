@@ -12,6 +12,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -88,8 +90,14 @@ public class AddCommandParser implements Parser<AddCommand> {
         Set<Tag> tagList = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
         UnindexedPerson person = new UnindexedPerson(name, role, phone, email, address, major, year, faculty,
                 department, hours, tagList);
+        Optional<Path> photoSource = Optional.empty();
+        if (argMultimap.getValue(PREFIX_CONTACT_PHOTO).isPresent()) {
+            photoSource = Optional.of(ParserUtil.parsePhotoPath(
+                    argMultimap.getValue(PREFIX_CONTACT_PHOTO).get()));
+        }
+        UnindexedPerson person = new UnindexedPerson(name, phone, email, address, tagList);
 
-        return new AddCommand(person);
+        return new AddCommand(person, photoSource);
     }
 
     /**

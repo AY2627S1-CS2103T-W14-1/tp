@@ -4,6 +4,7 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
@@ -30,12 +31,20 @@ public class UnindexedPerson {
     private final Faculty faculty;
     private final Department department;
     private final Hours hours;
+    private final Photo photo;
 
     /**
      * Creates an unindexed person from the supplied details.
      */
     public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, role, phone, email, address, tags);
+        this(name, role, phone, email, address, tags, null);
+    }
+
+    /**
+     * Creates an unindexed person from the supplied details and an optional photo reference.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags, Photo photo) {
+        requireAllNonNull(name, phone, email, address, tags);
         this.name = name;
         this.role = role;
         this.phone = phone;
@@ -47,13 +56,22 @@ public class UnindexedPerson {
         this.faculty = new Faculty(null);
         this.department = new Department(null);
         this.hours = new Hours(null);
+        this.photo = photo;
     }
-
+  
     /**
      * Creates an unindexed Student with additional (optional) details.
      */
     public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
                            Set<Tag> tags) {
+        this(name, role, phone, email, address, major, year, tags, null);
+    }
+
+    /**
+     * Creates an unindexed Student with additional (optional) details and an optional photo reference.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                           Set<Tag> tags, Photo photo) {
         requireAllNonNull(name, role, phone, email, address, tags);
         this.name = name;
         this.role = role;
@@ -66,13 +84,22 @@ public class UnindexedPerson {
         this.faculty = new Faculty(null);
         this.department = new Department(null);
         this.hours = new Hours(null);
+        this.photo = photo;
     }
-
+  
     /**
      * Creates an unindexed Professor with additional (optional) details.
      */
     public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
                            Department department, Hours hours, Set<Tag> tags) {
+        this(name, role, phone, email, address, faculty, department, hours, tags, null);
+    }
+
+    /**
+     * Creates an unindexed Professor with additional (optional) details and an optional photo reference.
+     */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
+                           Department department, Hours hours, Set<Tag> tags, Photo photo) {
         requireAllNonNull(name, role, phone, email, address, tags);
         this.name = name;
         this.role = role;
@@ -85,13 +112,14 @@ public class UnindexedPerson {
         this.faculty = faculty != null ? faculty : new Faculty(null);
         this.department = department != null ? department : new Department(null);
         this.hours = hours != null ? hours : new Hours(null);
+        this.photo = photo;
     }
 
     /**
      * Creates an unindexed Person with some potentially null details.
      */
     public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
-                           Faculty faculty, Department department, Hours hours, Set<Tag> tags) {
+                           Faculty faculty, Department department, Hours hours, Set<Tag> tags, Photo photo) {
         requireAllNonNull(name, role, phone, email, address, tags);
         this.name = name;
         this.role = role;
@@ -104,6 +132,7 @@ public class UnindexedPerson {
         this.faculty = faculty != null ? faculty : new Faculty(null);
         this.department = department != null ? department : new Department(null);
         this.hours = hours != null ? hours : new Hours(null);
+        this.photo = photo;
     }
 
     /**
@@ -113,12 +142,19 @@ public class UnindexedPerson {
      */
     public Person withPersonIndex(PersonIndex newPersonIndex) {
         if (this.role.equals(new Role("student"))) {
-            return new Student(name, phone, email, address, major, year, tags, newPersonIndex);
+            return new Student(name, phone, email, address, major, year, tags, newPersonIndex, photo);
         } else if (this.role.equals(new Role("professor"))) {
-            return new Professor(name, phone, email, address, faculty, department, hours, tags, newPersonIndex);
+            return new Professor(name, phone, email, address, faculty, department, hours, tags, newPersonIndex, photo);
         } else {
             throw new IllegalArgumentException("Invalid person");
         }
+    }
+
+    /**
+     * Returns a copy of this person with the supplied photo reference.
+     */
+    public UnindexedPerson withPhoto(Photo newPhoto) {
+        return new UnindexedPerson(name, phone, email, address, major, year, faculty, department, hours, tags, newPhoto);
     }
 
     public Name getName() {
@@ -159,6 +195,13 @@ public class UnindexedPerson {
 
     public Hours getHours() {
         return hours;
+    }
+
+    /**
+     * Returns the optional relative path to this person's copied photo.
+     */
+    public Optional<Photo> getPhoto() {
+        return Optional.ofNullable(photo);
     }
 
     /**

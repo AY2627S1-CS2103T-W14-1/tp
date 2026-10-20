@@ -2,9 +2,17 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
@@ -27,6 +35,7 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_INVALID_PHOTO_PATH = "Photo must be a readable PNG, JPG, JPEG, or GIF file.";
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
@@ -226,5 +235,70 @@ public class ParserUtil {
             tagSet.add(parseTag(tagName));
         }
         return tagSet;
+    }
+
+    /**
+     * Parses a photo source path and verifies that it is a readable supported image file.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the specified path is invalid or does not refer to a supported image file.
+     */
+    public static Path parsePhotoPath(String photoPath) throws ParseException {
+        requireNonNull(photoPath);
+
+        final Path path;
+        try {
+            path = Path.of(photoPath.trim()).toAbsolutePath().normalize();
+        } catch (InvalidPathException exception) {
+            throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
+        }
+
+        if (!Files.isRegularFile(path) || !Files.isReadable(path)
+                || !hasSupportedImageExtension(path) || !hasReadableImageContents(path)) {
+            throw new ParseException(MESSAGE_INVALID_PHOTO_PATH);
+        }
+        return path;
+    }
+
+    private static boolean hasSupportedImageExtension(Path path) {
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+
+        String name = fileName.toString().toLowerCase(Locale.ROOT);
+        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif");
+    }
+
+    private static boolean hasReadableImageContents(Path path) {
+        try (ImageInputStream imageStream = ImageIO.createImageInputStream(path.toFile())) {
+            if (imageStream == null) {
+                return false;
+            }
+
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageStream);
+            if (!readers.hasNext()) {
+                return false;
+            }
+
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(imageStream);
+                return hasExpectedImageFormat(path, reader.getFormatName()) && reader.read(0) != null;
+            } finally {
+                reader.dispose();
+            }
+        } catch (java.io.IOException | RuntimeException exception) {
+            return false;
+        }
+    }
+
+    private static boolean hasExpectedImageFormat(Path path, String formatName) {
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        String normalizedFormatName = formatName.toLowerCase(Locale.ROOT);
+        return (fileName.endsWith(".png") && normalizedFormatName.equals("png"))
+                || ((fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"))
+                && normalizedFormatName.equals("jpeg"))
+                || (fileName.endsWith(".gif") && normalizedFormatName.equals("gif"));
     }
 }

@@ -12,10 +12,14 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Photo;
 import seedu.address.model.person.UnindexedPerson;
 
 /**
@@ -56,21 +60,44 @@ public class AddCommand extends Command {
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 
     private final UnindexedPerson toAdd;
+    private final Optional<Path> photoSource;
 
     /**
      * Creates an AddCommand to add the specified {@code UnindexedPerson}.
      */
     public AddCommand(UnindexedPerson person) {
+        this(person, Optional.empty());
+    }
+
+    /**
+     * Creates an AddCommand with an optional source image that will be imported in a later storage step.
+     */
+    public AddCommand(UnindexedPerson person, Optional<Path> photoSource) {
         requireNonNull(person);
+        requireNonNull(photoSource);
         toAdd = person;
+        this.photoSource = photoSource;
+    }
+
+    /** Returns the optional validated source path supplied by the user. */
+    public Optional<Path> getPhotoSource() {
+        return photoSource;
+    }
+
+    /**
+     * Returns a copy of this command whose person uses the imported photo reference.
+     */
+    public AddCommand withPhoto(Photo photo) {
+        requireNonNull(photo);
+        return new AddCommand(toAdd.withPhoto(photo));
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        // if it's decided that AddCommands should not be called with indexed Person,
-        // the following if-block can be removed
+        // User-entered contacts are unindexed and receive a new bucket id. This protects
+        // internal callers from attempting to insert an existing indexed record again.
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
@@ -90,13 +117,15 @@ public class AddCommand extends Command {
             return false;
         }
 
-        return toAdd.equals(otherAddCommand.toAdd);
+        return toAdd.equals(otherAddCommand.toAdd)
+                && photoSource.equals(otherAddCommand.photoSource);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .add("toAdd", toAdd)
+                .add("photoSource", photoSource)
                 .toString();
     }
 }

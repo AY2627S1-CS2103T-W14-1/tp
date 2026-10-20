@@ -22,5 +22,6 @@ public class CliSyntax {
     public static final Prefix PREFIX_CONTACT_FACULTY = new Prefix("/faculty");
     public static final Prefix PREFIX_CONTACT_DEPARTMENT = new Prefix("/department");
     public static final Prefix PREFIX_CONTACT_OFFICE_HOURS = new Prefix("/hours");
+    public static final Prefix PREFIX_CONTACT_PHOTO = new Prefix("/photo");
 
 }

@@ -43,6 +43,36 @@ public class Person extends UnindexedPerson {
     public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
                   Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex) {
         super(name, role, phone, email, address, faculty, department, hours, tags);
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, PersonIndex personIndex) {
+        this(name, phone, email, address, tags, personIndex, null);
+    }
+    
+    /**
+     * Creates an indexed person with an optional photo reference.
+     */
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, PersonIndex personIndex,
+            Photo photo) {
+        super(name, role, phone, email, address, tags, photo);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
+    /**
+     * Additional constructor for Student with an optional photo reference.
+     */
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                  Set<Tag> tags, PersonIndex personIndex, Photo photo) {
+        super(name, role, phone, email, address, major, year, tags, photo);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
+    /**
+     * Additional constructor for Professor with an optional photo reference.
+     */
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
+                  Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo) {
+        super(name, role, phone, email, address, faculty, department, hours, tags, photo);
         requireNonNull(personIndex);
         this.personIndex = personIndex;
     }

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
@@ -20,6 +21,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Role;
+import seedu.address.model.person.Photo;
 import seedu.address.model.person.UnindexedPerson;
 import seedu.address.model.person.Year;
 import seedu.address.model.tag.Tag;
@@ -42,6 +44,8 @@ class JsonAdaptedPerson {
     private final String faculty;
     private final String department;
     private final String hours;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final String photo;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
 
     /**
@@ -53,7 +57,7 @@ class JsonAdaptedPerson {
             @JsonProperty("address") String address, @JsonProperty("tags") List<JsonAdaptedTag> tags,
             @JsonProperty("major") String major, @JsonProperty("year") String year,
             @JsonProperty("faculty") String faculty, @JsonProperty("department") String department,
-            @JsonProperty("hours") String hours) {
+            @JsonProperty("hours") String hours), @JsonProperty("photo") String photo) {
         this.name = name;
         this.role = role;
         this.phone = phone;
@@ -64,9 +68,17 @@ class JsonAdaptedPerson {
         this.faculty = faculty;
         this.department = department;
         this.hours = hours;
+        this.photo = photo;
         if (tags != null) {
             this.tags.addAll(tags);
         }
+    }
+
+    /**
+     * Constructs a person without a photo reference. Kept for existing tests and legacy JSON data.
+     */
+    public JsonAdaptedPerson(String name, String phone, String email, String address, List<JsonAdaptedTag> tags) {
+        this(name, phone, email, address, tags, null);
     }
 
     /**
@@ -83,6 +95,7 @@ class JsonAdaptedPerson {
         faculty = source.getFaculty() != null ? source.getFaculty().value : null;
         department = source.getDepartment() != null ? source.getDepartment().value : null;
         hours = source.getHours() != null ? source.getHours().value : null;
+        photo = source.getPhoto().map(Photo::getRelativePath).orElse(null);
         tags.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
@@ -168,8 +181,17 @@ class JsonAdaptedPerson {
         final Hours modelHours = new Hours(hours);
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
+        
+        final Photo modelPhoto;
+      
+        try {
+            modelPhoto = photo == null ? null : new Photo(photo);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalValueException(exception.getMessage(), exception);
+        }
+
         return new UnindexedPerson(modelName, modelRole, modelPhone, modelEmail, modelAddress, modelMajor, modelYear,
-                                   modelFaculty, modelDepartment, modelHours, modelTags);
+                                   modelFaculty, modelDepartment, modelHours, modelTags, modelPhoto);
     }
 
 }
