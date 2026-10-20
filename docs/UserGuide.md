@@ -111,7 +111,7 @@ Format: `list`
 
 ### Managing favourite contacts: `favourite`, `unfavourite`, `favourites`
 
-Keep frequently needed people in a short list without changing their profile details.
+Mark people you contact often so you can find them quickly.
 
 Formats:
 
@@ -122,13 +122,13 @@ Formats:
 Use the same name/suffix identifiers as `show`, not a row number. Names are case-insensitive.
 Omitting the suffix selects the unsuffixed contact, not every contact with that name.
 Marking or unmarking works across the whole address book, even if the contact is hidden by the current filter.
-Repeating either command is safe: the feedback confirms the resulting status.
+Repeating either command leaves the contact in the same state.
 An unknown name or suffix reports an error without changing favourites.
 
 `favourites` replaces the current filter and displays favourite contacts in your selected `sort` order.
 If there are none, the feedback explains how to mark one. Unmarking a contact while viewing favourites
-removes it from that view immediately. Use `list` to show all contacts again; adding a contact also returns
-to the full list, as usual. The filtered view itself is not restored after a restart.
+removes it from the list immediately. Use `list` to show all contacts again. Adding a contact also returns
+to the full list. After a restart, all contacts are shown until you run `favourites` again.
 
 Examples (after adding two contacts named John Tan):
 
@@ -136,8 +136,8 @@ Examples (after adding two contacts named John Tan):
 - `favourites` shows your favourite contacts.
 - `unfavourite John Tan_2` removes that selection.
 
-Favourite selections are saved automatically with your contacts. Deleting a contact removes its selection;
-a new contact reusing that name/suffix does not inherit it. Confirmed `clear` removes all selections;
+Favourites are saved automatically with your contacts. Deleting a contact also removes it from favourites;
+a new contact using the same name and suffix starts unmarked. Confirmed `clear` removes all selections;
 cancelling `clear` leaves them unchanged. If you manually remove a contact from the data file,
 references to that missing contact in `favouriteContacts` are ignored when loading.
 

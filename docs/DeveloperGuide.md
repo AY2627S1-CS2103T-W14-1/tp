@@ -15,7 +15,7 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
-* Lim Zi Chao (`lzc-nus`) used OpenAI Codex to assist with the favourites feature's design, implementation, tests, documentation and verification. AI assistance does not substitute for the contributor's responsibility to understand and review the changes.
+* Lim Zi Chao (`lzc-nus`) used OpenAI Codex for the favourites feature's design, implementation, tests, documentation and verification.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -209,32 +209,29 @@ The popup is deliberately a UI concern: the command resolves a model object but 
 
 ### Favourite contacts
 
-`FavouriteCommand` handles marking and unmarking using one shared parser and the existing
-`NameIndexParser` grammar. It resolves the target from the complete address book so an empty
-or restricted view cannot prevent users from marking a known identifier. `FavouritesCommand`
-replaces the current filter, while retaining the user's chosen sort order.
+`FavouriteCommand` marks or unmarks a contact using the existing `NameIndexParser` grammar.
+It searches the whole address book, so users can mark a contact even when it is hidden by a filter.
+`FavouritesCommand` shows the selected contacts in the user's chosen sort order.
 
-`AddressBook` owns a set of favourite display identifiers (name plus optional suffix). These
-identifiers are unique under the current name-bucket invariant: names cannot contain underscores.
-Keeping selections separately avoids reconstructing immutable `Person` objects or coupling this
-feature to the photo/profile hierarchy. The set is exposed only as an immutable snapshot.
+`AddressBook` stores favourites as a set of display identifiers: a name and its optional suffix.
+These identifiers are unique because contact names cannot contain underscores. Storing selections
+separately lets the feature work without changing `Person`, its subclasses or photo handling.
+Callers receive an immutable snapshot of the set.
 
 <puml src="diagrams/FavouritesSequenceDiagram.puml" alt="Marking and listing a favourite contact" />
 
-`ModelManager` remembers whether the favourite view is active and refreshes its predicate after
-status changes or edits. General filter changes, including `list` and add, leave that view.
-`AddressBook#setPerson` transfers a selection to an edited identifier only after a successful edit;
-remove/reset operations clean selections so released suffixes cannot leak favourite status.
+While the favourites view is active, `ModelManager` refreshes it after a status change or edit.
+`list` and add return to the full contact list. `AddressBook#setPerson` keeps a contact's selection
+when its identifier changes. Deleting or clearing contacts removes their selections, so a new
+contact that reuses a suffix starts unmarked.
 
-`JsonSerializableAddressBook` stores a sorted `favouriteContacts` array alongside `personsByName`.
-Missing/null arrays in older files default to empty. Unknown identifiers are discarded on load;
-malformed array shapes/null entries are rejected through the existing data-loading error path.
-`LogicManager` saves the resulting address-book snapshot using the existing command-save flow.
-No dependencies or UI event-handler logic are added. A boolean on each profile was considered,
-but would require every profile/photo constructor and copy operation to preserve unrelated UI selection state.
+`JsonSerializableAddressBook` writes a sorted `favouriteContacts` array alongside `personsByName`.
+A missing or null array loads as an empty set. References to missing contacts are ignored;
+an invalid array structure or null entry causes a data-loading error.
+`LogicManager` saves the selections through the existing address-book save flow.
 
-Verification covers shared identifier boundaries, repeated operations, empty/hidden/duplicate targets,
-sort/filter interaction, JSON compatibility, photos, deletion/suffix reuse and confirmed/cancelled clear.
+Tests cover identifier parsing, repeated commands, filtered views, sorting, JSON compatibility,
+photo preservation, deletion, suffix reuse and clear confirmation. Manual checks are listed below.
 
 ### \[Proposed\] Undo/redo feature
 
