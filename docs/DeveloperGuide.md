@@ -15,6 +15,7 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
+* Lim Zi Chao (`lzc-nus`) used OpenAI Codex to assist with the favourites feature's design, implementation, tests, documentation and verification. AI assistance does not substitute for the contributor's responsibility to understand and review the changes.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -205,6 +206,35 @@ The `show NAME[_NUMBER]` command lets users view the complete stored details of 
 1. The popup displays the contact's display name, ID, phone number, email, location, and tags.
 
 The popup is deliberately a UI concern: the command resolves a model object but does not save or modify any data.
+
+### Favourite contacts
+
+`FavouriteCommand` handles marking and unmarking using one shared parser and the existing
+`NameIndexParser` grammar. It resolves the target from the complete address book so an empty
+or restricted view cannot prevent users from marking a known identifier. `FavouritesCommand`
+replaces the current filter, while retaining the user's chosen sort order.
+
+`AddressBook` owns a set of favourite display identifiers (name plus optional suffix). These
+identifiers are unique under the current name-bucket invariant: names cannot contain underscores.
+Keeping selections separately avoids reconstructing immutable `Person` objects or coupling this
+feature to the photo/profile hierarchy. The set is exposed only as an immutable snapshot.
+
+<puml src="diagrams/FavouritesSequenceDiagram.puml" alt="Marking and listing a favourite contact" />
+
+`ModelManager` remembers whether the favourite view is active and refreshes its predicate after
+status changes or edits. General filter changes, including `list` and add, leave that view.
+`AddressBook#setPerson` transfers a selection to an edited identifier only after a successful edit;
+remove/reset operations clean selections so released suffixes cannot leak favourite status.
+
+`JsonSerializableAddressBook` stores a sorted `favouriteContacts` array alongside `personsByName`.
+Missing/null arrays in older files default to empty. Unknown identifiers are discarded on load;
+malformed array shapes/null entries are rejected through the existing data-loading error path.
+`LogicManager` saves the resulting address-book snapshot using the existing command-save flow.
+No dependencies or UI event-handler logic are added. A boolean on each profile was considered,
+but would require every profile/photo constructor and copy operation to preserve unrelated UI selection state.
+
+Verification covers shared identifier boundaries, repeated operations, empty/hidden/duplicate targets,
+sort/filter interaction, JSON compatibility, photos, deletion/suffix reuse and confirmed/cancelled clear.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -492,6 +522,20 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `show Unknown Person`<br>
       Expected: No popup opens. The result area displays an error message.
+
+### Favourite contacts
+
+Use a disposable data folder. Add two contacts named John Tan with different phone/email values.
+
+1. Run `favourite John Tan_2`, then `favourites`. Only the second John Tan should appear.
+1. Repeat `favourite John Tan_2`. It should remain a single favourite, not a duplicate.
+1. Run `sort name desc`, `list`, then `favourites`. The selected sort is retained.
+1. Run `unfavourite John Tan_2`. The active favourite view should immediately become empty.
+1. While the view is empty, run `favourite John Tan`. The unsuffixed contact should appear.
+1. Run `favourite John Tan_0`, `favourites extra`, and `favourite Missing Person`. Each should report an error without changing selections.
+1. Exit normally and relaunch in the same folder. Run `favourites`; the selection should survive.
+1. Delete the favourite, add another contact with the same name, and run `favourites`. The replacement must not inherit the selection.
+1. Mark a contact; run `clear`, then `no`. Its selection should remain. Repeat `clear`, then `yes`: contacts and selections should both be empty after restart.
 
 ### Deleting a person
 
