@@ -147,6 +147,7 @@ public class ModelManager implements Model {
     public void showRecentPersons() {
         List<String> recent = addressBook.getRecentContacts();
         updateFilteredPersonList(person -> recent.contains(person.getDisplayName()));
+        // History is newest-first, so a lower position means a more recently viewed contact.
         sortedPersons.setComparator(Comparator.comparingInt(person -> recent.indexOf(person.getDisplayName())));
         isRecentView = true;
     }
