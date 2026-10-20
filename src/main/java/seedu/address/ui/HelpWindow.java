@@ -32,6 +32,11 @@ public class HelpWindow extends UiPart<Stage> {
             list
               Displays every saved contact.
 
+            recent
+              Lists the last ten distinct contacts selected with show, most recent first.
+              Reopening moves a contact to the front. History survives restarts.
+              Use list to return to all contacts in your selected sort order.
+
             clear
               Deletes every contact after confirmation. Type yes to confirm or no to cancel.
 
