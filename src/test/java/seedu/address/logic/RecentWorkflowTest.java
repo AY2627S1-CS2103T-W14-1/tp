@@ -1,0 +1,120 @@
+package seedu.address.logic;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.ModelManager;
+import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Person;
+import seedu.address.storage.JsonAddressBookStorage;
+import seedu.address.storage.JsonUserPrefsStorage;
+import seedu.address.storage.StorageManager;
+
+class RecentWorkflowTest {
+    @TempDir
+    private Path tempDir;
+
+    private final ModelManager model = new ModelManager();
+
+    private Logic newLogic(ModelManager target, JsonAddressBookStorage addressStorage) {
+        return new LogicManager(target, new StorageManager(addressStorage,
+                new JsonUserPrefsStorage(tempDir.resolve("preferences.json"))));
+    }
+
+    private void addJohns(Logic logic) throws Exception {
+        logic.execute("add John Tan /email first@u.nus.edu /phone 90000001 /location COM1");
+        logic.execute("add John Tan /email second@u.nus.edu /phone 90000002 /location COM2");
+    }
+
+    @Test
+    void execute_showRepeatAndFailedLookup_tracksOnlySuccessfulSelections() throws Exception {
+        Logic logic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("contacts.json")));
+        addJohns(logic);
+        assertThrows(CommandException.class, () -> logic.execute("show Missing Person"));
+        assertTrue(model.getAddressBook().getRecentContacts().isEmpty());
+        logic.execute("show John Tan_2");
+        logic.execute("show John Tan");
+        logic.execute("show John Tan_2");
+        logic.execute("list");
+        logic.execute("recent");
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getAddressBook().getRecentContacts());
+        assertEquals("John Tan_2", model.getFilteredPersonList().getFirst().getDisplayName());
+        model.updateFilteredPersonList(person -> false);
+        assertThrows(CommandException.class, () -> logic.execute("show John Tan"));
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getAddressBook().getRecentContacts());
+    }
+
+    @Test
+    void execute_elevenShowsAndRestart_preservesOnlyTenMostRecent() throws Exception {
+        JsonAddressBookStorage addressStorage = new JsonAddressBookStorage(tempDir.resolve("contacts.json"));
+        Logic logic = newLogic(model, addressStorage);
+        List<String> visits = new ArrayList<>();
+        for (int index = 0; index < 11; index++) {
+            String name = "Contact " + index;
+            logic.execute("add " + name + " /email student" + index + "@u.nus.edu /phone 90000001 /location COM1");
+            logic.execute("show " + name);
+            visits.addFirst(name);
+        }
+        ModelManager restarted = new ModelManager(addressStorage.readAddressBook().orElseThrow(), new UserPrefs());
+        Logic restartedLogic = newLogic(restarted, addressStorage);
+        restartedLogic.execute("recent");
+        assertEquals(visits.subList(0, 10), restarted.getAddressBook().getRecentContacts());
+        assertEquals(visits.subList(0, 10), restarted.getFilteredPersonList().stream()
+                .map(Person::getDisplayName).toList());
+    }
+
+    @Test
+    void execute_deleteSuffixReuseAndClear_doNotLeakHistory() throws Exception {
+        JsonAddressBookStorage addressStorage = new JsonAddressBookStorage(tempDir.resolve("contacts.json"));
+        Logic logic = newLogic(model, addressStorage);
+        addJohns(logic);
+        logic.execute("show John Tan_2");
+        logic.execute("recent");
+        logic.execute("delete John Tan_2");
+        assertTrue(model.getFilteredPersonList().isEmpty());
+        logic.execute("add John Tan /email third@u.nus.edu /phone 90000003 /location COM3");
+        assertTrue(model.getAddressBook().getRecentContacts().isEmpty());
+        logic.execute("show John Tan");
+        logic.execute("clear");
+        logic.execute("no");
+        assertEquals(List.of("John Tan"), model.getAddressBook().getRecentContacts());
+        logic.execute("clear");
+        logic.execute("yes");
+        assertTrue(addressStorage.readAddressBook().orElseThrow().getRecentContacts().isEmpty());
+    }
+
+    @Test
+    void execute_saveFailure_doesNotRecordOrReorderAnUnopenedProfile() throws Exception {
+        Logic setupLogic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("contacts.json")));
+        addJohns(setupLogic);
+        setupLogic.execute("show John Tan");
+        setupLogic.execute("show John Tan_2");
+        setupLogic.execute("recent");
+        List<String> before = model.getAddressBook().getRecentContacts();
+        List<Person> displayedBefore = List.copyOf(model.getFilteredPersonList());
+        for (IOException failure : List.of(new IOException("disk unavailable"), new AccessDeniedException("denied"))) {
+            JsonAddressBookStorage failingStorage = new JsonAddressBookStorage(tempDir.resolve("failed.json")) {
+                @Override
+                public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                    throw failure;
+                }
+            };
+            Logic failingLogic = newLogic(model, failingStorage);
+            assertThrows(CommandException.class, () -> failingLogic.execute("show John Tan"));
+            assertEquals(before, model.getAddressBook().getRecentContacts());
+            assertEquals(displayedBefore, model.getFilteredPersonList());
+        }
+    }
+}

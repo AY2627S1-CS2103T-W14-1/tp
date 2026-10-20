@@ -3,6 +3,8 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -25,6 +27,7 @@ public class ModelManager implements Model {
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
     private final SortedList<Person> sortedPersons;
+    private boolean isRecentView;
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -68,6 +71,9 @@ public class ModelManager implements Model {
     @Override
     public void setAddressBook(ReadOnlyAddressBook addressBook) {
         this.addressBook.resetData(addressBook);
+        if (isRecentView) {
+            showRecentPersons();
+        }
     }
 
     @Override
@@ -97,6 +103,9 @@ public class ModelManager implements Model {
         requireAllNonNull(target, editedPerson);
 
         addressBook.setPerson(target, editedPerson);
+        if (isRecentView) {
+            showRecentPersons();
+        }
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -113,7 +122,33 @@ public class ModelManager implements Model {
     @Override
     public void updateFilteredPersonList(Predicate<Person> predicate) {
         requireNonNull(predicate);
+        isRecentView = false;
         filteredPersons.setPredicate(predicate);
+        applySortPreference();
+    }
+
+    @Override
+    public void recordPersonViewed(Person person) {
+        addressBook.recordPersonViewed(person);
+        if (isRecentView) {
+            showRecentPersons();
+        }
+    }
+
+    @Override
+    public void restoreRecentContacts(List<String> identifiers) {
+        addressBook.setRecentContacts(identifiers);
+        if (isRecentView) {
+            showRecentPersons();
+        }
+    }
+
+    @Override
+    public void showRecentPersons() {
+        List<String> recent = addressBook.getRecentContacts();
+        updateFilteredPersonList(person -> recent.contains(person.getDisplayName()));
+        sortedPersons.setComparator(Comparator.comparingInt(person -> recent.indexOf(person.getDisplayName())));
+        isRecentView = true;
     }
 
     @Override
@@ -121,6 +156,7 @@ public class ModelManager implements Model {
         requireNonNull(field);
         userPrefs.setSortField(field);
         userPrefs.setSortDescending(descending);
+        isRecentView = false;
         applySortPreference();
     }
 

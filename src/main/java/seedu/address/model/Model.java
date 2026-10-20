@@ -1,5 +1,6 @@
 package seedu.address.model;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
@@ -73,4 +74,13 @@ public interface Model {
 
     /** Updates and persists the sort used for the displayed person list. */
     void updatePersonListSort(PersonSortField field, boolean descending);
+
+    /** Records a successful profile selection in the bounded history. */
+    void recordPersonViewed(Person person);
+
+    /** Restores history when saving a profile selection fails. */
+    void restoreRecentContacts(List<String> identifiers);
+
+    /** Replaces the current view with recent contacts in most-recent-first order. */
+    void showRecentPersons();
 }
