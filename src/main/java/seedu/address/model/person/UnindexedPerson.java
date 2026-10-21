@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public class UnindexedPerson {
     private final Department department;
     private final Hours hours;
     private final Photo photo;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime lastEditedAt;
 
     /**
      * Creates an unindexed person from the supplied details.
@@ -58,6 +61,8 @@ public class UnindexedPerson {
         this.department = new Department(null);
         this.hours = new Hours(null);
         this.photo = photo;
+        this.createdAt = null;
+        this.lastEditedAt = null;
     }
 
     /**
@@ -86,6 +91,8 @@ public class UnindexedPerson {
         this.department = new Department(null);
         this.hours = new Hours(null);
         this.photo = photo;
+        this.createdAt = null;
+        this.lastEditedAt = null;
     }
 
     /**
@@ -114,6 +121,15 @@ public class UnindexedPerson {
         this.department = department != null ? department : new Department(null);
         this.hours = hours != null ? hours : new Hours(null);
         this.photo = photo;
+        this.createdAt = null;
+        this.lastEditedAt = null;
+    }
+
+    /** Creates an unindexed person with optional photo and edit-history timestamps. */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Set<Tag> tags,
+                           Photo photo, LocalDateTime createdAt, LocalDateTime lastEditedAt) {
+        this(name, role, phone, email, address, null, null, null, null, null, tags, photo,
+                createdAt, lastEditedAt);
     }
 
     /**
@@ -121,6 +137,13 @@ public class UnindexedPerson {
      */
     public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
                            Faculty faculty, Department department, Hours hours, Set<Tag> tags, Photo photo) {
+        this(name, role, phone, email, address, major, year, faculty, department, hours, tags, photo, null, null);
+    }
+
+    /** Creates an unindexed person with explicit edit-history timestamps. */
+    public UnindexedPerson(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                           Faculty faculty, Department department, Hours hours, Set<Tag> tags, Photo photo,
+                           LocalDateTime createdAt, LocalDateTime lastEditedAt) {
         requireAllNonNull(name, role, phone, email, address, tags);
         this.name = name;
         this.role = role;
@@ -134,6 +157,8 @@ public class UnindexedPerson {
         this.department = department != null ? department : new Department(null);
         this.hours = hours != null ? hours : new Hours(null);
         this.photo = photo;
+        this.createdAt = createdAt;
+        this.lastEditedAt = lastEditedAt;
     }
 
     /**
@@ -143,9 +168,11 @@ public class UnindexedPerson {
      */
     public Person withPersonIndex(PersonIndex newPersonIndex) {
         if (this.role.equals(new Role("student"))) {
-            return new Student(name, phone, email, address, major, year, tags, newPersonIndex, photo);
+            return new Student(name, phone, email, address, major, year, tags, newPersonIndex, photo,
+                    createdAt, lastEditedAt);
         } else if (this.role.equals(new Role("professor"))) {
-            return new Professor(name, phone, email, address, faculty, department, hours, tags, newPersonIndex, photo);
+            return new Professor(name, phone, email, address, faculty, department, hours, tags, newPersonIndex, photo,
+                    createdAt, lastEditedAt);
         } else {
             throw new IllegalArgumentException("Invalid person");
         }
@@ -156,7 +183,21 @@ public class UnindexedPerson {
      */
     public UnindexedPerson withPhoto(Photo newPhoto) {
         return new UnindexedPerson(name, role, phone, email, address, major, year, faculty, department, hours, tags,
-                newPhoto);
+                newPhoto, createdAt, lastEditedAt);
+    }
+
+    /** Returns a copy with the supplied edit-history timestamps. */
+    public UnindexedPerson withTimestamps(LocalDateTime newCreatedAt, LocalDateTime newLastEditedAt) {
+        return new UnindexedPerson(name, role, phone, email, address, major, year, faculty, department, hours, tags,
+                photo, newCreatedAt, newLastEditedAt);
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getLastEditedAt() {
+        return lastEditedAt;
     }
 
     public Name getName() {

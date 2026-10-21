@@ -3,10 +3,12 @@ package seedu.address.logic.parser;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_FIRST;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_SECOND;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_THIRD;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.commands.DeleteCommand;
 
 /**
@@ -21,13 +23,13 @@ public class DeleteCommandParserTest {
     @Test
     public void parse_validArgs_returnsDeleteCommand() {
         assertParseSuccess(parser, "aLiCe pAuLiNe_3", new DeleteCommand("Alice Pauline",
-                PersonIndex.fromOneBased(3)));
+                PERSON_INDEX_THIRD));
         assertParseSuccess(parser, " Alice Pauline_2", new DeleteCommand("Alice Pauline",
-                PersonIndex.fromOneBased(2)));
+                PERSON_INDEX_SECOND));
         assertParseSuccess(parser, " Alice Pauline_1", new DeleteCommand("Alice Pauline",
-                PersonIndex.fromOneBased(1)));
+                PERSON_INDEX_FIRST));
         assertParseSuccess(parser, " Alice Pauline", new DeleteCommand("Alice Pauline",
-                PersonIndex.fromOneBased(1)));
+                PERSON_INDEX_FIRST));
     }
 
     @Test

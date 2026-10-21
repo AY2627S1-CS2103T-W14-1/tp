@@ -15,6 +15,8 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
@@ -24,7 +26,14 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Department;
+import seedu.address.model.person.Faculty;
+import seedu.address.model.person.Hours;
+import seedu.address.model.person.Major;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Professor;
+import seedu.address.model.person.Student;
+import seedu.address.model.person.Year;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 
@@ -80,6 +89,59 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_editPerson_preservesCreationTimeAndUpdatesEditTime() throws Exception {
+        LocalDateTime creationTime = LocalDateTime.of(2020, 1, 1, 0, 0);
+        Person original = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person timestampedOriginal = original.withTimestamps(creationTime, creationTime)
+                .withPersonIndex(original.getPersonIndex());
+        model.setPerson(original, timestampedOriginal);
+
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+        editCommand.execute(model);
+
+        Person edited = model.getFilteredPersonList().stream()
+                .filter(person -> person.getName().fullName.equals(VALID_NAME_BOB))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(creationTime, edited.getCreatedAt());
+        assertTrue(edited.getLastEditedAt().isAfter(creationTime));
+    }
+
+    @Test
+    public void execute_editStudent_preservesStudentDetails() throws Exception {
+        Person original = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student student = new Student(original.getName(), original.getPhone(), original.getEmail(),
+                original.getAddress(), new Major("Computer Science"), new Year("2"), original.getTags(),
+                original.getPersonIndex(), original.getPhoto().orElse(null));
+        model.setPerson(original, student);
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build();
+        new EditCommand(INDEX_FIRST_PERSON, descriptor).execute(model);
+
+        Person edited = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        assertEquals("Computer Science", edited.getMajor().value);
+        assertEquals("2", edited.getYear().value);
+    }
+
+    @Test
+    public void execute_editProfessor_preservesProfessorDetails() throws Exception {
+        Person original = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        Professor professor = new Professor(original.getName(), original.getPhone(), original.getEmail(),
+                original.getAddress(), new Faculty("Computing"), new Department("Software Engineering"),
+                new Hours("9-5"), original.getTags(), original.getPersonIndex(), original.getPhoto().orElse(null));
+        model.setPerson(original, professor);
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build();
+        new EditCommand(INDEX_SECOND_PERSON, descriptor).execute(model);
+
+        Person edited = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        assertEquals("Computing", edited.getFaculty().value);
+        assertEquals("Software Engineering", edited.getDepartment().value);
+        assertEquals("9-5", edited.getHours().value);
     }
 
     @Test

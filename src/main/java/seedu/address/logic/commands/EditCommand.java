@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -136,14 +137,15 @@ public class EditCommand extends Command {
             Major updatedMajor = editPersonDescriptor.getMajor().orElse(personToEdit.getMajor());
             Year updatedYear = editPersonDescriptor.getYear().orElse(personToEdit.getYear());
             return new Student(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedMajor, updatedYear,
-                    updatedTags, personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
+                    updatedTags, personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null),
+                    personToEdit.getCreatedAt(), LocalDateTime.now());
         } else if (personToEdit.getRole().equals(new Role("professor"))) {
             Faculty updatedFaculty = editPersonDescriptor.getFaculty().orElse(personToEdit.getFaculty());
             Department updatedDepartment = editPersonDescriptor.getDepartment().orElse(personToEdit.getDepartment());
             Hours updatedHours = editPersonDescriptor.getHours().orElse(personToEdit.getHours());
             return new Professor(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedFaculty,
                     updatedDepartment, updatedHours, updatedTags, personToEdit.getPersonIndex(),
-                    personToEdit.getPhoto().orElse(null));
+                    personToEdit.getPhoto().orElse(null), personToEdit.getCreatedAt(), LocalDateTime.now());
         } else {
             throw new IllegalArgumentException("Invalid person");
         }

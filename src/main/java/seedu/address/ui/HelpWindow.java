@@ -34,8 +34,20 @@ public class HelpWindow extends UiPart<Stage> {
               Deletes the selected contact.
               Example: delete John Tan_2
 
+            find [/name NAME] [/role ROLE] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR]
+             [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG]...
+              Finds contacts matching the specified criteria.
+              (/name can be omitted for quick name searches).
+              Example: find John /location COM1 t/teammate
+
             list
               Displays every saved contact.
+
+            recent
+              Lists up to ten distinct contacts successfully viewed with show, most recent first.
+              Viewing a contact again with show moves it to the front of the list.
+              Recent-contact history persists across application restarts.
+              Use list to return to all contacts in your selected sort order.
 
             favourite NAME[_NUMBER] / unfavourite NAME[_NUMBER]
               Marks or unmarks a contact, including contacts outside the current view.

@@ -1,5 +1,6 @@
 package seedu.address.storage;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ class JsonSerializableAddressBook {
     static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
+    private final List<String> recentContacts = new ArrayList<>();
     private final Set<String> favouriteContacts = new TreeSet<>();
     @JsonIgnore
     private final List<JsonAdaptedPerson> legacyPersons = new ArrayList<>();
@@ -40,6 +42,7 @@ class JsonSerializableAddressBook {
     @JsonCreator
     public JsonSerializableAddressBook(@JsonProperty("personsByName") Map<String, JsonNameBucket> personsByName,
             @JsonProperty("persons") List<JsonAdaptedPerson> persons,
+            @JsonProperty("recentContacts") List<String> recentContacts,
             @JsonProperty("favouriteContacts") Set<String> favouriteContacts) {
         hasNameBuckets = personsByName != null;
         if (personsByName != null) {
@@ -47,6 +50,9 @@ class JsonSerializableAddressBook {
         }
         if (persons != null) {
             legacyPersons.addAll(persons);
+        }
+        if (recentContacts != null) {
+            this.recentContacts.addAll(recentContacts);
         }
         if (favouriteContacts != null) {
             this.favouriteContacts.addAll(favouriteContacts);
@@ -62,6 +68,7 @@ class JsonSerializableAddressBook {
         hasNameBuckets = true;
         source.getPersonBuckets().forEach((name, bucket) ->
                 personsByName.put(name, JsonNameBucket.fromModel(bucket)));
+        recentContacts.addAll(source.getRecentContacts());
         favouriteContacts.addAll(source.getFavouriteContacts());
     }
 
@@ -72,6 +79,9 @@ class JsonSerializableAddressBook {
      */
     public AddressBook toModelType() throws IllegalValueException {
         AddressBook addressBook = new AddressBook();
+        if (recentContacts.contains(null)) {
+            throw new IllegalValueException("Recent contact identifiers must not be null.");
+        }
         if (hasNameBuckets) {
             Map<String, Map<Integer, Person>> modelBuckets = new TreeMap<>();
             for (Map.Entry<String, JsonNameBucket> jsonBucket : personsByName.entrySet()) {
@@ -85,17 +95,24 @@ class JsonSerializableAddressBook {
             } catch (IllegalArgumentException exception) {
                 throw new IllegalValueException(exception.getMessage(), exception);
             }
+            addressBook.setRecentContacts(recentContacts);
             addressBook.setFavouriteContacts(favouriteContacts);
             return addressBook;
         }
 
+        // The legacy format used by master has no edit-history fields. Assign a single
+        // migration timestamp to each imported contact so old save files are still
+        // valid under the timestamp-aware model.
+        LocalDateTime migrationTime = LocalDateTime.now();
         for (JsonAdaptedPerson jsonAdaptedPerson : legacyPersons) {
             if (jsonAdaptedPerson == null) {
                 throw new IllegalValueException(MESSAGE_NULL_PERSON);
             }
-            UnindexedPerson person = jsonAdaptedPerson.toModelType();
+            UnindexedPerson person = jsonAdaptedPerson.toModelType()
+                    .withTimestamps(migrationTime, migrationTime);
             addressBook.addPerson(person);
         }
+        addressBook.setRecentContacts(recentContacts);
         addressBook.setFavouriteContacts(favouriteContacts);
         return addressBook;
     }

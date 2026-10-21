@@ -8,6 +8,11 @@
     -fx-font-style: italic;
 }
 
+#editHistory {
+    -fx-font-style: italic;
+    -fx-text-fill: #a0a0a0;
+}
+
 .root {
     -fx-background-color: derive(#1d1d1d, 20%);
 }

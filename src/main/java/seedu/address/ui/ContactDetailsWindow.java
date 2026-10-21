@@ -2,6 +2,8 @@ package seedu.address.ui;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
@@ -15,6 +17,8 @@ import seedu.address.model.person.Person;
 public class ContactDetailsWindow extends UiPart<Stage> {
 
     private static final String FXML = "ContactDetailsWindow.fxml";
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @FXML
     private Label name;
@@ -51,6 +55,8 @@ public class ContactDetailsWindow extends UiPart<Stage> {
     @FXML
     private Label tags;
     @FXML
+    private Label editHistory;
+    @FXML
     private ImageView photo;
     @FXML
     private Label photoStatus;
@@ -82,7 +88,14 @@ public class ContactDetailsWindow extends UiPart<Stage> {
                 .map(tag -> tag.tagName)
                 .sorted()
                 .collect(Collectors.joining(", ")));
+        editHistory.setText(String.format("Added time: %s%nLast Edited: %s",
+                formatTimestamp(person.getCreatedAt()), formatTimestamp(person.getLastEditedAt())));
         setPhoto(person, dataFilePath);
+    }
+
+    /** Returns a displayable timestamp, including for records created before edit history was added. */
+    private String formatTimestamp(LocalDateTime timestamp) {
+        return timestamp == null ? "Unavailable" : timestamp.format(TIMESTAMP_FORMATTER);
     }
 
     /** Loads the contact photo when it is available inside the application's data directory. */
