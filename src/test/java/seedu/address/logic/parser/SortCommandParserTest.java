@@ -17,6 +17,8 @@ public class SortCommandParserTest {
     public void parse_validArguments_returnsSortCommand() throws Exception {
         assertEquals(new SortCommand(PersonSortField.NAME, false), parser.parse(" name asc "));
         assertEquals(new SortCommand(PersonSortField.PHONE, true), parser.parse("phone desc"));
+        assertEquals(new SortCommand(PersonSortField.ADD_TIME, false), parser.parse("add"));
+        assertEquals(new SortCommand(PersonSortField.EDIT_TIME, true), parser.parse("edit desc"));
     }
 
     @Test

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,38 @@ public class SortCommandTest {
         assertEquals(List.of("87652533", "94351253", "9482224", "9482427", "9482442",
                 "95352563", "98765432"),
                 model.getFilteredPersonList().stream().map(person -> person.getPhone().value).toList());
+    }
+
+    @Test
+    public void execute_sortByAddedTimeAscending_mostRecentFirstAndUnavailableLast() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(new PersonBuilder().withName("Unavailable").buildNoIndex());
+        addressBook.addPerson(new PersonBuilder().withName("Old").buildNoIndex()
+                .withTimestamps(LocalDateTime.of(2020, 1, 1, 0, 0), null));
+        addressBook.addPerson(new PersonBuilder().withName("New").buildNoIndex()
+                .withTimestamps(LocalDateTime.of(2024, 1, 1, 0, 0), null));
+        ModelManager model = new ModelManager(addressBook, new UserPrefs());
+
+        new SortCommand(PersonSortField.ADD_TIME, false).execute(model);
+
+        assertEquals(List.of("New", "Old", "Unavailable"), model.getFilteredPersonList().stream()
+                .map(person -> person.getName().fullName).toList());
+    }
+
+    @Test
+    public void execute_sortByEditedTimeDescending_oldestFirstAndUnavailableFirst() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(new PersonBuilder().withName("Unavailable").buildNoIndex());
+        addressBook.addPerson(new PersonBuilder().withName("Old").buildNoIndex()
+                .withTimestamps(null, LocalDateTime.of(2020, 1, 1, 0, 0)));
+        addressBook.addPerson(new PersonBuilder().withName("New").buildNoIndex()
+                .withTimestamps(null, LocalDateTime.of(2024, 1, 1, 0, 0)));
+        ModelManager model = new ModelManager(addressBook, new UserPrefs());
+
+        new SortCommand(PersonSortField.EDIT_TIME, true).execute(model);
+
+        assertEquals(List.of("Unavailable", "Old", "New"), model.getFilteredPersonList().stream()
+                .map(person -> person.getName().fullName).toList());
     }
 
     @Test

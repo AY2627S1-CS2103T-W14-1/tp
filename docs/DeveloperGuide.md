@@ -15,7 +15,8 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
-* `lzc-nus` used OpenAI Codex to assist with design, implementation, tests and documentation for the favourites feature.
+* `lzc-nus` used OpenAI Codex to generate tests and documentation for the recent contacts feature. `lzc-nus` was responsible for the design and parts of the implementation.
+* `lzc-nus` used OpenAI Codex to generate tests and documentation for the favourites feature. `lzc-nus` was responsible for the design and parts of the implementation.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -205,7 +206,36 @@ The `show NAME[_NUMBER]` command lets users view the complete stored details of 
 1. `MainWindow` recognises that result and opens `ContactDetailsWindow`.
 1. The popup displays the contact's display name, ID, phone number, email, location, and tags.
 
-The popup is deliberately a UI concern: the command resolves a model object but does not save or modify any data.
+The popup is deliberately a UI concern: the command resolves a model object. `LogicManager` records a successful
+selection in the recently viewed history, saves the address book, then returns the result to the UI.
+
+### Recently viewed contacts
+
+`AddressBook` stores up to ten recently viewed contact identifiers, newest first. Each identifier is the
+contact's existing name and optional suffix. Reopening a contact moves it to the front. Opening an eleventh
+distinct contact removes the oldest entry. Callers receive an immutable copy of the history.
+
+<puml src="diagrams/RecentContactsSequenceDiagram.puml" alt="Recording a profile selection and handling save errors" />
+
+`ShowCommand` finds a contact in the displayed list and returns it in `CommandResult`.
+`LogicManager` then records the visit and saves the address book. If saving throws `IOException`, including
+a permission error, it restores the previous history and reports the error instead of opening the popup.
+A failed contact lookup leaves history unchanged.
+
+`RecentCommand` asks `ModelManager` to show contacts in history order using the existing `FilteredList`
+and `SortedList`. This does not change the sort preference in `UserPrefs`. Reopening a contact refreshes
+an active recent view. `list`, add or another filter restores the saved sort order. An explicit `sort`
+orders the current results normally; `recent` returns them to history order.
+
+`JsonSerializableAddressBook` writes a `recentContacts` array alongside `personsByName`.
+A missing or null array loads as empty history. Loading removes missing contacts and repeated identifiers,
+then keeps the first ten entries. Null entries or an invalid array structure cause a data-loading error.
+Deleting a contact removes its history entry before the suffix can be reused. Editing a contact preserves
+its position in history, and replacing or clearing the address book also replaces the history.
+
+An ordered list is enough for this feature: it avoids timestamps, tied visit times and changes to profile
+constructors. Tests cover the ten-contact limit, repeat visits, duplicate names, filters, sorting, storage,
+photos, deletion, clear confirmation and failed saves. Manual checks are listed below.
 
 ### Favourite contacts
 
@@ -521,6 +551,23 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `show Unknown Person`<br>
       Expected: No popup opens. The result area displays an error message.
+
+### Recently viewed contacts
+
+Use a disposable data folder and add two contacts named John Tan with distinct phone/email values.
+
+1. Run `recent` before viewing a profile. The empty-state message should explain `show`.
+1. Run `list`, `show John Tan`, close the popup, `show John Tan_2`, then close the popup and run `recent`. Order: John Tan_2, John Tan.
+1. Open John Tan again, close the popup, then run `recent`. Order: John Tan, John Tan_2, with no duplicate.
+1. Try `show Missing Person` and `recent extra`. They should report errors without changing history.
+1. Open nine additional distinct contacts (using `list` if hidden). `recent` must show only the latest ten distinct contacts; evicted contacts remain available with `list`.
+1. Run `sort name desc`, then `recent`: latest-first order should return. Run `list`: your saved name-descending order should return.
+1. Exit normally and restart in the same folder. `recent` should preserve membership and order.
+1. Delete a viewed contact, add a replacement reusing its suffix, and run `recent`. The replacement must not inherit history.
+1. Run `clear`, then `no`: history remains. Repeat with `yes`: contacts and history remain empty after restart.
+
+The automated `RecentWorkflowTest` additionally injects ordinary IO and permission failures during `show` saves
+and verifies that neither history nor active recent-view order changes. GUI popup rendering is a separate manual check.
 
 ### Favourite contacts
 

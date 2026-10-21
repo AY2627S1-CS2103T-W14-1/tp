@@ -5,7 +5,11 @@ import java.util.Comparator;
 /** Fields by which persons can be sorted. */
 public enum PersonSortField {
     NAME("name", Comparator.comparing(person -> person.getName().fullName, String.CASE_INSENSITIVE_ORDER)),
-    PHONE("phone", Comparator.comparing(person -> person.getPhone().value));
+    PHONE("phone", Comparator.comparing(person -> person.getPhone().value)),
+    ADD_TIME("add", Comparator.comparing(Person::getCreatedAt,
+            Comparator.nullsFirst(Comparator.naturalOrder()))),
+    EDIT_TIME("edit", Comparator.comparing(Person::getLastEditedAt,
+            Comparator.nullsFirst(Comparator.naturalOrder())));
 
     private final String userInput;
     private final Comparator<Person> comparator;
@@ -30,6 +34,10 @@ public enum PersonSortField {
         Comparator<Person> result = comparator;
         if (this == NAME) {
             result = result.thenComparingInt(person -> person.getPersonIndex().getZeroBased());
+        }
+        if (this == ADD_TIME || this == EDIT_TIME) {
+            // For timestamps, ascending means most recent first. Descending is the reverse.
+            return descending ? result : result.reversed();
         }
         return descending ? result.reversed() : result;
     }

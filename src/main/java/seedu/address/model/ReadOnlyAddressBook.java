@@ -1,5 +1,6 @@
 package seedu.address.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,9 @@ public interface ReadOnlyAddressBook {
      * Returns an immutable snapshot of the persons grouped by base name and zero-based id.
      */
     Map<String, Map<Integer, Person>> getPersonBuckets();
+
+    /** Returns at most ten distinct viewed-contact identifiers, newest first. */
+    List<String> getRecentContacts();
 
     /** Returns the display identifiers of favourite contacts, without exposing mutable state. */
     Set<String> getFavouriteContacts();

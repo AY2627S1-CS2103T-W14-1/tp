@@ -67,13 +67,7 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_edit() throws Exception {
-        assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, () ->
-                parser.parseCommand(EditCommand.COMMAND_WORD + " 1 n/Alex"));
-        // Person person = new PersonBuilder().build();
-        // EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(person).build();
-        // EditCommand command = (EditCommand) parser.parseCommand(EditCommand.COMMAND_WORD + " "
-        //         + INDEX_FIRST_PERSON.getOneBased() + " " + PersonUtil.getEditPersonDescriptorDetails(descriptor));
-        // assertEquals(new EditCommand(INDEX_FIRST_PERSON, descriptor), command);
+        assertTrue(parser.parseCommand(EditCommand.COMMAND_WORD + " 1 n/Alex") instanceof EditCommand);
     }
 
     @Test

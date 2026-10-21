@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
@@ -26,5 +27,13 @@ public class Professor extends Person {
                      Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo) {
         super(name, new Role("professor"), phone, email, address, faculty, department, hours, tags, personIndex,
                 photo);
+    }
+
+    /** Creates a Professor with edit-history timestamps. */
+    public Professor(Name name, Phone phone, Email email, Address address, Faculty faculty, Department department,
+                     Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo, LocalDateTime createdAt,
+                     LocalDateTime lastEditedAt) {
+        super(name, new Role("professor"), phone, email, address, faculty, department, hours, tags, personIndex,
+                photo, createdAt, lastEditedAt);
     }
 }

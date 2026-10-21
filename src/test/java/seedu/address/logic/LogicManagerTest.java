@@ -137,11 +137,6 @@ public class LogicManagerTest {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
     }
 
-    @Test
-    public void execute_unsupportedLegacyCommands_throwsParseException() {
-        assertParseException("edit 1 n/Alex", Messages.MESSAGE_UNKNOWN_COMMAND);
-    }
-
     /**
      * Executes the command and confirms that
      * - no exceptions are thrown <br>
