@@ -149,7 +149,7 @@ Sorts the displayed persons by name or phone number.
 
 Format: `sort FIELD [asc|desc]`
 
-- `FIELD` must be either `name` or `phone`.
+- `FIELD` must be `name`, `phone`, `add` or `edit`.
 - The sort direction defaults to ascending.
 - Sorting changes the displayed order only and does not change the saved address-book data.
 - Specifically, when using `sort name desc`, the indices following the name are also placed in reverse order.
@@ -158,7 +158,8 @@ Examples:
 
 - `sort name` sorts contacts alphabetically by name.
 - `sort phone desc` sorts contacts by phone number in descending order.
-- `sort name desc` applied to `[Alice, Alice_2, Bob]` displays `[Bob, Alice_2, Alice]`
+- `sort name desc` applied to `[Alice, Alice_2, Bob]` displays `[Bob, Alice_2, Alice]`.
+- `sort edit` effectively pushes last edited person to the top of the list.
 
 ### Editing a person: `edit`
 

@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -42,7 +43,21 @@ public class AddCommandTest {
 
         assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)),
                 commandResult.getFeedbackToUser());
-        assertEquals(List.of(validPerson), modelStub.personsAdded);
+        assertEquals(1, modelStub.personsAdded.size());
+        assertEquals(validPerson.getName(), modelStub.personsAdded.get(0).getName());
+    }
+
+    @Test
+    public void execute_personAcceptedByModel_setsCreationAndEditTimes() throws Exception {
+        ModelStubAcceptingPersonAdded modelStub = new ModelStubAcceptingPersonAdded();
+        Person validPerson = new PersonBuilder().build();
+
+        new AddCommand(validPerson).execute(modelStub);
+
+        UnindexedPerson addedPerson = modelStub.personsAdded.get(0);
+        assertNotNull(addedPerson.getCreatedAt());
+        assertNotNull(addedPerson.getLastEditedAt());
+        assertEquals(addedPerson.getCreatedAt(), addedPerson.getLastEditedAt());
     }
 
     @Test

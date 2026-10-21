@@ -1,5 +1,6 @@
 package seedu.address.storage;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,11 +100,16 @@ class JsonSerializableAddressBook {
             return addressBook;
         }
 
+        // The legacy format used by master has no edit-history fields. Assign a single
+        // migration timestamp to each imported contact so old save files are still
+        // valid under the timestamp-aware model.
+        LocalDateTime migrationTime = LocalDateTime.now();
         for (JsonAdaptedPerson jsonAdaptedPerson : legacyPersons) {
             if (jsonAdaptedPerson == null) {
                 throw new IllegalValueException(MESSAGE_NULL_PERSON);
             }
-            UnindexedPerson person = jsonAdaptedPerson.toModelType();
+            UnindexedPerson person = jsonAdaptedPerson.toModelType()
+                    .withTimestamps(migrationTime, migrationTime);
             addressBook.addPerson(person);
         }
         addressBook.setRecentContacts(recentContacts);
