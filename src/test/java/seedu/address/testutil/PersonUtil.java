@@ -4,6 +4,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -34,6 +35,7 @@ public class PersonUtil {
     public static String getPersonDetails(UnindexedPerson person) {
         StringBuilder sb = new StringBuilder();
         sb.append(person.getName().fullName + " ");
+        sb.append(PREFIX_CONTACT_ROLE + " " + person.getRole().toString() + " ");
         sb.append(PREFIX_CONTACT_EMAIL + " " + person.getEmail().value + " ");
         sb.append(PREFIX_CONTACT_PHONE + " " + person.getPhone().value + " ");
         sb.append(PREFIX_CONTACT_LOCATION + " " + person.getAddress().value + " ");

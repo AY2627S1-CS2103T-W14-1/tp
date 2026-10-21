@@ -43,7 +43,7 @@ class RecentStorageTest {
     @Test
     void read_oldDataWithoutHistory_defaultsToEmpty() throws Exception {
         JsonSerializableAddressBook legacy = new JsonSerializableAddressBook(null,
-                List.of(new JsonAdaptedPerson(ALICE)), null);
+                List.of(new JsonAdaptedPerson(ALICE)), null, null);
         assertTrue(legacy.toModelType().getRecentContacts().isEmpty());
         assertEquals(List.of(ALICE), legacy.toModelType().getPersonList());
     }
@@ -61,14 +61,14 @@ class RecentStorageTest {
         List<String> history = new ArrayList<>();
         history.add("Deleted Contact");
         for (int index = 0; index < 11; index++) {
-            String name = "Contact " + index;
+            String name = "Contact " + (char) ('A' + index);
             original.addPerson(new PersonBuilder().withName(name).build());
             history.add(name);
             history.add(name);
         }
         Map<String, JsonNameBucket> buckets = new TreeMap<>();
         original.getPersonBuckets().forEach((name, bucket) -> buckets.put(name, JsonNameBucket.fromModel(bucket)));
-        AddressBook restored = new JsonSerializableAddressBook(buckets, null, history).toModelType();
+        AddressBook restored = new JsonSerializableAddressBook(buckets, null, history, null).toModelType();
         assertEquals(history.stream().skip(1).distinct().limit(10).toList(), restored.getRecentContacts());
     }
 

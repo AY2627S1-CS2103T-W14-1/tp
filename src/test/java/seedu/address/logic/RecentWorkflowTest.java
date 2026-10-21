@@ -34,8 +34,8 @@ class RecentWorkflowTest {
     }
 
     private void addJohns(Logic logic) throws Exception {
-        logic.execute("add John Tan /email first@u.nus.edu /phone 90000001 /location COM1");
-        logic.execute("add John Tan /email second@u.nus.edu /phone 90000002 /location COM2");
+        logic.execute("add John Tan /role student /email first@u.nus.edu /phone 90000001 /location COM1");
+        logic.execute("add John Tan /role student /email second@u.nus.edu /phone 90000002 /location COM2");
     }
 
     @Test
@@ -62,8 +62,9 @@ class RecentWorkflowTest {
         Logic logic = newLogic(model, addressStorage);
         List<String> visits = new ArrayList<>();
         for (int index = 0; index < 11; index++) {
-            String name = "Contact " + index;
-            logic.execute("add " + name + " /email student" + index + "@u.nus.edu /phone 90000001 /location COM1");
+            String name = "Contact " + (char) ('A' + index);
+            logic.execute("add " + name + " /role student /email student" + index
+                    + "@u.nus.edu /phone 90000001 /location COM1");
             logic.execute("show " + name);
             visits.addFirst(name);
         }
@@ -84,7 +85,7 @@ class RecentWorkflowTest {
         logic.execute("recent");
         logic.execute("delete John Tan_2");
         assertTrue(model.getFilteredPersonList().isEmpty());
-        logic.execute("add John Tan /email third@u.nus.edu /phone 90000003 /location COM3");
+        logic.execute("add John Tan /role student /email third@u.nus.edu /phone 90000003 /location COM3");
         assertTrue(model.getAddressBook().getRecentContacts().isEmpty());
         logic.execute("show John Tan");
         logic.execute("clear");

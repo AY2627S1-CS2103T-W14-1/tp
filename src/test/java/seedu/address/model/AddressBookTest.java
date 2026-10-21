@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -135,6 +136,11 @@ public class AddressBookTest {
         @Override
         public List<String> getRecentContacts() {
             return List.of();
+        }
+
+        @Override
+        public Set<String> getFavouriteContacts() {
+            return Set.of();
         }
     }
 

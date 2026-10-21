@@ -17,7 +17,9 @@ import seedu.address.logic.commands.ExitCommand;
 //import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.ListFavouritesCommand;
 import seedu.address.logic.commands.RecentCommand;
+import seedu.address.logic.commands.SetFavouriteCommand;
 import seedu.address.logic.commands.ShowCommand;
 import seedu.address.logic.commands.SortCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -69,6 +71,15 @@ public class AddressBookParser {
                             RecentCommand.MESSAGE_USAGE));
                 }
                 yield new RecentCommand();
+            }
+            case SetFavouriteCommand.COMMAND_WORD -> new SetFavouriteCommandParser(true).parse(arguments);
+            case SetFavouriteCommand.UNFAVOURITE_COMMAND_WORD -> new SetFavouriteCommandParser(false).parse(arguments);
+            case ListFavouritesCommand.COMMAND_WORD -> {
+                if (!arguments.isBlank()) {
+                    throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                            ListFavouritesCommand.MESSAGE_USAGE));
+                }
+                yield new ListFavouritesCommand();
             }
             case ExitCommand.COMMAND_WORD -> new ExitCommand();
             case HelpCommand.COMMAND_WORD -> new HelpCommand();

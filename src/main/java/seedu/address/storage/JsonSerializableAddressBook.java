@@ -3,7 +3,9 @@ package seedu.address.storage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +29,7 @@ class JsonSerializableAddressBook {
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
     private final List<String> recentContacts = new ArrayList<>();
+    private final Set<String> favouriteContacts = new TreeSet<>();
     @JsonIgnore
     private final List<JsonAdaptedPerson> legacyPersons = new ArrayList<>();
     @JsonIgnore
@@ -38,7 +41,8 @@ class JsonSerializableAddressBook {
     @JsonCreator
     public JsonSerializableAddressBook(@JsonProperty("personsByName") Map<String, JsonNameBucket> personsByName,
             @JsonProperty("persons") List<JsonAdaptedPerson> persons,
-            @JsonProperty("recentContacts") List<String> recentContacts) {
+            @JsonProperty("recentContacts") List<String> recentContacts,
+            @JsonProperty("favouriteContacts") Set<String> favouriteContacts) {
         hasNameBuckets = personsByName != null;
         if (personsByName != null) {
             this.personsByName.putAll(personsByName);
@@ -48,6 +52,9 @@ class JsonSerializableAddressBook {
         }
         if (recentContacts != null) {
             this.recentContacts.addAll(recentContacts);
+        }
+        if (favouriteContacts != null) {
+            this.favouriteContacts.addAll(favouriteContacts);
         }
     }
 
@@ -61,6 +68,7 @@ class JsonSerializableAddressBook {
         source.getPersonBuckets().forEach((name, bucket) ->
                 personsByName.put(name, JsonNameBucket.fromModel(bucket)));
         recentContacts.addAll(source.getRecentContacts());
+        favouriteContacts.addAll(source.getFavouriteContacts());
     }
 
     /**
@@ -87,6 +95,7 @@ class JsonSerializableAddressBook {
                 throw new IllegalValueException(exception.getMessage(), exception);
             }
             addressBook.setRecentContacts(recentContacts);
+            addressBook.setFavouriteContacts(favouriteContacts);
             return addressBook;
         }
 
@@ -98,6 +107,7 @@ class JsonSerializableAddressBook {
             addressBook.addPerson(person);
         }
         addressBook.setRecentContacts(recentContacts);
+        addressBook.setFavouriteContacts(favouriteContacts);
         return addressBook;
     }
 

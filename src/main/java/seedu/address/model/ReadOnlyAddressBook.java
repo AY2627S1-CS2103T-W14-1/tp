@@ -2,6 +2,7 @@ package seedu.address.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javafx.collections.ObservableList;
 import seedu.address.model.person.Person;
@@ -24,5 +25,8 @@ public interface ReadOnlyAddressBook {
 
     /** Returns at most ten distinct viewed-contact identifiers, newest first. */
     List<String> getRecentContacts();
+
+    /** Returns the display identifiers of favourite contacts, without exposing mutable state. */
+    Set<String> getFavouriteContacts();
 
 }

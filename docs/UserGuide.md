@@ -109,6 +109,40 @@ Shows a list of all persons in the contact list.
 
 Format: `list`
 
+### Managing favourite contacts: `favourite`, `unfavourite`, `favourites`
+
+Mark people you contact often so you can find them quickly.
+
+Formats:
+
+- `favourite NAME[_NUMBER]`
+- `unfavourite NAME[_NUMBER]`
+- `favourites` (no arguments)
+
+Use the same name/suffix identifiers as `show`, not a row number. Names are case-insensitive.
+Omitting the suffix selects the unsuffixed contact, not every contact with that name.
+Marking or unmarking works across the whole address book, even if the contact is hidden by the current filter.
+Marking a contact reports `Added to favourites`; unmarking it reports `Removed from favourites`.
+Repeating either command leaves the contact in the same state and reports `Already in favourites`
+or `Not in favourites`, respectively.
+An unknown name or suffix reports an error without changing favourites.
+
+`favourites` replaces the current filter and displays favourite contacts in your selected `sort` order.
+If there are none, the feedback explains how to mark one. Unmarking a contact while viewing favourites
+removes it from the list immediately. Use `list` to show all contacts again. Adding a contact also returns
+to the full list. After a restart, all contacts are shown until you run `favourites` again.
+
+Examples (after adding two contacts named John Tan):
+
+- `favourite John Tan_2` marks only the suffixed contact.
+- `favourites` shows your favourite contacts.
+- `unfavourite John Tan_2` removes that selection.
+
+Favourites are saved automatically with your contacts. Deleting a contact also removes it from favourites;
+a new contact using the same name and suffix starts unmarked. Confirmed `clear` removes all selections;
+cancelling `clear` leaves them unchanged. If you manually remove a contact from the data file,
+references to that missing contact in `favouriteContacts` are ignored when loading.
+
 ### Sorting persons: `sort`
 
 Sorts the displayed persons by name or phone number.
@@ -297,6 +331,9 @@ _Details coming soon ..._
 | **List**     | `list`                                                                                                                                                                     |
 | **Show**     | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`
 | **Recent**   | `recent`
+| **Favourite** | `favourite NAME[_NUMBER]`<br> e.g., `favourite James Ho_2`
+| **Unfavourite** | `unfavourite NAME[_NUMBER]`<br> e.g., `unfavourite James Ho_2`
+| **Favourites** | `favourites`
 | **Sort**     | `sort FIELD [asc\|desc]`<br> e.g. `sort phone desc`
 | **Help**     | `help`                                                                                                                                                                     |
 | **Exit**     | `exit`                                                                                                                                                                     |

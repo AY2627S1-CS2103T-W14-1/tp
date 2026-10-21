@@ -31,7 +31,7 @@ class RecentContactsTest {
     void record_eleventhDistinctVisit_evictsOldest() {
         List<String> visits = new ArrayList<>();
         for (int index = 0; index < 11; index++) {
-            Person person = new PersonBuilder().withName("Contact " + index).build();
+            Person person = new PersonBuilder().withName("Contact " + (char) ('A' + index)).build();
             addressBook.addPerson(person);
             addressBook.recordPersonViewed(person);
             visits.addFirst(person.getDisplayName());

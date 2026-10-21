@@ -83,4 +83,10 @@ public interface Model {
 
     /** Replaces the current view with recent contacts in most-recent-first order. */
     void showRecentPersons();
+
+    /** Updates the favourite status of an existing contact. */
+    void setFavourite(Person person, boolean isFavourite);
+
+    /** Shows only favourite contacts, in the selected sort order. */
+    void showFavouritePersons();
 }

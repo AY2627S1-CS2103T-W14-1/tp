@@ -28,6 +28,7 @@ public class ModelManager implements Model {
     private final FilteredList<Person> filteredPersons;
     private final SortedList<Person> sortedPersons;
     private boolean isRecentView;
+    private boolean isFavouritesView;
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -73,6 +74,8 @@ public class ModelManager implements Model {
         this.addressBook.resetData(addressBook);
         if (isRecentView) {
             showRecentPersons();
+        } else if (isFavouritesView) {
+            showFavouritePersons();
         }
     }
 
@@ -105,6 +108,8 @@ public class ModelManager implements Model {
         addressBook.setPerson(target, editedPerson);
         if (isRecentView) {
             showRecentPersons();
+        } else if (isFavouritesView) {
+            showFavouritePersons();
         }
     }
 
@@ -123,6 +128,7 @@ public class ModelManager implements Model {
     public void updateFilteredPersonList(Predicate<Person> predicate) {
         requireNonNull(predicate);
         isRecentView = false;
+        isFavouritesView = false;
         filteredPersons.setPredicate(predicate);
         applySortPreference();
     }
@@ -153,11 +159,26 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public void setFavourite(Person person, boolean isFavourite) {
+        addressBook.setFavourite(person, isFavourite);
+        if (isFavouritesView) {
+            showFavouritePersons();
+        }
+    }
+
+    @Override
+    public void showFavouritePersons() {
+        updateFilteredPersonList(addressBook::isFavourite);
+        isFavouritesView = true;
+    }
+
+    @Override
     public void updatePersonListSort(PersonSortField field, boolean descending) {
         requireNonNull(field);
         userPrefs.setSortField(field);
         userPrefs.setSortDescending(descending);
         isRecentView = false;
+        isFavouritesView = false;
         applySortPreference();
     }
 
