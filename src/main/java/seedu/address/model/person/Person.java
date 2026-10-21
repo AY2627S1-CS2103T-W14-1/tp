@@ -78,6 +78,7 @@ public class Person extends UnindexedPerson {
         this.personIndex = personIndex;
     }
 
+    /** Creates a Student with an optional photo and edit-history timestamps. */
     public Person(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
                   Set<Tag> tags, PersonIndex personIndex, Photo photo, LocalDateTime createdAt,
                   LocalDateTime lastEditedAt) {
@@ -87,6 +88,7 @@ public class Person extends UnindexedPerson {
         this.personIndex = personIndex;
     }
 
+    /** Creates a Professor with an optional photo and edit-history timestamps. */
     public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
                   Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo,
                   LocalDateTime createdAt, LocalDateTime lastEditedAt) {

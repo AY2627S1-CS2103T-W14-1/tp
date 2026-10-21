@@ -29,6 +29,7 @@ public class Professor extends Person {
                 photo);
     }
 
+    /** Creates a Professor with edit-history timestamps. */
     public Professor(Name name, Phone phone, Email email, Address address, Faculty faculty, Department department,
                      Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo, LocalDateTime createdAt,
                      LocalDateTime lastEditedAt) {

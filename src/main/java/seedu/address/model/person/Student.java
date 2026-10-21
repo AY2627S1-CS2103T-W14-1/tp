@@ -28,6 +28,7 @@ public class Student extends Person {
         super(name, new Role("student"), phone, email, address, major, year, tags, personIndex, photo);
     }
 
+    /** Creates a Student with edit-history timestamps. */
     public Student(Name name, Phone phone, Email email, Address address, Major major, Year year, Set<Tag> tags,
                    PersonIndex personIndex, Photo photo, LocalDateTime createdAt, LocalDateTime lastEditedAt) {
         super(name, new Role("student"), phone, email, address, major, year, tags, personIndex, photo,

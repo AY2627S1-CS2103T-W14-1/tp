@@ -15,6 +15,8 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
@@ -80,6 +82,26 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_editPerson_preservesCreationTimeAndUpdatesEditTime() throws Exception {
+        LocalDateTime creationTime = LocalDateTime.of(2020, 1, 1, 0, 0);
+        Person original = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person timestampedOriginal = original.withTimestamps(creationTime, creationTime)
+                .withPersonIndex(original.getPersonIndex());
+        model.setPerson(original, timestampedOriginal);
+
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+        editCommand.execute(model);
+
+        Person edited = model.getFilteredPersonList().stream()
+                .filter(person -> person.getName().fullName.equals(VALID_NAME_BOB))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(creationTime, edited.getCreatedAt());
+        assertTrue(edited.getLastEditedAt().isAfter(creationTime));
     }
 
     @Test

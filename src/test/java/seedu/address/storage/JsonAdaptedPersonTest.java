@@ -6,6 +6,7 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Photo;
 import seedu.address.model.person.Role;
@@ -53,6 +55,20 @@ public class JsonAdaptedPersonTest {
         assertEquals(personBuilder.buildNoIndex(), person.toModelType());
         assertEquals("photos/benson.png", person.toModelType().getPhoto().orElseThrow().getRelativePath());
         assertTrue(JsonUtil.toJsonString(person).contains("photos/benson.png"));
+    }
+
+    @Test
+    public void toModelType_personWithEditHistory_returnsTimestamps() throws Exception {
+        LocalDateTime createdAt = LocalDateTime.of(2024, 1, 2, 3, 4, 5);
+        LocalDateTime lastEditedAt = LocalDateTime.of(2025, 6, 7, 8, 9, 10);
+        Person source = new PersonBuilder(BENSON).build();
+        Person timestampedSource = source.withTimestamps(createdAt, lastEditedAt)
+                .withPersonIndex(source.getPersonIndex());
+        JsonAdaptedPerson adaptedPerson = new JsonAdaptedPerson(timestampedSource);
+
+        assertEquals(createdAt, adaptedPerson.toModelType().getCreatedAt());
+        assertEquals(lastEditedAt, adaptedPerson.toModelType().getLastEditedAt());
+        assertTrue(JsonUtil.toJsonString(adaptedPerson).contains("2024-01-02T03:04:05"));
     }
 
     @Test
