@@ -1,6 +1,7 @@
 package seedu.address.storage;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -209,8 +210,14 @@ class JsonAdaptedPerson {
             throw new IllegalValueException(exception.getMessage(), exception);
         }
 
-        LocalDateTime modelCreatedAt = createdAt == null ? null : LocalDateTime.parse(createdAt);
-        LocalDateTime modelLastEditedAt = lastEditedAt == null ? null : LocalDateTime.parse(lastEditedAt);
+        final LocalDateTime modelCreatedAt;
+        final LocalDateTime modelLastEditedAt;
+        try {
+            modelCreatedAt = createdAt == null ? null : LocalDateTime.parse(createdAt);
+            modelLastEditedAt = lastEditedAt == null ? null : LocalDateTime.parse(lastEditedAt);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalValueException("Person's timestamp fields must be valid ISO-8601 date-times.", exception);
+        }
         return new UnindexedPerson(modelName, modelRole, modelPhone, modelEmail, modelAddress, modelMajor, modelYear,
                                    modelFaculty, modelDepartment, modelHours, modelTags, modelPhoto,
                                    modelCreatedAt, modelLastEditedAt);

@@ -107,15 +107,17 @@ public class EditCommand extends Command {
         // PersonIndex cannot be changed without a deletion
 
         if (personToEdit.getRole().equals(new Role("student"))) {
-            Person updated = new Student(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
-                    personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
-            return updated.withTimestamps(personToEdit.getCreatedAt(), LocalDateTime.now())
-                    .withPersonIndex(personToEdit.getPersonIndex());
+            Person updated = new Student(updatedName, updatedPhone, updatedEmail, updatedAddress,
+                    personToEdit.getMajor(), personToEdit.getYear(), updatedTags,
+                    personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null),
+                    personToEdit.getCreatedAt(), LocalDateTime.now());
+            return updated;
         } else if (personToEdit.getRole().equals(new Role("professor"))) {
-            Person updated = new Professor(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedTags,
-                    personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null));
-            return updated.withTimestamps(personToEdit.getCreatedAt(), LocalDateTime.now())
-                    .withPersonIndex(personToEdit.getPersonIndex());
+            Person updated = new Professor(updatedName, updatedPhone, updatedEmail, updatedAddress,
+                    personToEdit.getFaculty(), personToEdit.getDepartment(), personToEdit.getHours(),
+                    updatedTags, personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null),
+                    personToEdit.getCreatedAt(), LocalDateTime.now());
+            return updated;
         } else {
             throw new IllegalArgumentException("Invalid person");
         }
