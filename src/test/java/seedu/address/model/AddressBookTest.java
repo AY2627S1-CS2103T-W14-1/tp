@@ -134,6 +134,11 @@ public class AddressBookTest {
         }
 
         @Override
+        public List<String> getRecentContacts() {
+            return List.of();
+        }
+
+        @Override
         public Set<String> getFavouriteContacts() {
             return Set.of();
         }

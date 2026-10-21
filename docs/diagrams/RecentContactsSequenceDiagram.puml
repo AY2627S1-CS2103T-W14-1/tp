@@ -1,0 +1,49 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant "s:ShowCommand" as ShowCommand LOGIC_COLOR
+participant "m:Model" as Model MODEL_COLOR
+participant "a:AddressBook" as AddressBook MODEL_COLOR
+participant ":Storage" as Storage STORAGE_COLOR
+
+[-> LogicManager : execute("show John Tan_2")
+activate LogicManager
+note over LogicManager : Parsing omitted; s is the parsed command.
+LogicManager -> ShowCommand : execute(m)
+activate ShowCommand
+ShowCommand -> Model : getFilteredPersonList()
+activate Model
+Model --> ShowCommand : displayed contacts
+deactivate Model
+note over ShowCommand : Match the contact's name and suffix.
+ShowCommand --> LogicManager : result containing selected Person
+deactivate ShowCommand
+LogicManager -> Model : getAddressBook()
+activate Model
+Model --> LogicManager : a
+deactivate Model
+LogicManager -> AddressBook : getRecentContacts()
+activate AddressBook
+AddressBook --> LogicManager : previous history
+deactivate AddressBook
+LogicManager -> Model : recordPersonViewed(selectedPerson)
+activate Model
+Model --> LogicManager
+deactivate Model
+LogicManager -> Storage : saveAddressBook(m.getAddressBook())
+activate Storage
+Storage --> LogicManager : completes or throws IOException
+deactivate Storage
+alt save succeeds
+    [<-- LogicManager : result (UI may open popup)
+else save throws IOException
+    LogicManager -> Model : restoreRecentContacts(previousHistory)
+    activate Model
+    Model --> LogicManager
+    deactivate Model
+    [<-- LogicManager : throws CommandException (no popup)
+end
+deactivate LogicManager
+@enduml

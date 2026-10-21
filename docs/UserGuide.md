@@ -193,6 +193,38 @@ Examples:
 - `show John Tan` opens details for the unsuffixed John Tan.
 - `show John Tan_2` opens details for the second displayed John Tan.
 
+### Returning to recently viewed contacts: `recent`
+
+Format: `recent` (no arguments)
+
+Shows the last ten different contacts opened with `show NAME[_NUMBER]`, most recent first.
+Opening the same contact again moves it to the front; opening an eleventh distinct contact removes the oldest
+from history, not from the address book. If `show` cannot find the contact, history stays unchanged. A save error also leaves
+history unchanged and prevents the popup from opening. Running `recent`, `list` or `sort` does not count as a visit.
+
+`recent` replaces the current filter and temporarily uses history order rather than your selected sort.
+Reopening a contact while viewing `recent` immediately moves it to the front. `list` returns to all contacts
+in your saved sort order; adding a contact also returns to all contacts. `sort FIELD [asc|desc]` sorts the
+currently displayed matches as usual; run `recent` again to restore latest-first order.
+As with the existing `show` command, only contacts in the currently displayed list can be opened:
+run `list` first if the contact you want is hidden.
+
+History is saved automatically with your contacts. After a restart, run `recent` to see it again.
+Deleting a contact removes it from history. A new contact using the same name and suffix starts without
+a visit. Confirmed `clear` also clears history; cancelling it does not. Older data files start with
+empty history. If you manually edit `recentContacts` in the data file, stale references and repeats are
+discarded and only the first ten distinct existing identifiers are retained.
+
+Example (with both contacts already saved):
+
+1. `list`
+1. `show John Tan`
+1. Close the popup, then `show John Tan_2`.
+1. Close the popup, then `recent`: John Tan_2 appears before John Tan.
+1. `show John Tan`, close the popup, then `recent`: John Tan is now first, with no duplicate entry.
+
+An empty history displays a message explaining how to open a contact with `show`.
+
 ### Locating persons by name: `find`
 
 `find` is disabled as of the MVP version. Below is the legacy documentation of the method.
@@ -298,6 +330,7 @@ _Details coming soon ..._
 | **~~Find~~** | ~~`find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`~~                                                                                                             |
 | **List**     | `list`                                                                                                                                                                     |
 | **Show**     | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`
+| **Recent**   | `recent`
 | **Favourite** | `favourite NAME[_NUMBER]`<br> e.g., `favourite James Ho_2`
 | **Unfavourite** | `unfavourite NAME[_NUMBER]`<br> e.g., `unfavourite James Ho_2`
 | **Favourites** | `favourites`

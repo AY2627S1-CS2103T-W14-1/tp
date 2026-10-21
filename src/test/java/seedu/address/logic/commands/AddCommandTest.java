@@ -105,6 +105,21 @@ public class AddCommandTest {
      */
     private class ModelStub implements Model {
         @Override
+        public void recordPersonViewed(Person person) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void restoreRecentContacts(List<String> identifiers) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void showRecentPersons() {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
         public void setFavourite(Person person, boolean isFavourite) {
             throw new AssertionError("This method should not be called.");
         }
