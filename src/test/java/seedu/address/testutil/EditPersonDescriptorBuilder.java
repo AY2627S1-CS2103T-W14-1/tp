@@ -36,6 +36,21 @@ public class EditPersonDescriptorBuilder {
         descriptor.setPhone(person.getPhone());
         descriptor.setEmail(person.getEmail());
         descriptor.setAddress(person.getAddress());
+        if (person.getMajor() != null && person.getMajor().value != null) {
+            descriptor.setMajor(person.getMajor());
+        }
+        if (person.getYear() != null && person.getYear().value != null) {
+            descriptor.setYear(person.getYear());
+        }
+        if (person.getFaculty() != null && person.getFaculty().value != null) {
+            descriptor.setFaculty(person.getFaculty());
+        }
+        if (person.getDepartment() != null && person.getDepartment().value != null) {
+            descriptor.setDepartment(person.getDepartment());
+        }
+        if (person.getHours() != null && person.getHours().value != null) {
+            descriptor.setHours(person.getHours());
+        }
         descriptor.setTags(person.getTags());
     }
 
@@ -68,6 +83,46 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withAddress(String address) {
         descriptor.setAddress(new Address(address));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Major} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withMajor(String major) {
+        descriptor.setMajor(new seedu.address.model.person.Major(major));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Year} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withYear(String year) {
+        descriptor.setYear(new seedu.address.model.person.Year(year));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Faculty} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withFaculty(String faculty) {
+        descriptor.setFaculty(new seedu.address.model.person.Faculty(faculty));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Department} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withDepartment(String department) {
+        descriptor.setDepartment(new seedu.address.model.person.Department(department));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Hours} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withHours(String hours) {
+        descriptor.setHours(new seedu.address.model.person.Hours(hours));
         return this;
     }
 
