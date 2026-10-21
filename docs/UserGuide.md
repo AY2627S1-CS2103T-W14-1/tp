@@ -225,24 +225,23 @@ Example (with both contacts already saved):
 
 An empty history displays a message explaining how to open a contact with `show`.
 
-### Locating persons by name: `find`
+### Finding contacts: `find`
 
-`find` is disabled as of the MVP version. Below is the legacy documentation of the method.
+Finds contacts whose details match the specified keywords (case-insensitive substring match).
 
-Finds persons whose names contain any of the given keywords.
+Format: `find [/name NAME] [/role ROLE] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`
 
-Format: `find KEYWORD [MORE_KEYWORDS]`
-
-- The search is case-insensitive; for example, `hans` matches `Hans`.
-- Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-- The search considers only names.
-- Only full words match; for example, `Han` does not match `Hans`.
-- Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+* The search is case-insensitive (e.g. `john` matches `John`).
+* Substring matching is supported (e.g. `COM` matches `COM1`, `ali` matches `Alice`, `@u.nus` matches email).
+* If multiple different fields are specified, only contacts matching **all** criteria will be returned.
+* If multiple keywords are given for the same field, contacts matching **any** of the keywords will be returned.
+* You can search by name directly without prefix (e.g. `find Alice Bob`) or with `/name Alice`.
 
 Examples:
-- `find John` returns `john` and `John Doe`
-- `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `find John` returns all contacts whose names contain `john`.
+* `find /location COM1` returns all contacts located in COM1.
+* `find /phone 9876 /email u.nus.edu` returns contacts matching both phone and email domain.
+* `find /role student /major Computer Science` returns all student contacts majoring in Computer Science.
 
 ### Deleting a person: `delete`
 
