@@ -10,7 +10,7 @@ public class SortCommand extends Command {
 
     public static final String COMMAND_WORD = "sort";
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Sorts displayed persons by name or phone.\n"
+            + ": Sorts displayed persons by name, phone, added time, or edit time.\n"
             + "Parameters: FIELD [asc|desc]\n"
             + "Example: " + COMMAND_WORD + " name desc";
     public static final String MESSAGE_SUCCESS_FORMAT = "Sorted persons by %s in %sending order.";
