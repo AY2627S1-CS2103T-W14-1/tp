@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_SECOND;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
@@ -12,7 +13,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.Messages;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ModelManager;
@@ -38,7 +38,7 @@ class SetFavouriteCommandTest {
     void execute_duplicateName_targetsOnlySpecifiedSuffix() throws Exception {
         model.addPerson(ALICE);
         model.addPerson(new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex());
-        SetFavouriteCommand mark = new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true);
+        SetFavouriteCommand mark = new SetFavouriteCommand("Alice Pauline", PERSON_INDEX_SECOND, true);
         assertEquals("Added to favourites: Alice Pauline_2", mark.execute(model).getFeedbackToUser());
         assertEquals("Already in favourites: Alice Pauline_2", mark.execute(model).getFeedbackToUser());
         new ListFavouritesCommand().execute(model);
@@ -72,7 +72,7 @@ class SetFavouriteCommandTest {
         model.addPerson(ALICE);
         assertCommandFailure(new SetFavouriteCommand("Unknown Person", ALICE.getPersonIndex(), true), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
-        assertCommandFailure(new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true), model,
+        assertCommandFailure(new SetFavouriteCommand("Alice Pauline", PERSON_INDEX_SECOND, true), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
     }
 
@@ -119,7 +119,7 @@ class SetFavouriteCommandTest {
         assertTrue(mark.equals(mark));
         assertTrue(mark.equals(new SetFavouriteCommand("alice pauline", ALICE.getPersonIndex(), true)));
         assertFalse(mark.equals(new SetFavouriteCommand("Alice Pauline", ALICE.getPersonIndex(), false)));
-        assertFalse(mark.equals(new SetFavouriteCommand("Alice Pauline", PersonIndex.fromOneBased(2), true)));
+        assertFalse(mark.equals(new SetFavouriteCommand("Alice Pauline", PERSON_INDEX_SECOND, true)));
         assertFalse(mark.equals(new SetFavouriteCommand("Benson Meier", BENSON.getPersonIndex(), true)));
         assertFalse(mark.equals(null));
         assertFalse(mark.equals(new ListFavouritesCommand()));
