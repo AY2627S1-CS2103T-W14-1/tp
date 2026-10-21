@@ -7,11 +7,11 @@ import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_FIRST;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -99,7 +99,7 @@ public class DeleteCommandTest {
     public void toStringMethod() {
         DeleteCommand deleteCommand = new DeleteCommand("alice pauline");
         String expected = DeleteCommand.class.getCanonicalName() + "{targetName=Alice Pauline, targetIndex="
-                + PersonIndex.fromOneBased(1) + "}";
+                + PERSON_INDEX_FIRST + "}";
         assertEquals(expected, deleteCommand.toString());
     }
 

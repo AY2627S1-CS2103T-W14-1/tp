@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_FIRST;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_SECOND;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.util.ArrayList;
@@ -64,9 +66,9 @@ public class AddCommandTest {
     public void execute_duplicatePerson_throwsCommandException() {
         Person validPerson = new PersonBuilder().build();
         Person indexedPerson = validPerson.withPersonIndex(
-                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+                PERSON_INDEX_FIRST);
         Person duplicate = validPerson.withPersonIndex(
-                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+                PERSON_INDEX_FIRST);
         AddCommand addCommand = new AddCommand(duplicate);
         ModelStub modelStub = new ModelStubWithPerson(indexedPerson);
         assertThrows(CommandException.class, AddCommand.MESSAGE_DUPLICATE_PERSON, () -> addCommand.execute(modelStub));
@@ -76,9 +78,9 @@ public class AddCommandTest {
     public void execute_duplicatePersonDifferentIndex_reachesAddMethod() {
         Person validPerson = new PersonBuilder().build();
         Person indexedPerson = validPerson.withPersonIndex(
-                seedu.address.commons.core.index.PersonIndex.fromOneBased(1));
+                PERSON_INDEX_FIRST);
         Person duplicate = validPerson.withPersonIndex(
-                seedu.address.commons.core.index.PersonIndex.fromOneBased(2));
+                PERSON_INDEX_SECOND);
         AddCommand addCommand = new AddCommand(duplicate);
         ModelStub modelStub = new ModelStubWithPerson(indexedPerson);
         assertThrows(AssertionError.class, "This method should fail here.", () -> addCommand.execute(modelStub));

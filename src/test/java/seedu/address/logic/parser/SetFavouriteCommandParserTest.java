@@ -3,12 +3,13 @@ package seedu.address.logic.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_FIRST;
+import static seedu.address.testutil.TypicalIndexes.PERSON_INDEX_SECOND;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.commands.ListFavouritesCommand;
 import seedu.address.logic.commands.SetFavouriteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -19,9 +20,9 @@ class SetFavouriteCommandParserTest {
         AddressBookParser parser = new AddressBookParser();
         for (String word : List.of("favourite", "unfavourite")) {
             boolean isFavourite = word.equals("favourite");
-            assertEquals(new SetFavouriteCommand("John Tan", PersonIndex.fromOneBased(1), isFavourite),
+            assertEquals(new SetFavouriteCommand("John Tan", PERSON_INDEX_FIRST, isFavourite),
                     parser.parseCommand(word + "   john tan   "));
-            assertEquals(new SetFavouriteCommand("John Tan", PersonIndex.fromOneBased(2), isFavourite),
+            assertEquals(new SetFavouriteCommand("John Tan", PERSON_INDEX_SECOND, isFavourite),
                     parser.parseCommand(word + " John Tan_2"));
         }
         assertInstanceOf(ListFavouritesCommand.class, parser.parseCommand("favourites   "));
