@@ -1,28 +1,51 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_DEPARTMENT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_FACULTY;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
+
+import java.util.function.Predicate;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Person;
 
 /**
- * Finds and lists all persons in the address book whose name contains any of the argument keywords.
- * Keyword matching is case insensitive.
+ * Finds and lists all persons in the address book matching the specified criteria.
+ * Keyword matching is case-insensitive.
  */
 public class FindCommand extends Command {
 
     public static final String COMMAND_WORD = "find";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all persons whose names contain any of "
-            + "the specified keywords (case-insensitive) and displays them as a list with index numbers.\n"
-            + "Parameters: KEYWORD [MORE_KEYWORDS]...\n"
-            + "Example: " + COMMAND_WORD + " alice bob charlie";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all persons whose details match all the "
+            + "specified criteria (case-insensitive substring match within fields).\n"
+            + "Parameters: [NAME] [" + PREFIX_CONTACT_NAME + " NAME] "
+            + "[" + PREFIX_CONTACT_ROLE + " ROLE] "
+            + "[" + PREFIX_CONTACT_PHONE + " PHONE] "
+            + "[" + PREFIX_CONTACT_EMAIL + " EMAIL] "
+            + "[" + PREFIX_CONTACT_LOCATION + " LOCATION] "
+            + "[" + PREFIX_CONTACT_MAJOR + " MAJOR] "
+            + "[" + PREFIX_CONTACT_YEAR + " YEAR] "
+            + "[" + PREFIX_CONTACT_FACULTY + " FACULTY] "
+            + "[" + PREFIX_CONTACT_DEPARTMENT + " DEPARTMENT] "
+            + "[" + PREFIX_CONTACT_OFFICE_HOURS + " HOURS] "
+            + "[" + PREFIX_TAG + "TAG]...\n"
+            + "Example: " + COMMAND_WORD + " /role student /major Computer Science /location COM1";
 
-    private final NameContainsKeywordsPredicate predicate;
+    private final Predicate<Person> predicate;
 
-    public FindCommand(NameContainsKeywordsPredicate predicate) {
+    public FindCommand(Predicate<Person> predicate) {
         this.predicate = predicate;
     }
 
