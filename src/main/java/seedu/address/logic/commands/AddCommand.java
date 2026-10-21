@@ -13,6 +13,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.time.LocalDateTime;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -105,7 +106,8 @@ public class AddCommand extends Command {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
-        model.addPerson(toAdd);
+        LocalDateTime now = LocalDateTime.now();
+        model.addPerson(toAdd.withTimestamps(now, now));
         return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
     }
 

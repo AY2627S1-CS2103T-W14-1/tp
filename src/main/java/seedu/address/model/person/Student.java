@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import seedu.address.commons.core.index.PersonIndex;
@@ -25,5 +26,11 @@ public class Student extends Person {
     public Student(Name name, Phone phone, Email email, Address address, Major major, Year year, Set<Tag> tags,
                    PersonIndex personIndex, Photo photo) {
         super(name, new Role("student"), phone, email, address, major, year, tags, personIndex, photo);
+    }
+
+    public Student(Name name, Phone phone, Email email, Address address, Major major, Year year, Set<Tag> tags,
+                   PersonIndex personIndex, Photo photo, LocalDateTime createdAt, LocalDateTime lastEditedAt) {
+        super(name, new Role("student"), phone, email, address, major, year, tags, personIndex, photo,
+                createdAt, lastEditedAt);
     }
 }

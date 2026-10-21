@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -73,6 +74,24 @@ public class Person extends UnindexedPerson {
     public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
                   Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo) {
         super(name, role, phone, email, address, faculty, department, hours, tags, photo);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Major major, Year year,
+                  Set<Tag> tags, PersonIndex personIndex, Photo photo, LocalDateTime createdAt,
+                  LocalDateTime lastEditedAt) {
+        super(name, role, phone, email, address, major, year, null, null, null, tags, photo,
+                createdAt, lastEditedAt);
+        requireNonNull(personIndex);
+        this.personIndex = personIndex;
+    }
+
+    public Person(Name name, Role role, Phone phone, Email email, Address address, Faculty faculty,
+                  Department department, Hours hours, Set<Tag> tags, PersonIndex personIndex, Photo photo,
+                  LocalDateTime createdAt, LocalDateTime lastEditedAt) {
+        super(name, role, phone, email, address, null, null, faculty, department, hours, tags, photo,
+                createdAt, lastEditedAt);
         requireNonNull(personIndex);
         this.personIndex = personIndex;
     }

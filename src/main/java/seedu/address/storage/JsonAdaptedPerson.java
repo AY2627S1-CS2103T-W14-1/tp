@@ -1,5 +1,6 @@
 package seedu.address.storage;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,10 @@ class JsonAdaptedPerson {
     private final String department;
     private final String hours;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final String createdAt;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final String lastEditedAt;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String photo;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
 
@@ -57,7 +62,8 @@ class JsonAdaptedPerson {
             @JsonProperty("address") String address, @JsonProperty("tags") List<JsonAdaptedTag> tags,
             @JsonProperty("major") String major, @JsonProperty("year") String year,
             @JsonProperty("faculty") String faculty, @JsonProperty("department") String department,
-            @JsonProperty("hours") String hours, @JsonProperty("photo") String photo) {
+            @JsonProperty("hours") String hours, @JsonProperty("photo") String photo,
+            @JsonProperty("createdAt") String createdAt, @JsonProperty("lastEditedAt") String lastEditedAt) {
         this.name = name;
         this.role = role;
         this.phone = phone;
@@ -69,6 +75,8 @@ class JsonAdaptedPerson {
         this.department = department;
         this.hours = hours;
         this.photo = photo;
+        this.createdAt = createdAt;
+        this.lastEditedAt = lastEditedAt;
         if (tags != null) {
             this.tags.addAll(tags);
         }
@@ -80,7 +88,14 @@ class JsonAdaptedPerson {
     public JsonAdaptedPerson(String name, String role, String phone, String email, String address,
                              List<JsonAdaptedTag> tags, String major, String year, String faculty, String department,
                              String hours) {
-        this(name, role, phone, email, address, tags, major, year, faculty, department, hours, null);
+        this(name, role, phone, email, address, tags, major, year, faculty, department, hours, null, null, null);
+    }
+
+    /** Constructs a person without edit-history timestamps for source compatibility with older tests. */
+    public JsonAdaptedPerson(String name, String role, String phone, String email, String address,
+                             List<JsonAdaptedTag> tags, String major, String year, String faculty, String department,
+                             String hours, String photo) {
+        this(name, role, phone, email, address, tags, major, year, faculty, department, hours, photo, null, null);
     }
 
     /**
@@ -98,6 +113,8 @@ class JsonAdaptedPerson {
         department = source.getDepartment() != null ? source.getDepartment().value : null;
         hours = source.getHours() != null ? source.getHours().value : null;
         photo = source.getPhoto().map(Photo::getRelativePath).orElse(null);
+        createdAt = source.getCreatedAt() == null ? null : source.getCreatedAt().toString();
+        lastEditedAt = source.getLastEditedAt() == null ? null : source.getLastEditedAt().toString();
         tags.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
@@ -192,8 +209,11 @@ class JsonAdaptedPerson {
             throw new IllegalValueException(exception.getMessage(), exception);
         }
 
+        LocalDateTime modelCreatedAt = createdAt == null ? null : LocalDateTime.parse(createdAt);
+        LocalDateTime modelLastEditedAt = lastEditedAt == null ? null : LocalDateTime.parse(lastEditedAt);
         return new UnindexedPerson(modelName, modelRole, modelPhone, modelEmail, modelAddress, modelMajor, modelYear,
-                                   modelFaculty, modelDepartment, modelHours, modelTags, modelPhoto);
+                                   modelFaculty, modelDepartment, modelHours, modelTags, modelPhoto,
+                                   modelCreatedAt, modelLastEditedAt);
     }
 
 }
