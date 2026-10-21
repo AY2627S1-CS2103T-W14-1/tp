@@ -62,7 +62,7 @@ public class LogicManagerTest {
 
     @Test
     public void execute_commandExecutionError_throwsCommandException() {
-        String deleteCommand = "delete 9";
+        String deleteCommand = "delete SeeEssTwoOneOhThreeTee";
         assertCommandException(deleteCommand, MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
     }
 
@@ -74,12 +74,14 @@ public class LogicManagerTest {
 
     @Test
     public void execute_addCampusContact_savesContact() throws Exception {
-        UnindexedPerson person = new PersonBuilder().withName("John Doe").withEmail("johnd@example.com")
-                .withPhone("98765432").withAddress("COM1 02 01").withTags().buildNoIndex();
+        UnindexedPerson person = new PersonBuilder().withName("John Doe").withRole("student")
+                .withEmail("johnd@example.com").withPhone("98765432").withAddress("COM1 02 01").withTags()
+                .buildNoIndex();
         Model expectedModel = new ModelManager();
         expectedModel.addPerson(person);
 
-        assertCommandSuccess("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01",
+        assertCommandSuccess("add John Doe /role student /email johnd@example.com /phone 98765432"
+                + " /location COM1 02 01",
                 String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(person)), expectedModel);
 
         JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
@@ -91,8 +93,8 @@ public class LogicManagerTest {
         Path sourcePhoto = temporaryFolder.resolve("source.png");
         writePng(sourcePhoto);
 
-        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
-                + sourcePhoto);
+        logic.execute("add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1 "
+                + "02 01 /photo " + sourcePhoto);
 
         Person addedPerson = model.getFilteredPersonList().get(0);
         String relativePhotoPath = addedPerson.getPhoto().orElseThrow().getRelativePath();
@@ -107,8 +109,8 @@ public class LogicManagerTest {
     public void execute_deleteContactWithPhoto_removesCopiedPhoto() throws Exception {
         Path sourcePhoto = temporaryFolder.resolve("source.png");
         writePng(sourcePhoto);
-        logic.execute("add John Doe /email johnd@example.com /phone 98765432 /location COM1 02 01 /photo "
-                + sourcePhoto);
+        logic.execute("add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1"
+                + "02 01 /photo " + sourcePhoto);
         Path copiedPhoto = temporaryFolder.resolve(model.getFilteredPersonList().get(0)
                 .getPhoto().orElseThrow().getRelativePath());
 

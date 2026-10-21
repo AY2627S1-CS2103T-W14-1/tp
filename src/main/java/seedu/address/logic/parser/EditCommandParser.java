@@ -3,11 +3,16 @@ package seedu.address.logic.parser;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_DEPARTMENT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_FACULTY;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_TAG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -43,6 +48,8 @@ public class EditCommandParser implements Parser<EditCommand> {
                 PREFIX_CONTACT_PHONE, PREFIX_PHONE,
                 PREFIX_CONTACT_EMAIL, PREFIX_EMAIL,
                 PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS,
+                PREFIX_CONTACT_MAJOR, PREFIX_CONTACT_YEAR,
+                PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS,
                 PREFIX_CONTACT_TAG, PREFIX_TAG);
 
         Index index;
@@ -57,7 +64,9 @@ public class EditCommandParser implements Parser<EditCommand> {
                 PREFIX_CONTACT_NAME, PREFIX_NAME,
                 PREFIX_CONTACT_PHONE, PREFIX_PHONE,
                 PREFIX_CONTACT_EMAIL, PREFIX_EMAIL,
-                PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS);
+                PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS,
+                PREFIX_CONTACT_MAJOR, PREFIX_CONTACT_YEAR,
+                PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
@@ -87,6 +96,28 @@ public class EditCommandParser implements Parser<EditCommand> {
                 .or(() -> argMultimap.getValue(PREFIX_ADDRESS));
         if (locationValue.isPresent()) {
             editPersonDescriptor.setAddress(ParserUtil.parseAddress(locationValue.get()));
+        }
+
+        // Parse Student fields
+        if (argMultimap.getValue(PREFIX_CONTACT_MAJOR).isPresent()) {
+            editPersonDescriptor.setMajor(ParserUtil.parseMajor(argMultimap.getValue(PREFIX_CONTACT_MAJOR).get()));
+        }
+        if (argMultimap.getValue(PREFIX_CONTACT_YEAR).isPresent()) {
+            editPersonDescriptor.setYear(ParserUtil.parseYear(argMultimap.getValue(PREFIX_CONTACT_YEAR).get()));
+        }
+
+        // Parse Professor fields
+        if (argMultimap.getValue(PREFIX_CONTACT_FACULTY).isPresent()) {
+            editPersonDescriptor.setFaculty(ParserUtil.parseFaculty(
+                    argMultimap.getValue(PREFIX_CONTACT_FACULTY).get()));
+        }
+        if (argMultimap.getValue(PREFIX_CONTACT_DEPARTMENT).isPresent()) {
+            editPersonDescriptor.setDepartment(ParserUtil.parseDepartment(
+                    argMultimap.getValue(PREFIX_CONTACT_DEPARTMENT).get()));
+        }
+        if (argMultimap.getValue(PREFIX_CONTACT_OFFICE_HOURS).isPresent()) {
+            editPersonDescriptor.setHours(ParserUtil.parseHours(
+                    argMultimap.getValue(PREFIX_CONTACT_OFFICE_HOURS).get()));
         }
 
         // Parse Tags (supports /tag or t/)

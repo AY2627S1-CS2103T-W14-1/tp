@@ -151,6 +151,22 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_studentWithProfessorField_failure() {
+        // First person is Alice (Student)
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withFaculty("Computing").build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+        assertCommandFailure(editCommand, model, EditCommand.MESSAGE_STUDENT_RESTRICTIONS);
+    }
+
+    @Test
+    public void execute_professorWithStudentField_failure() {
+        // Second person is Benson (Professor)
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withMajor("Computer Science").build();
+        EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
+        assertCommandFailure(editCommand, model, EditCommand.MESSAGE_PROFESSOR_RESTRICTIONS);
+    }
+
+    @Test
     public void equals() {
         final EditCommand standardCommand = new EditCommand(INDEX_FIRST_PERSON, DESC_AMY);
 

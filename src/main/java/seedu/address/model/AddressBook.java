@@ -2,8 +2,11 @@ package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
@@ -18,6 +21,7 @@ import seedu.address.model.person.UniquePersonHashMap;
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final UniquePersonHashMap persons = new UniquePersonHashMap();
+    private final Set<String> favouriteContacts = new HashSet<>();
 
     public AddressBook() {}
 
@@ -37,6 +41,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersons(List<Person> persons) {
         this.persons.setPersons(persons);
+        favouriteContacts.clear();
     }
 
     /**
@@ -44,6 +49,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersonBuckets(Map<String, Map<Integer, Person>> personBuckets) {
         persons.setPersonBuckets(personBuckets);
+        favouriteContacts.clear();
     }
 
     /**
@@ -52,7 +58,9 @@ public class AddressBook implements ReadOnlyAddressBook {
     public void resetData(ReadOnlyAddressBook newData) {
         requireNonNull(newData);
 
+        Set<String> favourites = newData.getFavouriteContacts();
         setPersonBuckets(newData.getPersonBuckets());
+        setFavouriteContacts(favourites);
     }
 
     //// person-level operations
@@ -82,6 +90,9 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(editedPerson);
 
         persons.setPerson(target, editedPerson);
+        if (favouriteContacts.remove(target.getDisplayName())) {
+            favouriteContacts.add(editedPerson.getDisplayName());
+        }
     }
 
     /**
@@ -90,6 +101,38 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void removePerson(Person key) {
         persons.remove(key);
+        favouriteContacts.remove(key.getDisplayName());
+    }
+
+    /** Marks or unmarks an existing contact without reconstructing its profile data. */
+    public void setFavourite(Person person, boolean isFavourite) {
+        requireNonNull(person);
+        if (getPersonList().stream().noneMatch(person::isSamePerson)) {
+            throw new IllegalArgumentException("Favourite contact must exist in the address book");
+        }
+        if (isFavourite) {
+            favouriteContacts.add(person.getDisplayName());
+        } else {
+            favouriteContacts.remove(person.getDisplayName());
+        }
+    }
+
+    public boolean isFavourite(Person person) {
+        return favouriteContacts.contains(requireNonNull(person).getDisplayName());
+    }
+
+    /** Restores favourites, ignoring references to contacts removed by manual data-file editing. */
+    public void setFavouriteContacts(Set<String> identifiers) {
+        requireNonNull(identifiers);
+        Set<String> retained = new HashSet<>();
+        getPersonList().stream().map(Person::getDisplayName).filter(identifiers::contains).forEach(retained::add);
+        favouriteContacts.clear();
+        favouriteContacts.addAll(retained);
+    }
+
+    @Override
+    public Set<String> getFavouriteContacts() {
+        return Set.copyOf(favouriteContacts);
     }
 
     //// util methods
@@ -122,11 +165,12 @@ public class AddressBook implements ReadOnlyAddressBook {
             return false;
         }
 
-        return persons.equals(otherAddressBook.persons);
+        return persons.equals(otherAddressBook.persons)
+                && favouriteContacts.equals(otherAddressBook.favouriteContacts);
     }
 
     @Override
     public int hashCode() {
-        return persons.hashCode();
+        return Objects.hash(persons, favouriteContacts);
     }
 }

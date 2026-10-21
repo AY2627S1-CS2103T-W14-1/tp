@@ -1,0 +1,53 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+participant "f:SetFavouriteCommand" as SetFavouriteCommand LOGIC_COLOR
+participant "m:ModelManager" as ModelManager MODEL_COLOR
+participant "a:AddressBook" as AddressBook MODEL_COLOR
+participant "l:ListFavouritesCommand" as ListFavouritesCommand LOGIC_COLOR
+
+[-> SetFavouriteCommand : execute(m)
+activate SetFavouriteCommand
+SetFavouriteCommand -> ModelManager : getAddressBook()
+activate ModelManager
+ModelManager --> SetFavouriteCommand : a
+deactivate ModelManager
+SetFavouriteCommand -> AddressBook : getPersonList()
+activate AddressBook
+AddressBook --> SetFavouriteCommand : contacts
+deactivate AddressBook
+note over SetFavouriteCommand : Match the contact's name and suffix.
+alt target exists
+    SetFavouriteCommand -> AddressBook : getFavouriteContacts()
+    activate AddressBook
+    AddressBook --> SetFavouriteCommand : favourite identifiers
+    deactivate AddressBook
+    SetFavouriteCommand -> ModelManager : setFavourite(target, true)
+    activate ModelManager
+    ModelManager -> AddressBook : setFavourite(target, true)
+    activate AddressBook
+    AddressBook --> ModelManager
+    deactivate AddressBook
+    ModelManager --> SetFavouriteCommand
+    deactivate ModelManager
+    [<-- SetFavouriteCommand : result with changed or unchanged status
+else target missing
+    [<-- SetFavouriteCommand : throws CommandException
+end
+deactivate SetFavouriteCommand
+
+[-> ListFavouritesCommand : execute(m)
+activate ListFavouritesCommand
+ListFavouritesCommand -> ModelManager : showFavouritePersons()
+activate ModelManager
+ModelManager -> ModelManager : updateFilteredPersonList(a::isFavourite)
+ModelManager --> ListFavouritesCommand
+deactivate ModelManager
+ListFavouritesCommand -> ModelManager : getFilteredPersonList()
+activate ModelManager
+ModelManager --> ListFavouritesCommand : favourite contacts
+deactivate ModelManager
+[<-- ListFavouritesCommand : result with count or empty-state message
+deactivate ListFavouritesCommand
+@enduml

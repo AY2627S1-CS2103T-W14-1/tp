@@ -1,9 +1,15 @@
 package seedu.address.testutil;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_DEPARTMENT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_FACULTY;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -34,6 +40,7 @@ public class PersonUtil {
     public static String getPersonDetails(UnindexedPerson person) {
         StringBuilder sb = new StringBuilder();
         sb.append(person.getName().fullName + " ");
+        sb.append(PREFIX_CONTACT_ROLE + " " + person.getRole().toString() + " ");
         sb.append(PREFIX_CONTACT_EMAIL + " " + person.getEmail().value + " ");
         sb.append(PREFIX_CONTACT_PHONE + " " + person.getPhone().value + " ");
         sb.append(PREFIX_CONTACT_LOCATION + " " + person.getAddress().value + " ");
@@ -51,7 +58,18 @@ public class PersonUtil {
         descriptor.getName().ifPresent(name -> sb.append(PREFIX_NAME).append(name.fullName).append(" "));
         descriptor.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE).append(phone.value).append(" "));
         descriptor.getEmail().ifPresent(email -> sb.append(PREFIX_EMAIL).append(email.value).append(" "));
-        descriptor.getAddress().ifPresent(address -> sb.append(PREFIX_ADDRESS).append(address.value).append(" "));
+        descriptor.getAddress().ifPresent(address -> sb.append(PREFIX_ADDRESS)
+                .append(address.value).append(" "));
+        descriptor.getMajor().ifPresent(major -> sb.append(PREFIX_CONTACT_MAJOR).append(" ")
+                .append(major.value).append(" "));
+        descriptor.getYear().ifPresent(year -> sb.append(PREFIX_CONTACT_YEAR).append(" ")
+                .append(year.value).append(" "));
+        descriptor.getFaculty().ifPresent(faculty -> sb.append(PREFIX_CONTACT_FACULTY).append(" ")
+                .append(faculty.value).append(" "));
+        descriptor.getDepartment().ifPresent(dept -> sb.append(PREFIX_CONTACT_DEPARTMENT).append(" ")
+                .append(dept.value).append(" "));
+        descriptor.getHours().ifPresent(hours -> sb.append(PREFIX_CONTACT_OFFICE_HOURS).append(" ")
+                .append(hours.value).append(" "));
         if (descriptor.getTags().isPresent()) {
             Set<Tag> tags = descriptor.getTags().get();
             if (tags.isEmpty()) {

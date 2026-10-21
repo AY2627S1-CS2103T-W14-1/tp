@@ -1,10 +1,16 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_DEPARTMENT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_FACULTY;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.nio.file.Path;
@@ -27,18 +33,31 @@ public class AddCommand extends Command {
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a person to the address book. "
             + "Parameters: "
             + "NAME "
+            + PREFIX_CONTACT_ROLE + " ROLE "
             + PREFIX_CONTACT_EMAIL + " EMAIL "
             + PREFIX_CONTACT_PHONE + " PHONE "
             + PREFIX_CONTACT_LOCATION + " LOCATION "
-            + "[" + PREFIX_CONTACT_PHOTO + " FILE_PATH] "
+            + "[" + PREFIX_CONTACT_MAJOR + " MAJOR] "
+            + "[" + PREFIX_CONTACT_YEAR + " YEAR] "
+            + "[" + PREFIX_CONTACT_FACULTY + " FACULTY] "
+            + "[" + PREFIX_CONTACT_DEPARTMENT + " DEPARTMENT] "
+            + "[" + PREFIX_CONTACT_OFFICE_HOURS + " HOURS] "
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " "
             + "John Doe "
+            + PREFIX_CONTACT_ROLE + " student "
             + PREFIX_CONTACT_EMAIL + " johnd@example.com "
             + PREFIX_CONTACT_PHONE + " 98765432 "
             + PREFIX_CONTACT_LOCATION + " COM1, #02-01 "
+            + PREFIX_CONTACT_MAJOR + " Computer Science "
+            + PREFIX_CONTACT_YEAR + " 2 "
             + PREFIX_TAG + "friends "
             + PREFIX_TAG + "owesMoney";
+
+    public static final String INVALID_STUDENT_PARAMETERS = String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+            "Student cannot have faculty, department or office hours.");
+    public static final String INVALID_PROFESSOR_PARAMETERS = String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+            "Professor cannot have major or year.");
 
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";

@@ -31,7 +31,7 @@
           <ImageView fx:id="photo" fitHeight="180" fitWidth="180" preserveRatio="true" />
           <Label fx:id="photoStatus" id="photoStatus" />
         </VBox>
-        <GridPane hgap="14" vgap="10">
+        <GridPane hgap="14">
           <columnConstraints>
             <ColumnConstraints minWidth="90" />
             <ColumnConstraints minWidth="260" />
@@ -39,14 +39,26 @@
           <children>
             <Label text="Contact ID" GridPane.rowIndex="0" />
             <Label fx:id="contactId" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-            <Label text="Phone" GridPane.rowIndex="1" />
-            <Label fx:id="phone" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Email" GridPane.rowIndex="2" />
-            <Label fx:id="email" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Location" GridPane.rowIndex="3" />
-            <Label fx:id="locationLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="Tags" GridPane.rowIndex="4" />
-            <Label fx:id="tags" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label text="Role" GridPane.rowIndex="1" />
+            <Label fx:id="role" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Phone" GridPane.rowIndex="2" />
+            <Label fx:id="phone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Email" GridPane.rowIndex="3" />
+            <Label fx:id="email" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label text="Location" GridPane.rowIndex="4" />
+            <Label fx:id="locationLabel" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label fx:id="majorLabel" text="Major" GridPane.rowIndex="5" />
+            <Label fx:id="major" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label fx:id="yearLabel" text="Year" GridPane.rowIndex="6" />
+            <Label fx:id="year" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label fx:id="facultyLabel" text="Faculty" GridPane.rowIndex="7" />
+            <Label fx:id="faculty" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Label fx:id="departmentLabel" text="Department" GridPane.rowIndex="8" />
+            <Label fx:id="department" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <Label fx:id="hoursLabel" text="Hours" GridPane.rowIndex="9" />
+            <Label fx:id="hours" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Tags" GridPane.rowIndex="10" />
+            <Label fx:id="tags" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10" />
           </children>
         </GridPane>
         <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
