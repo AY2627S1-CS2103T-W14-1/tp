@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,9 +37,26 @@ class FavouriteStorageTest {
     }
 
     @Test
+    void saveAndRead_favouritesAndRecentContacts_preservesBothStates() throws Exception {
+        AddressBook original = new AddressBook();
+        original.addPerson(ALICE);
+        original.addPerson(BENSON);
+        original.setFavourite(ALICE, true);
+        original.recordPersonViewed(BENSON);
+        original.recordPersonViewed(ALICE);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(tempDir.resolve("combined-contacts.json"));
+
+        storage.saveAddressBook(original);
+        ReadOnlyAddressBook restored = storage.readAddressBook().orElseThrow();
+
+        assertEquals(Set.of(ALICE.getDisplayName()), restored.getFavouriteContacts());
+        assertEquals(List.of(ALICE.getDisplayName(), BENSON.getDisplayName()), restored.getRecentContacts());
+    }
+
+    @Test
     void toModel_legacyDataWithoutFavourites_defaultsToEmpty() throws Exception {
         JsonSerializableAddressBook legacy = new JsonSerializableAddressBook(null,
-                List.of(new JsonAdaptedPerson(ALICE)), null);
+                List.of(new JsonAdaptedPerson(ALICE)), null, null);
         assertTrue(legacy.toModelType().getFavouriteContacts().isEmpty());
         assertEquals(List.of(ALICE), legacy.toModelType().getPersonList());
     }

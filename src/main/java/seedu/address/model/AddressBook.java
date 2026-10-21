@@ -2,11 +2,13 @@ package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
@@ -20,7 +22,10 @@ import seedu.address.model.person.UniquePersonHashMap;
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
+    public static final int RECENT_CONTACT_LIMIT = 10;
+
     private final UniquePersonHashMap persons = new UniquePersonHashMap();
+    private final List<String> recentContacts = new ArrayList<>();
     private final Set<String> favouriteContacts = new HashSet<>();
 
     public AddressBook() {}
@@ -41,6 +46,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersons(List<Person> persons) {
         this.persons.setPersons(persons);
+        recentContacts.clear();
         favouriteContacts.clear();
     }
 
@@ -49,6 +55,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersonBuckets(Map<String, Map<Integer, Person>> personBuckets) {
         persons.setPersonBuckets(personBuckets);
+        recentContacts.clear();
         favouriteContacts.clear();
     }
 
@@ -58,8 +65,10 @@ public class AddressBook implements ReadOnlyAddressBook {
     public void resetData(ReadOnlyAddressBook newData) {
         requireNonNull(newData);
 
+        List<String> recent = newData.getRecentContacts();
         Set<String> favourites = newData.getFavouriteContacts();
         setPersonBuckets(newData.getPersonBuckets());
+        setRecentContacts(recent);
         setFavouriteContacts(favourites);
     }
 
@@ -90,6 +99,10 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(editedPerson);
 
         persons.setPerson(target, editedPerson);
+        int position = recentContacts.indexOf(target.getDisplayName());
+        if (position >= 0) {
+            recentContacts.set(position, editedPerson.getDisplayName());
+        }
         if (favouriteContacts.remove(target.getDisplayName())) {
             favouriteContacts.add(editedPerson.getDisplayName());
         }
@@ -101,7 +114,36 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void removePerson(Person key) {
         persons.remove(key);
+        recentContacts.remove(key.getDisplayName());
         favouriteContacts.remove(key.getDisplayName());
+    }
+
+    /** Records an existing contact, moving a repeat visit to the front and evicting the oldest. */
+    public void recordPersonViewed(Person person) {
+        requireNonNull(person);
+        if (getPersonList().stream().noneMatch(person::isSamePerson)) {
+            throw new IllegalArgumentException("Viewed contact must exist in the address book");
+        }
+        recentContacts.remove(person.getDisplayName());
+        recentContacts.addFirst(person.getDisplayName());
+        if (recentContacts.size() > RECENT_CONTACT_LIMIT) {
+            recentContacts.removeLast();
+        }
+    }
+
+    /** Restores bounded history; ignores stale references and duplicate entries from manual edits. */
+    public void setRecentContacts(List<String> identifiers) {
+        requireNonNull(identifiers);
+        Set<String> existing = getPersonList().stream().map(Person::getDisplayName).collect(Collectors.toSet());
+        List<String> retained = identifiers.stream().filter(existing::contains).distinct()
+                .limit(RECENT_CONTACT_LIMIT).toList();
+        recentContacts.clear();
+        recentContacts.addAll(retained);
+    }
+
+    @Override
+    public List<String> getRecentContacts() {
+        return List.copyOf(recentContacts);
     }
 
     /** Marks or unmarks an existing contact without reconstructing its profile data. */
@@ -166,11 +208,12 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
 
         return persons.equals(otherAddressBook.persons)
+                && recentContacts.equals(otherAddressBook.recentContacts)
                 && favouriteContacts.equals(otherAddressBook.favouriteContacts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(persons, favouriteContacts);
+        return Objects.hash(persons, recentContacts, favouriteContacts);
     }
 }

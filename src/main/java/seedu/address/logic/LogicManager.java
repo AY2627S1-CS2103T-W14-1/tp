@@ -2,6 +2,7 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -74,11 +75,19 @@ public class LogicManager implements Logic {
             }
         }
 
+        List<String> previousRecentContacts = model.getAddressBook().getRecentContacts();
+        if (commandResult.isShowPersonDetails()) {
+            model.recordPersonViewed(commandResult.getPersonToShow());
+        }
         try {
             storage.saveAddressBook(model.getAddressBook());
-        } catch (AccessDeniedException e) {
-            throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
         } catch (IOException ioe) {
+            if (commandResult.isShowPersonDetails()) {
+                model.restoreRecentContacts(previousRecentContacts);
+            }
+            if (ioe instanceof AccessDeniedException) {
+                throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, ioe.getMessage()), ioe);
+            }
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
 

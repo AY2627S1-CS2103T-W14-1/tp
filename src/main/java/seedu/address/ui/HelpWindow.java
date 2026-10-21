@@ -32,6 +32,12 @@ public class HelpWindow extends UiPart<Stage> {
             list
               Displays every saved contact.
 
+            recent
+              Lists up to ten distinct contacts successfully viewed with show, most recent first.
+              Viewing a contact again with show moves it to the front of the list.
+              Recent-contact history persists across application restarts.
+              Use list to return to all contacts in your selected sort order.
+
             favourite NAME[_NUMBER] / unfavourite NAME[_NUMBER]
               Marks or unmarks a contact, including contacts outside the current view.
               Example: favourite John Tan_2
