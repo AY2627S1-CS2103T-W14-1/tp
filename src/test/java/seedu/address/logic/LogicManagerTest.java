@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
@@ -103,6 +104,37 @@ public class LogicManagerTest {
         JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
         Person savedPerson = storage.readAddressBook().orElseThrow().getPersonList().get(0);
         assertEquals(relativePhotoPath, savedPerson.getPhoto().orElseThrow().getRelativePath());
+    }
+
+    @Test
+    public void execute_sameSourcePhotoForSameNameContacts_deletingOneKeepsOtherCopy() throws Exception {
+        Path sourcePhoto = temporaryFolder.resolve("source.png");
+        writePng(sourcePhoto);
+
+        logic.execute("add John Tan /role student /email first@u.nus.edu /phone 90000001"
+                + " /location COM1 /photo " + sourcePhoto);
+        logic.execute("add John Tan /role student /email second@u.nus.edu /phone 90000002"
+                + " /location COM2 /photo " + sourcePhoto);
+
+        Person firstContact = model.getAddressBook().getPersonList().get(0);
+        Person secondContact = model.getAddressBook().getPersonList().get(1);
+        Path firstCopy = temporaryFolder.resolve(firstContact.getPhoto().orElseThrow().getRelativePath());
+        Path secondCopy = temporaryFolder.resolve(secondContact.getPhoto().orElseThrow().getRelativePath());
+
+        assertEquals("John Tan", firstContact.getDisplayName());
+        assertEquals("John Tan_2", secondContact.getDisplayName());
+        assertNotEquals(firstCopy, secondCopy);
+        assertTrue(Files.exists(sourcePhoto));
+        assertTrue(Files.exists(firstCopy));
+        assertTrue(Files.exists(secondCopy));
+
+        logic.execute("delete John Tan_2");
+
+        assertEquals(1, model.getAddressBook().getPersonList().size());
+        assertEquals("John Tan", model.getAddressBook().getPersonList().get(0).getDisplayName());
+        assertTrue(Files.exists(sourcePhoto));
+        assertTrue(Files.exists(firstCopy));
+        assertTrue(Files.notExists(secondCopy));
     }
 
     @Test

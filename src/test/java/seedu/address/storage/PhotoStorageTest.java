@@ -1,6 +1,7 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -29,6 +30,30 @@ public class PhotoStorageTest {
         assertTrue(Files.exists(copiedPath));
         assertEquals("image content", Files.readString(copiedPath));
         assertTrue(photo.getRelativePath().startsWith("photos/"));
+    }
+
+    @Test
+    public void copyPhoto_sameSourceTwice_createsIndependentCopies() throws Exception {
+        Path sourcePath = testFolder.resolve("source.png");
+        Files.writeString(sourcePath, "image content");
+        PhotoStorage photoStorage = new PhotoStorage(testFolder.resolve("campuscontacts.json"));
+
+        Photo firstPhoto = photoStorage.copyPhoto(sourcePath);
+        Photo secondPhoto = photoStorage.copyPhoto(sourcePath);
+        Path firstCopy = testFolder.resolve(firstPhoto.getRelativePath());
+        Path secondCopy = testFolder.resolve(secondPhoto.getRelativePath());
+
+        assertNotEquals(firstPhoto, secondPhoto);
+        assertTrue(Files.exists(firstCopy));
+        assertTrue(Files.exists(secondCopy));
+        assertEquals("image content", Files.readString(firstCopy));
+        assertEquals("image content", Files.readString(secondCopy));
+
+        photoStorage.deletePhoto(firstPhoto);
+
+        assertTrue(Files.notExists(firstCopy));
+        assertTrue(Files.exists(secondCopy));
+        assertTrue(Files.exists(sourcePath));
     }
 
     @Test
