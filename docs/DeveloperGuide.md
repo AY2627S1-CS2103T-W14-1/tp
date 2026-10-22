@@ -196,6 +196,12 @@ The storage snapshot is structured as follows:
 
 On startup, `JsonSerializableAddressBook` validates each bucket, recreates the indexed `Person` objects from the nested map keys, and passes the result to `AddressBook#setPersonBuckets`. The name bucket rebuilds its released-index queue and next-index value once. Normal add, delete, and edit operations use the in-memory map; `LogicManager` subsequently saves a snapshot through `Storage`.
 
+### Contact photo storage
+
+A contact may have an optional `Photo` reference. When a photo is supplied to `add`, `StorageManager` delegates copying it into the application's `photos` directory to `PhotoStorage`; the contact keeps the returned relative path. `JsonAdaptedPerson` writes that reference to JSON, so the application can resolve the copied photo after restarting. The diagram focuses on the photo-specific fields and storage API; unrelated address-book storage details are omitted.
+
+<puml src="diagrams/PhotoStorageClassDiagram.puml" alt="Class diagram of contact photo references and photo storage" width="550" />
+
 ### Show contact details feature
 
 The `show NAME[_NUMBER]` command lets users view the complete stored details of a specific contact without changing the contact list.

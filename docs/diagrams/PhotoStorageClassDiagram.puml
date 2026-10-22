@@ -1,0 +1,33 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor STORAGE_COLOR
+skinparam MinClassWidth 130
+skinparam nodesep 80
+skinparam classAttributeIconSize 0
+show members
+hide empty members
+left to right direction
+
+class UnindexedPerson MODEL_COLOR
+class Photo MODEL_COLOR {
+    -relativePath: String
+    +getRelativePath(): String
+}
+interface Storage STORAGE_COLOR {
+    +copyPhoto(sourcePath: Path): Photo
+    +deletePhoto(photo: Photo): void
+}
+class StorageManager STORAGE_COLOR
+class PhotoStorage STORAGE_COLOR {
+    -photoDirectory: Path
+    +copyPhoto(sourcePath: Path): Photo
+    +deletePhoto(photo: Photo): void
+}
+
+UnindexedPerson "1" -right-> "0..1" Photo : references
+StorageManager .up.|> Storage
+StorageManager "1" *-right-> "1" PhotoStorage : delegates to
+PhotoStorage -up..> Photo : creates reference
+
+@enduml
