@@ -12,13 +12,22 @@ Class AddressBook
 Class ModelManager
 Class UserPrefs
 
-Class UniquePersonList
+Class UniquePersonHashMap
 Class Person
+Class Student
+Class Professor
 Class Address
 Class Email
 Class Name
 Class Phone
+Class Role
+Class Photo
 Class Tag
+Class Major
+Class Year
+Class Faculty
+Class Department
+Class Hours
 
 Class I #FFFFFF
 }
@@ -35,20 +44,34 @@ ModelManager -left-> "1" AddressBook
 ModelManager -right-> "1" UserPrefs
 UserPrefs .up.|> ReadOnlyUserPrefs
 
-AddressBook *--> "1" UniquePersonList
-UniquePersonList --> "~* all" Person
-Person *--> Name
-Person *--> Phone
+AddressBook *--> "1" UniquePersonHashMap
+UniquePersonHashMap --> " ~* all\n\n" Person
+ModelManager --> " ~* filtered\n\n" Person
+
+Student -up-|> Person
+Professor -up-|> Person
+
+Person *-left-> Phone
+Person *-left-> Name
+
 Person *--> Email
-Person *--> Address
-Person *--> "*" Tag
+
+Person *-right-> Address
+Person *-right-> Role
+Person *-right-> Photo
+Person *-right-> "*" Tag
+
+Student *--> "0..1" Major
+Student *--> "0..1" Year
+
+Professor *--> "0..1" Faculty
+Professor *--> "0..1" Department
+Professor *--> "0..1" Hours
 
 Person -[hidden]up--> I
-UniquePersonList -[hidden]right-> I
+UniquePersonHashMap -[hidden]right-> I
 
-Name -[hidden]right-> Phone
-Phone -[hidden]right-> Address
-Address -[hidden]right-> Email
+Student -[hidden]right-> Email
+Email -[hidden]right-> Professor
 
-ModelManager --> "~* filtered" Person
 @enduml
