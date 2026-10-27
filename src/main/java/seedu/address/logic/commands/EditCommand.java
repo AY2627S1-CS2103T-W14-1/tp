@@ -250,7 +250,7 @@ public class EditCommand extends Command {
         }
 
         public void setMajor(Major major) {
-            this.major = (major != null && major.value != null) ? major : null;
+            this.major = major;
         }
 
         public Optional<Major> getMajor() {
@@ -258,7 +258,7 @@ public class EditCommand extends Command {
         }
 
         public void setYear(Year year) {
-            this.year = (year != null && year.value != null) ? year : null;
+            this.year = year;
         }
 
         public Optional<Year> getYear() {
@@ -266,7 +266,7 @@ public class EditCommand extends Command {
         }
 
         public void setFaculty(Faculty faculty) {
-            this.faculty = (faculty != null && faculty.value != null) ? faculty : null;
+            this.faculty = faculty;
         }
 
         public Optional<Faculty> getFaculty() {
@@ -274,7 +274,7 @@ public class EditCommand extends Command {
         }
 
         public void setDepartment(Department department) {
-            this.department = (department != null && department.value != null) ? department : null;
+            this.department = department;
         }
 
         public Optional<Department> getDepartment() {
@@ -282,7 +282,7 @@ public class EditCommand extends Command {
         }
 
         public void setHours(Hours hours) {
-            this.hours = (hours != null && hours.value != null) ? hours : null;
+            this.hours = hours;
         }
 
         public Optional<Hours> getHours() {
