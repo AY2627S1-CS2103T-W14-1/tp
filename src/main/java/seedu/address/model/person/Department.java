@@ -10,13 +10,14 @@ import java.util.Objects;
  */
 public class Department {
 
-    public static final String MESSAGE_CONSTRAINTS = "Departments can take any values, and should not be blank";
+    public static final String MESSAGE_CONSTRAINTS =
+            "Departments should only contain alphabetical characters and spaces, and should not be blank";
 
     /*
      * The first character of the name must not be a whitespace,
      * otherwise " " (a blank string) becomes a valid input.
      */
-    public static final String VALIDATION_REGEX = "[^\\s].*";
+    public static final String VALIDATION_REGEX = "[\\p{Alpha}][\\p{Alpha} ]*";
 
     public final String value;
 
