@@ -34,6 +34,7 @@ import seedu.address.model.tag.Tag;
  */
 public class ParserUtil {
 
+    public static final String BLANK_VALUE = "[blank]";
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
     public static final String MESSAGE_INVALID_PHOTO_PATH = "Photo must be a readable PNG, JPG, JPEG, or GIF file.";
 
@@ -136,6 +137,9 @@ public class ParserUtil {
             return null;
         }
         String trimmedMajor = major.trim();
+        if (trimmedMajor.equalsIgnoreCase(BLANK_VALUE)) {
+            return new Major(null);
+        }
         if (!Major.isValidMajor(trimmedMajor)) {
             throw new ParseException(Major.MESSAGE_CONSTRAINTS);
         }
@@ -153,6 +157,9 @@ public class ParserUtil {
             return null;
         }
         String trimmedYear = year.trim();
+        if (trimmedYear.equalsIgnoreCase(BLANK_VALUE)) {
+            return new Year(null);
+        }
         if (!Year.isValidYear(trimmedYear)) {
             throw new ParseException(Year.MESSAGE_CONSTRAINTS);
         }
@@ -170,6 +177,9 @@ public class ParserUtil {
             return null;
         }
         String trimmedFaculty = faculty.trim();
+        if (trimmedFaculty.equalsIgnoreCase(BLANK_VALUE)) {
+            return new Faculty(null);
+        }
         if (!Faculty.isValidFaculty(trimmedFaculty)) {
             throw new ParseException(Faculty.MESSAGE_CONSTRAINTS);
         }
@@ -187,6 +197,9 @@ public class ParserUtil {
             return null;
         }
         String trimmedDepartment = department.trim();
+        if (trimmedDepartment.equalsIgnoreCase(BLANK_VALUE)) {
+            return new Department(null);
+        }
         if (!Department.isValidDepartment(trimmedDepartment)) {
             throw new ParseException(Department.MESSAGE_CONSTRAINTS);
         }
@@ -204,6 +217,9 @@ public class ParserUtil {
             return null;
         }
         String trimmedHours = hours.trim();
+        if (trimmedHours.equalsIgnoreCase(BLANK_VALUE)) {
+            return new Hours(null);
+        }
         if (!Hours.isValidHours(trimmedHours)) {
             throw new ParseException(Hours.MESSAGE_CONSTRAINTS);
         }
