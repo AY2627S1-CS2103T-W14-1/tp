@@ -51,6 +51,7 @@
         "common-classes": "Common classes",
         "implementation": "Implementation",
         "contact-identity-and-name-bucket-storage": "Contact identity and name-bucket storage",
+        "exclusive-access-to-the-data-folder": "Exclusive access to the data folder",
         "contact-photo-storage": "Contact photo storage",
         "show-contact-details-feature": "Show contact details feature",
         "recently-viewed-contacts": "Recently viewed contacts",
