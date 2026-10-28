@@ -1,11 +1,17 @@
 package seedu.address.model.person;
 
+import java.math.BigInteger;
 import java.util.Comparator;
 
 /** Fields by which persons can be sorted. */
 public enum PersonSortField {
     NAME("name", Comparator.comparing(person -> person.getName().fullName, String.CASE_INSENSITIVE_ORDER)),
-    PHONE("phone", Comparator.comparing(person -> person.getPhone().value)),
+    PHONE("phone", (p1, p2) -> {
+        BigInteger n1 = new BigInteger(p1.getPhone().value);
+        BigInteger n2 = new BigInteger(p2.getPhone().value);
+        int cmp = n1.compareTo(n2);
+        return cmp != 0 ? cmp : p1.getPhone().value.compareTo(p2.getPhone().value);
+    }),
     ADD_TIME("add", Comparator.comparing(Person::getCreatedAt,
             Comparator.nullsFirst(Comparator.naturalOrder()))),
     EDIT_TIME("edit", Comparator.comparing(Person::getLastEditedAt,
