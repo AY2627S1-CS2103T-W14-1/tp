@@ -52,6 +52,18 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
+    public void toModelType_legacyPersonWithoutRole_migratesAsStudent() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.fromJsonString(
+                "{\"persons\":[{\"name\":\"Alice Pauline\",\"phone\":\"94351253\","
+                        + "\"email\":\"alice@example.com\",\"address\":\"123, Jurong West Ave 6, #08-111\","
+                        + "\"tags\":[\"friends\"]}]}", JsonSerializableAddressBook.class);
+
+        AddressBook addressBook = dataFromFile.toModelType();
+
+        assertEquals("student", addressBook.getPersonList().getFirst().getRole().role);
+    }
+
+    @Test
     public void toModelType_nestedBuckets_preservesSuffixes() throws Exception {
         Person alice = TypicalPersons.ALICE;
         Person thirdAlice = new PersonBuilder(alice).withPhone("99999999").build();

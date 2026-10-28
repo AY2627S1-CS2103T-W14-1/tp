@@ -127,6 +127,14 @@ class JsonAdaptedPerson {
      * @throws IllegalValueException if there were any data constraints violated in the adapted person.
      */
     public UnindexedPerson toModelType() throws IllegalValueException {
+        return toModelType(null);
+    }
+
+    /**
+     * Converts a legacy person into the model, optionally supplying a default role for formats
+     * that predate the role field.
+     */
+    UnindexedPerson toModelType(String defaultRole) throws IllegalValueException {
         final List<Tag> personTags = new ArrayList<>();
         for (JsonAdaptedTag tag : tags) {
             if (tag == null) {
@@ -143,13 +151,14 @@ class JsonAdaptedPerson {
         }
         final Name modelName = new Name(name);
 
-        if (role == null) {
+        String roleValue = role == null ? defaultRole : role;
+        if (roleValue == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Role.class.getSimpleName()));
         }
-        if (!Role.isValidRole(role)) {
+        if (!Role.isValidRole(roleValue)) {
             throw new IllegalValueException(Role.MESSAGE_CONSTRAINTS);
         }
-        final Role modelRole = new Role(role);
+        final Role modelRole = new Role(roleValue);
 
         if (phone == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName()));
