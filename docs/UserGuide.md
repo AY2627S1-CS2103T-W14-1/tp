@@ -291,11 +291,18 @@ Photos are stored separately in `[JAR file location]/data/photos`. Do not rename
 
 ### Editing the data file
 
+Only one instance of CampusContacts may use a data folder at a time. If another instance is already using it,
+the second launch displays an error; close the other instance before trying again. Separate home folders can be
+used independently. Do not delete or rename `data/campuscontacts.json.lock` while the application is running.
+It is normal for this file to remain after exit; it does not stop the next launch.
+
 CampusContacts data is saved automatically as a JSON file `[JAR file location]/data/campuscontacts.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <box type="warning" seamless>
 
 **Caution:**
+Close all instances of CampusContacts (including older versions) before editing or copying the data file.
+The startup lock cannot prevent external editors or older versions from changing the file.<br>
 If your changes make the data file invalid, CampusContacts starts with an empty contact list at the next run. The invalid file remains on disk until you run a command (CampusContacts saves after every command). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause the CampusContacts to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
