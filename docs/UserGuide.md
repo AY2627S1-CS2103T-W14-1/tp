@@ -165,13 +165,15 @@ Examples:
 
 Edits an existing person in the contact list.
 
-Format: `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`
+Format: `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH or [blank]] [t/TAG or /tag TAG]...`
 
 - Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, ...
 - At least one of the optional fields must be provided.
 - Existing values will be updated to the input values.
 - When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
 - To remove all of a person's tags, enter `t/` without a tag after it.
+- Use `/photo FILE_PATH` to add or replace a contact photo. Use `/photo [blank]` to remove it.
+- Renaming a contact assigns the smallest available suffix for the new name. If that name already exists, the contact is added under the next available suffix.
 
 Examples:
 * `edit 1 /phone 91234567 /email johndoe@example.com` Edits the phone number and email address of the 1st contact.

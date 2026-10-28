@@ -161,29 +161,19 @@ public class EditCommandTest {
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
     }
 
-    // Disabled temporarily: collision handling for an edited name/index is not
-    // supported by the current implementation.
-    // @Test
-    public void execute_duplicatePersonUnfilteredList_failure() {
-        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(firstPerson).build();
-        EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
+    @Test
+    public void execute_renameToExistingName_assignsNextSuffix() throws Exception {
+        Person target = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON,
+                new EditPersonDescriptorBuilder().withName("Alice Pauline").build());
 
-        assertCommandFailure(editCommand, model, EditCommand.MESSAGE_DUPLICATE_PERSON);
-    }
+        CommandResult result = editCommand.execute(model);
 
-    // Disabled temporarily: collision handling for an edited name/index is not
-    // supported by the current implementation.
-    // @Test
-    public void execute_duplicatePersonFilteredList_failure() {
-        showPersonAtIndex(model, INDEX_FIRST_PERSON);
-
-        // edit person in filtered list into a duplicate in address book
-        Person personInList = model.getAddressBook().getPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
-        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
-                new EditPersonDescriptorBuilder(personInList).build());
-
-        assertCommandFailure(editCommand, model, EditCommand.MESSAGE_DUPLICATE_PERSON);
+        assertEquals(1, model.getAddressBook().getPersonList().stream()
+                .filter(person -> person.getDisplayName().equals("Alice Pauline_2")).count());
+        assertTrue(result.getFeedbackToUser().contains("Alice Pauline_2"));
+        assertFalse(model.getAddressBook().getPersonList().stream()
+                .anyMatch(person -> person.isSamePerson(target)));
     }
 
     @Test
@@ -259,7 +249,7 @@ public class EditCommandTest {
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
         EditCommand editCommand = new EditCommand(index, editPersonDescriptor);
         String expected = EditCommand.class.getCanonicalName() + "{index=" + index + ", editPersonDescriptor="
-                + editPersonDescriptor + "}";
+                + editPersonDescriptor + ", photoSource=Optional.empty}";
         assertEquals(expected, editCommand.toString());
     }
 

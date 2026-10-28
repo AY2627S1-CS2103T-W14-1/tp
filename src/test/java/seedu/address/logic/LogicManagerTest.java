@@ -107,6 +107,34 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_editPhoto_replacesAndClearsManagedPhoto() throws Exception {
+        Path firstSource = temporaryFolder.resolve("first.png");
+        Path secondSource = temporaryFolder.resolve("second.png");
+        writePng(firstSource);
+        writePng(secondSource);
+        logic.execute("add Alex Tan /role student /email alex@u.nus.edu /phone 90000001"
+                + " /location COM1 /photo " + firstSource);
+        Path firstCopy = temporaryFolder.resolve(model.getAddressBook().getPersonList().get(0)
+                .getPhoto().orElseThrow().getRelativePath());
+
+        logic.execute("edit 1 /photo " + secondSource);
+
+        Person editedPerson = model.getAddressBook().getPersonList().get(0);
+        Path secondCopy = temporaryFolder.resolve(editedPerson.getPhoto().orElseThrow().getRelativePath());
+        assertNotEquals(firstCopy, secondCopy);
+        assertTrue(Files.notExists(firstCopy));
+        assertTrue(Files.exists(secondCopy));
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        assertEquals(editedPerson.getPhoto(), storage.readAddressBook().orElseThrow()
+                .getPersonList().get(0).getPhoto());
+
+        logic.execute("edit 1 /photo [blank]");
+
+        assertTrue(model.getAddressBook().getPersonList().get(0).getPhoto().isEmpty());
+        assertTrue(Files.notExists(secondCopy));
+    }
+
+    @Test
     public void execute_sameSourcePhotoForSameNameContacts_deletingOneKeepsOtherCopy() throws Exception {
         Path sourcePhoto = temporaryFolder.resolve("source.png");
         writePng(sourcePhoto);

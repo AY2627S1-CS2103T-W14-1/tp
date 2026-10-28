@@ -70,7 +70,7 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.getFaculty().orElse(null) + ", department="
                 + editPersonDescriptor.getDepartment().orElse(null) + ", hours="
                 + editPersonDescriptor.getHours().orElse(null) + ", tags="
-                + editPersonDescriptor.getTags().orElse(null) + "}";
+                + editPersonDescriptor.getTags().orElse(null) + ", photo=null, photoEdited=false}";
         assertEquals(expected, editPersonDescriptor.toString());
     }
 }

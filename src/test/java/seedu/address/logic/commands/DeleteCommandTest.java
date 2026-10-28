@@ -65,6 +65,24 @@ public class DeleteCommandTest {
     }
 
     @Test
+    public void execute_validNameHiddenByFilter_success() throws Exception {
+        ModelManager isolatedModel = new ModelManager();
+        isolatedModel.addPerson(seedu.address.testutil.TypicalPersons.ALICE);
+        isolatedModel.addPerson(seedu.address.testutil.TypicalPersons.BENSON);
+        isolatedModel.updateFilteredPersonList(person -> person.equals(seedu.address.testutil.TypicalPersons.ALICE));
+
+        Person hiddenPerson = seedu.address.testutil.TypicalPersons.BENSON;
+        DeleteCommand deleteCommand = new DeleteCommand(hiddenPerson.getDisplayName());
+        assertEquals(1, isolatedModel.getFilteredPersonList().size());
+
+        deleteCommand.execute(isolatedModel);
+
+        assertTrue(isolatedModel.getAddressBook().getPersonList().stream()
+                .noneMatch(person -> person.isSamePerson(hiddenPerson)));
+        assertEquals(1, isolatedModel.getFilteredPersonList().size());
+    }
+
+    @Test
     public void execute_invalidNameFilteredList_throwsCommandException() {
         showPersonAtIndex(model, INDEX_FIRST_PERSON);
 

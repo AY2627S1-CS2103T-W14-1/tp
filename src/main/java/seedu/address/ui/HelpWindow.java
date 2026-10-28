@@ -13,58 +13,94 @@ import seedu.address.commons.core.LogsCenter;
 public class HelpWindow extends UiPart<Stage> {
 
     public static final String HELP_MESSAGE = """
-            CampusContacts command guide
+            CAMPUSCONTACTS — COMMAND GUIDE
 
-            add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...
-              Adds a contact. /photo is optional; supported image types are PNG, JPG, JPEG, and GIF.
-              The selected image is copied into CampusContacts and shown by the show command.
-              Example: add John Tan /role student /email john@u.nus.edu /phone 90000001 /location COM1
-                       /photo C:\\Users\\Student\\Pictures\\john.jpg t/teammate
+            Type command names without a leading slash.
+            Square-bracketed options are optional.
+            Exception: type [blank] literally to remove a photo.
 
-            show NAME[_NUMBER]
-              Opens the full details of a contact.
-              Example: show John Tan or show John Tan_2
+            1. ADD A CONTACT
+            Syntax:
+              add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION
+              [/major MAJOR] [/year YEAR] [/faculty FACULTY]
+              [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH]
+              [t/TAG]...
+            Same-name contacts get the smallest available suffix:
+            John Tan, John Tan_2, and so on. Deleted suffixes can be reused.
+            Photos are optional. Supported types: PNG, JPG, JPEG, GIF.
+            Example:
+              add John Tan /role student /email john@u.nus.edu
+                  /phone 90000001 /location COM1
+                  /photo C:\\Users\\Student\\Pictures\\john.jpg
 
-            edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR]
-             [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG]...
-              Edits the details of the contact at the specified index.
-              Example: edit 1 /phone 91234567 /location UTown
+            2. SHOW CONTACT DETAILS
+            Syntax: show NAME[_NUMBER]
+            Opens the contact's full details.
+            Example: show John Tan_2
 
-            delete NAME[_NUMBER]
-              Deletes the selected contact.
-              Example: delete John Tan_2
+            3. EDIT A CONTACT
+            Syntax:
+              edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL]
+              [/location LOCATION] [/major MAJOR] [/year YEAR]
+              [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS]
+              [/photo FILE_PATH] [t/TAG]...
+            Use /photo FILE_PATH to add or replace a photo.
+            Use /photo [blank] to remove it.
+            Renaming assigns the smallest available suffix for the new name.
+            Examples:
+              edit 1 /phone 91234567
+              edit 1 /photo C:\\Users\\Student\\Pictures\\new.jpg
+              edit 1 /photo [blank]
 
-            find [/name NAME] [/role ROLE] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR]
-             [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG]...
-              Finds contacts matching the specified criteria.
-              (/name can be omitted for quick name searches).
-              Example: find John /location COM1 t/teammate
+            4. DELETE A CONTACT
+            Syntax: delete NAME[_NUMBER]
+            Works even when a filter hides the contact.
+            Without _NUMBER, deletes the first contact with that name.
+            Example: delete John Tan_2
 
-            list
-              Displays every saved contact.
+            5. FIND CONTACTS
+            Syntax: find NAME
+                    or find /name NAME
+            Optional filters: [/role ROLE] [/phone PHONE] [/email EMAIL]
+                              [/location LOCATION] [/major MAJOR] [/year YEAR]
+                              [/faculty FACULTY] [/department DEPARTMENT]
+                              [/hours HOURS] [t/TAG]...
+            Searches contact details for matching criteria.
+            Example: find /name John /location COM1
 
-            recent
-              Lists up to ten distinct contacts successfully viewed with show, most recent first.
-              Viewing a contact again with show moves it to the front of the list.
-              Recent-contact history persists across application restarts.
-              Use list to return to all contacts in your selected sort order.
+            6. LIST ALL CONTACTS
+            Syntax: list
+            Shows every saved contact.
 
-            favourite NAME[_NUMBER] / unfavourite NAME[_NUMBER]
-              Marks or unmarks a contact, including contacts outside the current view.
-              Example: favourite John Tan_2
+            7. SORT CONTACTS
+            Syntax: sort FIELD [asc|desc]
+            Fields: name, phone, add, edit. Default order: ascending.
+            Example: sort name desc
 
-            favourites
-              Lists favourite contacts in the selected sort order. Use list to return to all contacts.
-              Selections survive restarts and are removed when their contact is deleted.
+            8. LIST RECENT CONTACTS
+            Syntax: recent
+            Shows up to ten distinct contacts opened with show,
+            most recent first. Recent history is saved across restarts.
 
-            clear
-              Deletes every contact after confirmation. Type yes to confirm or no to cancel.
+            9. FAVOURITE OR UNFAVOURITE A CONTACT
+            Syntax: favourite NAME[_NUMBER]
+                    unfavourite NAME[_NUMBER]
+            Works even when a filter hides the contact.
+            Example: favourite John Tan_2
 
-            help
-              Opens this command guide.
+            10. LIST FAVOURITE CONTACTS
+            Syntax: favourites
+            Shows favourites in the selected sort order.
 
-            exit
-              Closes CampusContacts.
+            11. CLEAR ALL CONTACTS
+            Syntax: clear
+            Type yes to confirm or no to cancel.
+
+            12. OPEN THIS GUIDE
+            Syntax: help
+
+            13. EXIT THE APP
+            Syntax: exit
             """;
 
     private static final Logger logger = LogsCenter.getLogger(HelpWindow.class);

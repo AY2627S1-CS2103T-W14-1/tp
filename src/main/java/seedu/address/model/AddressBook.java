@@ -91,21 +91,22 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Replaces the given person {@code target} in the list with {@code editedPerson}.
+     * Replaces the given person {@code target} with {@code editedPerson}.
+     * A same-name edit retains its id; a renamed person receives the smallest available id in the new bucket.
      * {@code target} must exist in the address book.
-     * The edited person must not use another person's name and bucket id.
      */
-    public void setPerson(Person target, Person editedPerson) {
+    public Person setPerson(Person target, Person editedPerson) {
         requireNonNull(editedPerson);
 
-        persons.setPerson(target, editedPerson);
+        Person replacement = persons.setPerson(target, editedPerson);
         int position = recentContacts.indexOf(target.getDisplayName());
         if (position >= 0) {
-            recentContacts.set(position, editedPerson.getDisplayName());
+            recentContacts.set(position, replacement.getDisplayName());
         }
         if (favouriteContacts.remove(target.getDisplayName())) {
-            favouriteContacts.add(editedPerson.getDisplayName());
+            favouriteContacts.add(replacement.getDisplayName());
         }
+        return replacement;
     }
 
     /**
