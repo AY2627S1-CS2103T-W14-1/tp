@@ -17,6 +17,7 @@
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
 * `lzc-nus` used OpenAI Codex to generate tests and documentation for the recent contacts feature. `lzc-nus` was responsible for the design and parts of the implementation.
 * `lzc-nus` used OpenAI Codex to generate tests and documentation for the favourites feature. `lzc-nus` was responsible for the design and parts of the implementation.
+* `lzc-nus` used OpenAI Codex to implement contact-guidance fixes and their regression tests, including help text, role validation messages, and user/developer guide corrections.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -204,7 +205,7 @@ A contact may have an optional `Photo` reference. When a photo is supplied to `a
 
 ### Show contact details feature
 
-The `show NAME[_NUMBER]` command lets users view the complete stored details of a specific contact without changing the contact list.
+The `show NAME[_NUMBER]` command lets users view the complete stored details of a specific contact without changing its profile fields. A successful selection updates the recently viewed history and, when the recent list is active, moves that contact to the front of the displayed list.
 
 1. `AddressBookParser` delegates the command text to `ShowCommandParser`.
 1. `ShowCommand` looks for the matching name and `PersonIndex` in the filtered contact list.
