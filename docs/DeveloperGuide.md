@@ -15,9 +15,7 @@
 
 * This project is based on the [AddressBook-Level3 (AB3)](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), and [JUnit 5](https://junit.org/junit5/).
-* `lzc-nus` used OpenAI Codex to generate tests and documentation for the recent contacts feature. `lzc-nus` was responsible for the design and parts of the implementation.
-* `lzc-nus` used OpenAI Codex to generate tests and documentation for the favourites feature. `lzc-nus` was responsible for the design and parts of the implementation.
-* `lzc-nus` used OpenAI Codex to implement contact-guidance fixes and their regression tests, including help text, role validation messages, and user/developer guide corrections.
+* `lzc-nus` used OpenAI Codex for design, implementation, testing, and documentation assistance
 
 --------------------------------------------------------------------------------------------------------------------
 
