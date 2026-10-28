@@ -1,18 +1,15 @@
 package seedu.address.testutil;
 
-import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_DEPARTMENT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_FACULTY;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_LOCATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_ROLE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.Set;
@@ -55,10 +52,13 @@ public class PersonUtil {
      */
     public static String getEditPersonDescriptorDetails(EditPersonDescriptor descriptor) {
         StringBuilder sb = new StringBuilder();
-        descriptor.getName().ifPresent(name -> sb.append(PREFIX_NAME).append(name.fullName).append(" "));
-        descriptor.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE).append(phone.value).append(" "));
-        descriptor.getEmail().ifPresent(email -> sb.append(PREFIX_EMAIL).append(email.value).append(" "));
-        descriptor.getAddress().ifPresent(address -> sb.append(PREFIX_ADDRESS)
+        descriptor.getName().ifPresent(name ->
+                sb.append(PREFIX_CONTACT_NAME).append(" ").append(name.fullName).append(" "));
+        descriptor.getPhone().ifPresent(phone ->
+                sb.append(PREFIX_CONTACT_PHONE).append(" ").append(phone.value).append(" "));
+        descriptor.getEmail().ifPresent(email ->
+                sb.append(PREFIX_CONTACT_EMAIL).append(" ").append(email.value).append(" "));
+        descriptor.getAddress().ifPresent(address -> sb.append(PREFIX_CONTACT_LOCATION).append(" ")
                 .append(address.value).append(" "));
         descriptor.getMajor().ifPresent(major -> sb.append(PREFIX_CONTACT_MAJOR).append(" ")
                 .append(major.value).append(" "));
