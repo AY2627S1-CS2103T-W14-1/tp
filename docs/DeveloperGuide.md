@@ -195,6 +195,20 @@ The storage snapshot is structured as follows:
 
 On startup, `JsonSerializableAddressBook` validates each bucket, recreates the indexed `Person` objects from the nested map keys, and passes the result to `AddressBook#setPersonBuckets`. The name bucket rebuilds its released-index queue and next-index value once. Normal add, delete, and edit operations use the in-memory map; `LogicManager` subsequently saves a snapshot through `Storage`.
 
+### Exclusive access to the data folder
+
+`MainApp` acquires a `DataFileLock` before reading contacts or initializing preferences (which also writes to disk).
+The lock uses `FileChannel.tryLock()` on `data/campuscontacts.json.lock` and remains held until shutdown finishes
+saving preferences. A second launch using the same folder shows an error and exits without initializing its model
+or saving preferences. Locking errors also prevent startup; the application does not continue without protection.
+
+The sidecar file stays on disk after exit. Ownership comes from the operating-system lock, not the file's existence,
+so an unexpected process exit does not require deleting a stale file. Deleting or replacing the sidecar while the app
+is running would undermine this protection. A small synchronized registry rejects repeat acquisitions in the same
+JVM before opening another channel, since closing such a channel can release process-level locks on some systems.
+This protects app instances using the same data folder; it does not prevent external editors or older app versions
+that do not acquire this lock from changing the JSON file.
+
 ### Contact photo storage
 
 A contact may have an optional `Photo` reference. When a photo is supplied to `add`, `StorageManager` delegates copying it into the application's `photos` directory to `PhotoStorage`; the contact keeps the returned relative path. `JsonAdaptedPerson` writes that reference to JSON, so the application can resolve the copied photo after restarting. The diagram focuses on the photo-specific fields and storage API; unrelated address-book storage details are omitted.
@@ -610,6 +624,16 @@ Use a disposable data folder. Add two contacts named John Tan with different pho
 1. _{ more test cases … }_
 
 ### Saving data
+
+1. Preventing simultaneous access
+
+   1. Prerequisites: Use a disposable writable folder and the same JAR in two terminal windows.
+   1. Launch the first instance, then try to launch the second from the same working directory.<br>
+      Expected: The second displays an already-in-use error and does not open the contact list.
+   1. Dismiss the error. Add a contact in the first instance, exit normally, and relaunch.<br>
+      Expected: Startup succeeds and the contact remains saved. The `.lock` file may remain; do not delete it.
+   1. Repeat using a separate working directory.<br>
+      Expected: Independent data folders can be open at the same time.
 
 1. Dealing with missing/corrupted data files
 
