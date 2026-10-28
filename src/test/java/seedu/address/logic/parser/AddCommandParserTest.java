@@ -250,17 +250,26 @@ public class AddCommandParserTest {
     @Test
     public void parse_studentWithInvalidParameters_failure() {
         assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
-                + "/location Bedok /major Computer-Science", Major.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
                 + "/location Bedok /year 0", Year.MESSAGE_CONSTRAINTS);
     }
 
     @Test
     public void parse_professorWithInvalidParameters_failure() {
-        assertParseFailure(parser, VALID_ARGUMENTS + " /faculty School_Of_Computing",
-                Faculty.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, VALID_ARGUMENTS + " /department Bu5ine55 Analytic5",
-                Department.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, VALID_ARGUMENTS + " /hours ", Hours.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_academicFieldsWithPunctuation_success() {
+        assertParseSuccess(parser, "John Tan /role student /email johntan@example.com /phone 98672103 "
+                        + "/location Bedok /major Computer-Science /year 2",
+                new AddCommand(new UnindexedPerson(new Name("John Tan"), new Role("student"), new Phone("98672103"),
+                        new Email("johntan@example.com"), new Address("Bedok"), new Major("Computer-Science"),
+                        new Year("2"), null, null, null, new TreeSet<Tag>(), null)));
+        assertParseSuccess(parser, VALID_ARGUMENTS + " /faculty School_Of_Computing "
+                        + "/department Bu5ine55 Analytic5 /hours 8am-5pm",
+                new AddCommand(new UnindexedPerson(new Name("Bob Choo"), new Role("professor"), new Phone("22222222"),
+                        new Email("bob@example.com"), new Address("Block 123, Bobby Street 3"), null, null,
+                        new Faculty("School_Of_Computing"), new Department("Bu5ine55 Analytic5"),
+                        new Hours("8am-5pm"), new TreeSet<>(), null)));
     }
 }
