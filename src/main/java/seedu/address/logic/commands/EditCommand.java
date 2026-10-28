@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import seedu.address.model.person.Major;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Photo;
 import seedu.address.model.person.Professor;
 import seedu.address.model.person.Role;
 import seedu.address.model.person.Student;
@@ -52,6 +54,7 @@ public class EditCommand extends Command {
             + "[/faculty FACULTY] "
             + "[/department DEPARTMENT] "
             + "[/hours HOURS] "
+            + "[/photo FILE_PATH or /photo [blank]] "
             + "[t/TAG or /tag TAG]...\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + "/phone 91234567 "
@@ -60,7 +63,6 @@ public class EditCommand extends Command {
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
     public static final String MESSAGE_STUDENT_RESTRICTIONS =
             "Student contacts cannot have faculty, department, or office hours.";
     public static final String MESSAGE_PROFESSOR_RESTRICTIONS =
@@ -68,17 +70,38 @@ public class EditCommand extends Command {
 
     private final Index index;
     private final EditPersonDescriptor editPersonDescriptor;
+    private final Optional<Path> photoSource;
 
     /**
      * @param index of the person in the filtered person list to edit
      * @param editPersonDescriptor details to edit the person with
      */
     public EditCommand(Index index, EditPersonDescriptor editPersonDescriptor) {
+        this(index, editPersonDescriptor, Optional.empty());
+    }
+
+    /** Creates an edit command with an optional source image to import before execution. */
+    public EditCommand(Index index, EditPersonDescriptor editPersonDescriptor, Optional<Path> photoSource) {
         requireNonNull(index);
         requireNonNull(editPersonDescriptor);
+        requireNonNull(photoSource);
 
         this.index = index;
         this.editPersonDescriptor = new EditPersonDescriptor(editPersonDescriptor);
+        this.photoSource = photoSource;
+    }
+
+    /** Returns the optional image path supplied by the user. */
+    public Optional<Path> getPhotoSource() {
+        return photoSource;
+    }
+
+    /** Returns a command copy whose contact references the imported image. */
+    public EditCommand withPhoto(Photo photo) {
+        requireNonNull(photo);
+        EditPersonDescriptor updatedDescriptor = new EditPersonDescriptor(editPersonDescriptor);
+        updatedDescriptor.setPhoto(photo);
+        return new EditCommand(index, updatedDescriptor);
     }
 
     @Override
@@ -108,13 +131,9 @@ public class EditCommand extends Command {
 
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
 
-        if (!personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
-        }
-
-        model.setPerson(personToEdit, editedPerson);
+        Person storedPerson = model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(storedPerson)));
     }
 
     /**
@@ -131,13 +150,14 @@ public class EditCommand extends Command {
         Email updatedEmail = editPersonDescriptor.getEmail().orElse(personToEdit.getEmail());
         Address updatedAddress = editPersonDescriptor.getAddress().orElse(personToEdit.getAddress());
         Set<Tag> updatedTags = editPersonDescriptor.getTags().orElse(personToEdit.getTags());
-        // PersonIndex cannot be changed without a deletion
+        Photo updatedPhoto = editPersonDescriptor.isPhotoEdited()
+                ? editPersonDescriptor.getPhoto().orElse(null) : personToEdit.getPhoto().orElse(null);
 
         if (personToEdit.getRole().equals(new Role("student"))) {
             Major updatedMajor = editPersonDescriptor.getMajor().orElse(personToEdit.getMajor());
             Year updatedYear = editPersonDescriptor.getYear().orElse(personToEdit.getYear());
             return new Student(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedMajor, updatedYear,
-                    updatedTags, personToEdit.getPersonIndex(), personToEdit.getPhoto().orElse(null),
+                    updatedTags, personToEdit.getPersonIndex(), updatedPhoto,
                     personToEdit.getCreatedAt(), LocalDateTime.now());
         } else if (personToEdit.getRole().equals(new Role("professor"))) {
             Faculty updatedFaculty = editPersonDescriptor.getFaculty().orElse(personToEdit.getFaculty());
@@ -145,7 +165,7 @@ public class EditCommand extends Command {
             Hours updatedHours = editPersonDescriptor.getHours().orElse(personToEdit.getHours());
             return new Professor(updatedName, updatedPhone, updatedEmail, updatedAddress, updatedFaculty,
                     updatedDepartment, updatedHours, updatedTags, personToEdit.getPersonIndex(),
-                    personToEdit.getPhoto().orElse(null), personToEdit.getCreatedAt(), LocalDateTime.now());
+                    updatedPhoto, personToEdit.getCreatedAt(), LocalDateTime.now());
         } else {
             throw new IllegalArgumentException("Invalid person");
         }
@@ -163,7 +183,8 @@ public class EditCommand extends Command {
         }
 
         return index.equals(otherEditCommand.index)
-                && editPersonDescriptor.equals(otherEditCommand.editPersonDescriptor);
+                && editPersonDescriptor.equals(otherEditCommand.editPersonDescriptor)
+                && photoSource.equals(otherEditCommand.photoSource);
     }
 
     @Override
@@ -171,6 +192,7 @@ public class EditCommand extends Command {
         return new ToStringBuilder(this)
                 .add("index", index)
                 .add("editPersonDescriptor", editPersonDescriptor)
+                .add("photoSource", photoSource)
                 .toString();
     }
 
@@ -189,6 +211,8 @@ public class EditCommand extends Command {
         private Department department;
         private Hours hours;
         private Set<Tag> tags;
+        private Photo photo;
+        private boolean photoEdited;
 
         public EditPersonDescriptor() {}
 
@@ -207,6 +231,9 @@ public class EditCommand extends Command {
             setDepartment(toCopy.department);
             setHours(toCopy.hours);
             setTags(toCopy.tags);
+            if (toCopy.photoEdited) {
+                setPhoto(toCopy.photo);
+            }
         }
 
         /**
@@ -214,7 +241,7 @@ public class EditCommand extends Command {
          */
         public boolean isAnyFieldEdited() {
             return CollectionUtil.isAnyNonNull(name, phone, email, address, major, year, faculty, department, hours,
-                    tags);
+                    tags) || photoEdited;
         }
 
         public void setName(Name name) {
@@ -306,6 +333,20 @@ public class EditCommand extends Command {
             return (tags != null) ? Optional.of(Collections.unmodifiableSet(tags)) : Optional.empty();
         }
 
+        /** Sets the photo reference; null explicitly removes the current photo. */
+        public void setPhoto(Photo photo) {
+            this.photo = photo;
+            photoEdited = true;
+        }
+
+        public Optional<Photo> getPhoto() {
+            return Optional.ofNullable(photo);
+        }
+
+        public boolean isPhotoEdited() {
+            return photoEdited;
+        }
+
         @Override
         public boolean equals(Object other) {
             if (other == this) {
@@ -326,7 +367,9 @@ public class EditCommand extends Command {
                     && Objects.equals(faculty, otherEditPersonDescriptor.faculty)
                     && Objects.equals(department, otherEditPersonDescriptor.department)
                     && Objects.equals(hours, otherEditPersonDescriptor.hours)
-                    && Objects.equals(tags, otherEditPersonDescriptor.tags);
+                    && Objects.equals(tags, otherEditPersonDescriptor.tags)
+                    && Objects.equals(photo, otherEditPersonDescriptor.photo)
+                    && photoEdited == otherEditPersonDescriptor.photoEdited;
         }
 
         @Override
@@ -342,6 +385,8 @@ public class EditCommand extends Command {
                     .add("department", department)
                     .add("hours", hours)
                     .add("tags", tags)
+                    .add("photo", photo)
+                    .add("photoEdited", photoEdited)
                     .toString();
         }
     }

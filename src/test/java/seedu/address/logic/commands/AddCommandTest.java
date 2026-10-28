@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
@@ -162,7 +163,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public void addPerson(UnindexedPerson person) {
+        public Person addPerson(UnindexedPerson person) {
             throw new AssertionError("This method should fail here.");
         }
 
@@ -187,7 +188,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public void setPerson(Person target, Person editedPerson) {
+        public Person setPerson(Person target, Person editedPerson) {
             throw new AssertionError("This method should not be called.");
         }
 
@@ -238,9 +239,10 @@ public class AddCommandTest {
         }
 
         @Override
-        public void addPerson(UnindexedPerson person) {
+        public Person addPerson(UnindexedPerson person) {
             requireNonNull(person);
             personsAdded.add(person);
+            return person.withPersonIndex(PersonIndex.fromOneBased(personsAdded.size()));
         }
 
         @Override

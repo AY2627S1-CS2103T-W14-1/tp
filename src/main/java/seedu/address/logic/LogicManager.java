@@ -15,6 +15,7 @@ import seedu.address.logic.commands.CancelCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ConfirmCommand;
+import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -110,6 +111,21 @@ public class LogicManager implements Logic {
 
             try {
                 return addCommand.withPhoto(copiedPhoto).execute(model);
+            } catch (CommandException exception) {
+                deletePhotoQuietly(copiedPhoto);
+                throw exception;
+            }
+        }
+        if (command instanceof EditCommand editCommand && editCommand.getPhotoSource().isPresent()) {
+            Photo copiedPhoto;
+            try {
+                copiedPhoto = storage.copyPhoto(editCommand.getPhotoSource().get());
+            } catch (IOException exception) {
+                throw new CommandException("Could not import the photo: " + exception.getMessage(), exception);
+            }
+
+            try {
+                return editCommand.withPhoto(copiedPhoto).execute(model);
             } catch (CommandException exception) {
                 deletePhotoQuietly(copiedPhoto);
                 throw exception;

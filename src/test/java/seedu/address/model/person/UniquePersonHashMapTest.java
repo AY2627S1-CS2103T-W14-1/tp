@@ -67,6 +67,54 @@ public class UniquePersonHashMapTest {
     }
 
     @Test
+    public void setPerson_sameNameReplacementDoesNotFreeItsId() {
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        persons.add(ALICE);
+        persons.add(anotherAlice);
+        Person indexedSecondAlice = withId(anotherAlice, 1);
+        Person editedSecondAlice = new PersonBuilder(indexedSecondAlice).withPhone("91234567").build();
+
+        persons.setPerson(indexedSecondAlice, editedSecondAlice);
+        UnindexedPerson thirdAlice = new PersonBuilder(ALICE).withEmail("third@example.com").buildNoIndex();
+        persons.add(thirdAlice);
+
+        assertEquals(List.of(ALICE, editedSecondAlice, withId(thirdAlice, 2)), persons.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void setPerson_renameAllocatesSmallestIdInDestinationBucket() {
+        persons.add(ALICE);
+        UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        persons.add(anotherAlice);
+        Person indexedSecondAlice = withId(anotherAlice, 1);
+        Person renamedPerson = new PersonBuilder(indexedSecondAlice).withName("Bob Meier").build();
+
+        Person storedRenamedPerson = persons.setPerson(indexedSecondAlice, renamedPerson);
+        UnindexedPerson anotherBob = new PersonBuilder().withName("Bob Meier").withPhone("91234567")
+                .withEmail("anotherbob@example.com").buildNoIndex();
+        persons.add(anotherBob);
+
+        assertEquals("Bob Meier", storedRenamedPerson.getDisplayName());
+        assertEquals(0, storedRenamedPerson.getPersonIndex().getZeroBased());
+        assertEquals(List.of(storedRenamedPerson, withId(anotherBob, 1)), persons.getPersonBuckets()
+                .get("Bob Meier").values().stream().toList());
+    }
+
+    @Test
+    public void setPerson_renameToExistingNameAllocatesNextId() {
+        persons.add(ALICE);
+        Person secondPerson = new PersonBuilder(BOB).build();
+        persons.add(secondPerson);
+        Person renamedPerson = new PersonBuilder(secondPerson).withName(ALICE.getName().fullName).build();
+
+        Person storedRenamedPerson = persons.setPerson(secondPerson, renamedPerson);
+
+        assertEquals(1, storedRenamedPerson.getPersonIndex().getZeroBased());
+        assertEquals(List.of(ALICE, storedRenamedPerson), persons.getPersonBuckets()
+                .get(ALICE.getName().fullName).values().stream().toList());
+    }
+
+    @Test
     public void remove_personNotPresent_throwsPersonNotFoundException() {
         assertThrows(PersonNotFoundException.class, () -> persons.remove(ALICE));
     }

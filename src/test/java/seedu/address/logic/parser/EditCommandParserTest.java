@@ -67,6 +67,15 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_blankPhoto_clearsPhoto() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptor();
+        descriptor.setPhoto(null);
+        EditCommand expectedCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        assertParseSuccess(parser, "1 /photo [blank]", expectedCommand);
+    }
+
+    @Test
     public void parse_invalidPreamble_failure() {
         // negative index
         assertParseFailure(parser, "-5" + NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);

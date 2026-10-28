@@ -92,6 +92,20 @@ class SetFavouriteCommandTest {
     }
 
     @Test
+    void execute_sortThenUnfavourite_refreshesActiveFavouriteView() throws Exception {
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.setFavourite(ALICE, true);
+        model.setFavourite(BENSON, true);
+        new ListFavouritesCommand().execute(model);
+
+        model.updatePersonListSort(PersonSortField.NAME, true);
+        model.setFavourite(ALICE, false);
+
+        assertEquals(List.of(BENSON), model.getFilteredPersonList());
+    }
+
+    @Test
     void execute_emptyFavouriteView_reportsHowToAddOne() {
         assertEquals(ListFavouritesCommand.MESSAGE_EMPTY,
                 new ListFavouritesCommand().execute(model).getFeedbackToUser());

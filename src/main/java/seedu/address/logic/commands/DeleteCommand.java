@@ -47,10 +47,10 @@ public class DeleteCommand extends Command {
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
+        List<Person> allPersons = model.getAddressBook().getPersonList();
 
         Person personToDelete;
-        personToDelete = lastShownList.stream()
+        personToDelete = allPersons.stream()
                 .filter(person -> person.getName().fullName.equals(targetName))
                 .filter(person -> person.getPersonIndex() != null
                         && person.getPersonIndex().equals(targetIndex))

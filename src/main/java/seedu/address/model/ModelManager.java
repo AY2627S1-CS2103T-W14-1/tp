@@ -96,21 +96,23 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void addPerson(UnindexedPerson person) {
-        addressBook.addPerson(person);
+    public Person addPerson(UnindexedPerson person) {
+        Person addedPerson = addressBook.addPerson(person);
         updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        return addedPerson;
     }
 
     @Override
-    public void setPerson(Person target, Person editedPerson) {
+    public Person setPerson(Person target, Person editedPerson) {
         requireAllNonNull(target, editedPerson);
 
-        addressBook.setPerson(target, editedPerson);
+        Person replacement = addressBook.setPerson(target, editedPerson);
         if (isRecentView) {
             showRecentPersons();
         } else if (isFavouritesView) {
             showFavouritePersons();
         }
+        return replacement;
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -178,7 +180,6 @@ public class ModelManager implements Model {
         userPrefs.setSortField(field);
         userPrefs.setSortDescending(descending);
         isRecentView = false;
-        isFavouritesView = false;
         applySortPreference();
     }
 

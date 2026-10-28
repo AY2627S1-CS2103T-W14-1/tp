@@ -11,6 +11,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_MAJOR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_OFFICE_HOURS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_PHOTO;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT_YEAR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
@@ -18,6 +19,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +52,7 @@ public class EditCommandParser implements Parser<EditCommand> {
                 PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS,
                 PREFIX_CONTACT_MAJOR, PREFIX_CONTACT_YEAR,
                 PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS,
-                PREFIX_CONTACT_TAG, PREFIX_TAG);
+                PREFIX_CONTACT_PHOTO, PREFIX_CONTACT_TAG, PREFIX_TAG);
 
         Index index;
 
@@ -66,7 +68,8 @@ public class EditCommandParser implements Parser<EditCommand> {
                 PREFIX_CONTACT_EMAIL, PREFIX_EMAIL,
                 PREFIX_CONTACT_LOCATION, PREFIX_ADDRESS,
                 PREFIX_CONTACT_MAJOR, PREFIX_CONTACT_YEAR,
-                PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS);
+                PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS,
+                PREFIX_CONTACT_PHOTO);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
@@ -120,16 +123,26 @@ public class EditCommandParser implements Parser<EditCommand> {
                     argMultimap.getValue(PREFIX_CONTACT_OFFICE_HOURS).get()));
         }
 
+        Optional<Path> photoSource = Optional.empty();
+        if (argMultimap.getValue(PREFIX_CONTACT_PHOTO).isPresent()) {
+            String photoValue = argMultimap.getValue(PREFIX_CONTACT_PHOTO).get().trim();
+            if (photoValue.equalsIgnoreCase(ParserUtil.BLANK_VALUE)) {
+                editPersonDescriptor.setPhoto(null);
+            } else {
+                photoSource = Optional.of(ParserUtil.parsePhotoPath(photoValue));
+            }
+        }
+
         // Parse Tags (supports /tag or t/)
         List<String> rawTags = new ArrayList<>(argMultimap.getAllValues(PREFIX_TAG));
         rawTags.addAll(argMultimap.getAllValues(PREFIX_CONTACT_TAG));
         parseTagsForEdit(rawTags).ifPresent(editPersonDescriptor::setTags);
 
-        if (!editPersonDescriptor.isAnyFieldEdited()) {
+        if (!editPersonDescriptor.isAnyFieldEdited() && photoSource.isEmpty()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
 
-        return new EditCommand(index, editPersonDescriptor);
+        return new EditCommand(index, editPersonDescriptor, photoSource);
     }
 
     /**

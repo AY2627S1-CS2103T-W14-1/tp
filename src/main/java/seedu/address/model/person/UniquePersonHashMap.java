@@ -53,6 +53,15 @@ public class UniquePersonHashMap implements Iterable<Person> {
             nextIndex = Math.max(nextIndex, index + 1);
         }
 
+        /** Replaces the person at {@code index} without making that index available for reuse. */
+        public void replace(int index, Person person) {
+            if (!persons.containsKey(index)) {
+                throw new PersonNotFoundException();
+            }
+            freeIndices.remove(index);
+            persons.put(index, person);
+        }
+
         /**
          * Removes and returns the person with the given zero-based id.
          */
@@ -142,8 +151,9 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
     /**
      * Adds an unindexed person, assigning an index when the person is not yet indexed.
+     * Returns the indexed person as stored.
      */
-    public void add(UnindexedPerson toAdd) {
+    public Person add(UnindexedPerson toAdd) {
         requireNonNull(toAdd);
 
         PersonNameBucket bucket = getBucket(toAdd);
@@ -153,12 +163,13 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
         bucket.add(indexedPerson);
         refreshInternalList();
+        return indexedPerson;
     }
 
     /**
-     * Adds an indexed person.
+     * Adds an indexed person and returns it.
      */
-    public void add(Person toAdd) {
+    public Person add(Person toAdd) {
         requireNonNull(toAdd);
 
         PersonNameBucket bucket = getBucket(toAdd);
@@ -169,6 +180,7 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
         bucket.add(toAdd);
         refreshInternalList();
+        return toAdd;
     }
 
     /**
@@ -194,20 +206,28 @@ public class UniquePersonHashMap implements Iterable<Person> {
     /**
      * Replaces an existing person with an edited person.
      */
-    public void setPerson(Person target, Person editedPerson) {
+    public Person setPerson(Person target, Person editedPerson) {
         requireAllNonNull(target, editedPerson);
 
         if (!contains(target)) {
             throw new PersonNotFoundException();
         }
 
-        if (contains(editedPerson)
-                && !target.isSamePerson(editedPerson)) {
-            throw new DuplicatePersonException();
+        if (target.getName().equals(editedPerson.getName())) {
+            int targetIndex = target.getPersonIndex().getZeroBased();
+            Person replacement = editedPerson.withPersonIndex(target.getPersonIndex());
+            internalMap.get(target.getName().fullName).replace(targetIndex, replacement);
+            refreshInternalList();
+            return replacement;
         }
 
         remove(target);
-        add(editedPerson);
+        PersonNameBucket destinationBucket = getBucket(editedPerson);
+        Person replacement = editedPerson.withPersonIndex(
+                PersonIndex.fromZeroBased(destinationBucket.allocateIndex()));
+        destinationBucket.add(replacement);
+        refreshInternalList();
+        return replacement;
     }
 
     /**

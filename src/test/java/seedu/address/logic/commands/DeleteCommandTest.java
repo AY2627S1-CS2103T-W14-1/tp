@@ -17,6 +17,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for
@@ -62,6 +63,36 @@ public class DeleteCommandTest {
         showNoPerson(expectedModel);
 
         assertCommandSuccess(deleteCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_validNameHiddenByFilter_success() throws Exception {
+        ModelManager isolatedModel = new ModelManager();
+        isolatedModel.addPerson(seedu.address.testutil.TypicalPersons.ALICE);
+        isolatedModel.addPerson(seedu.address.testutil.TypicalPersons.BENSON);
+        isolatedModel.updateFilteredPersonList(person -> person.equals(seedu.address.testutil.TypicalPersons.ALICE));
+
+        Person hiddenPerson = seedu.address.testutil.TypicalPersons.BENSON;
+        DeleteCommand deleteCommand = new DeleteCommand(hiddenPerson.getDisplayName());
+        assertEquals(1, isolatedModel.getFilteredPersonList().size());
+
+        deleteCommand.execute(isolatedModel);
+
+        assertTrue(isolatedModel.getAddressBook().getPersonList().stream()
+                .noneMatch(person -> person.isSamePerson(hiddenPerson)));
+        assertEquals(1, isolatedModel.getFilteredPersonList().size());
+    }
+
+    @Test
+    public void execute_unsuffixedName_doesNotFallBackToRemainingDuplicate() {
+        ModelManager isolatedModel = new ModelManager();
+        Person firstJohn = isolatedModel.addPerson(new PersonBuilder().withName("John Tan").buildNoIndex());
+        isolatedModel.addPerson(new PersonBuilder().withName("John Tan").withPhone("90000002").buildNoIndex());
+        isolatedModel.deletePerson(firstJohn);
+
+        assertCommandFailure(new DeleteCommand("John Tan"), isolatedModel,
+                Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
+        assertEquals("John Tan_2", isolatedModel.getAddressBook().getPersonList().get(0).getDisplayName());
     }
 
     @Test

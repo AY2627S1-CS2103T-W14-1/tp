@@ -51,17 +51,17 @@ public interface Model {
     void deletePerson(Person target);
 
     /**
-     * Adds the given person.
+     * Adds the given person and returns the indexed person as stored.
      * {@code person} must not already exist in the address book.
      */
-    void addPerson(UnindexedPerson person);
+    Person addPerson(UnindexedPerson person);
 
     /**
-     * Replaces the given person {@code target} with {@code editedPerson}.
+     * Replaces the given person {@code target} with {@code editedPerson} and returns the stored replacement.
+     * A same-name edit retains its id; a renamed person receives the smallest available id in the new bucket.
      * {@code target} must exist in the address book.
-     * The person identity of {@code editedPerson} must not be the same as another existing person in the address book.
      */
-    void setPerson(Person target, Person editedPerson);
+    Person setPerson(Person target, Person editedPerson);
 
     /** Returns an unmodifiable view of the filtered person list */
     ObservableList<Person> getFilteredPersonList();
