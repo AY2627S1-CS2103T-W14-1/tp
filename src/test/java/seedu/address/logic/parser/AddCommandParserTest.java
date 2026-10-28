@@ -68,6 +68,18 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_invalidRole_explainsSupportedAliases() {
+        assertParseFailure(parser, VALID_NAME_BOB + " /role staff" + EMAIL_ARGUMENT + PHONE_ARGUMENT
+                + LOCATION_ARGUMENT, Role.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_roleMissing_failure() {
+        assertParseFailure(parser, VALID_NAME_BOB + EMAIL_ARGUMENT + PHONE_ARGUMENT + LOCATION_ARGUMENT,
+                INVALID_FORMAT);
+    }
+
+    @Test
     public void parse_fieldOrderVariations_success() {
         AddCommand expectedCommand = new AddCommand(new PersonBuilder(BOB).withTags().buildNoIndex());
         String[] fieldOrders = {

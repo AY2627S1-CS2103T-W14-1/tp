@@ -7,6 +7,7 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Role;
 import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
@@ -33,6 +35,24 @@ public class ParserUtilTest {
     private static final String VALID_TAG_2 = "neighbour";
 
     private static final String WHITESPACE = " \t\r\n";
+
+    @Test
+    public void parseRole_supportedAliases_success() throws Exception {
+        String[][] aliasesByRole = {{"student", "s", "stu"}, {"professor", "p", "prof"}};
+        for (String[] aliases : aliasesByRole) {
+            for (String alias : aliases) {
+                assertEquals(new Role(aliases[0]), ParserUtil.parseRole(alias));
+                assertEquals(new Role(aliases[0]), ParserUtil.parseRole(
+                        WHITESPACE + alias.toUpperCase(Locale.ROOT) + WHITESPACE));
+            }
+        }
+    }
+
+    @Test
+    public void parseRole_invalidRole_throwsParseException() {
+        assertThrows(ParseException.class, Role.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseRole("staff"));
+        assertThrows(ParseException.class, Role.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseRole(" "));
+    }
 
     @Test
     public void parseIndex_invalidInput_throwsParseException() {
