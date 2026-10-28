@@ -51,10 +51,10 @@ public interface Model {
     void deletePerson(Person target);
 
     /**
-     * Adds the given person.
+     * Adds the given person and returns the indexed person as stored.
      * {@code person} must not already exist in the address book.
      */
-    void addPerson(UnindexedPerson person);
+    Person addPerson(UnindexedPerson person);
 
     /**
      * Replaces the given person {@code target} with {@code editedPerson} and returns the stored replacement.

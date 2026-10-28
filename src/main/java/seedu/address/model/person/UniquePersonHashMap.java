@@ -151,8 +151,9 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
     /**
      * Adds an unindexed person, assigning an index when the person is not yet indexed.
+     * Returns the indexed person as stored.
      */
-    public void add(UnindexedPerson toAdd) {
+    public Person add(UnindexedPerson toAdd) {
         requireNonNull(toAdd);
 
         PersonNameBucket bucket = getBucket(toAdd);
@@ -162,12 +163,13 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
         bucket.add(indexedPerson);
         refreshInternalList();
+        return indexedPerson;
     }
 
     /**
-     * Adds an indexed person.
+     * Adds an indexed person and returns it.
      */
-    public void add(Person toAdd) {
+    public Person add(Person toAdd) {
         requireNonNull(toAdd);
 
         PersonNameBucket bucket = getBucket(toAdd);
@@ -178,6 +180,7 @@ public class UniquePersonHashMap implements Iterable<Person> {
 
         bucket.add(toAdd);
         refreshInternalList();
+        return toAdd;
     }
 
     /**

@@ -96,9 +96,10 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void addPerson(UnindexedPerson person) {
-        addressBook.addPerson(person);
+    public Person addPerson(UnindexedPerson person) {
+        Person addedPerson = addressBook.addPerson(person);
         updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        return addedPerson;
     }
 
     @Override

@@ -21,6 +21,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Photo;
 import seedu.address.model.person.UnindexedPerson;
 
@@ -107,8 +108,8 @@ public class AddCommand extends Command {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        model.addPerson(toAdd.withTimestamps(now, now));
-        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        Person addedPerson = model.addPerson(toAdd.withTimestamps(now, now));
+        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(addedPerson)));
     }
 
     @Override

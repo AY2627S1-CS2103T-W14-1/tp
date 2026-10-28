@@ -83,11 +83,11 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Adds a person to the address book.
+     * Adds a person to the address book and returns the indexed person as stored.
      * The person receives the smallest available id in its name bucket when unindexed.
      */
-    public void addPerson(UnindexedPerson p) {
-        persons.add(p);
+    public Person addPerson(UnindexedPerson p) {
+        return persons.add(p);
     }
 
     /**

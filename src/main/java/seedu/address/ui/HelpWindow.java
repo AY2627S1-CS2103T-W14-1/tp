@@ -55,7 +55,7 @@ public class HelpWindow extends UiPart<Stage> {
             4. DELETE A CONTACT
             Syntax: delete NAME[_NUMBER]
             Works even when a filter hides the contact.
-            Without _NUMBER, deletes the first contact with that name.
+            Without _NUMBER, targets only the unsuffixed identifier (NAME).
             Example: delete John Tan_2
 
             5. FIND CONTACTS
