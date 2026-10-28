@@ -25,6 +25,9 @@ public class HelpWindow extends UiPart<Stage> {
               [/major MAJOR] [/year YEAR] [/faculty FACULTY]
               [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH]
               [t/TAG]...
+            Students may use /major and /year only.
+            Professors may use /faculty, /department and /hours only.
+            These role-specific fields are optional; fields for the other role are rejected.
             Same-name contacts get the smallest available suffix:
             John Tan, John Tan_2, and so on. Deleted suffixes can be reused.
             Photos are optional. Supported types: PNG, JPG, JPEG, GIF.

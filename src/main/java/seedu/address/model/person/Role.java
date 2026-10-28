@@ -12,7 +12,7 @@ import java.util.Locale;
 public class Role {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Role should either be Student (s) or Professor (p)";
+            "Role should either be student (s, stu) or professor (p, prof)";
 
     /*
      * The first character of the role must not be a whitespace,
