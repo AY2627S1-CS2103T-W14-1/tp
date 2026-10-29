@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -87,6 +88,30 @@ public class MainAppTest {
         assertNull(app.model);
         assertFalse(Files.exists(prefsFile));
         assertEquals("keep me", Files.readString(invalidParent));
+    }
+
+    @Test
+    public void init_corruptedData_preservesOriginalBeforeContinuing() throws Exception {
+        Path dataFile = testFolder.resolve("data/contacts.json");
+        Path prefsFile = testFolder.resolve("preferences.json");
+        Files.createDirectories(dataFile.getParent());
+        byte[] corruptedData = "{ this is not valid json }".getBytes();
+        Files.write(dataFile, corruptedData);
+
+        MainApp app = new MainApp(dataFile, prefsFile);
+        try {
+            app.init();
+
+            Path backupDirectory = dataFile.getParent().resolve("backups");
+            Path backup;
+            try (Stream<Path> backups = Files.list(backupDirectory)) {
+                backup = backups.findFirst().orElseThrow();
+            }
+            assertArrayEquals(corruptedData, Files.readAllBytes(backup));
+            assertTrue(app.model.getAddressBook().getPersonList().isEmpty());
+        } finally {
+            app.stop();
+        }
     }
 
     @Test

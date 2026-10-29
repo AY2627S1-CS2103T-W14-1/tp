@@ -98,6 +98,37 @@ class RecentWorkflowTest {
     }
 
     @Test
+    void execute_editWhileViewingRecent_keepsRecentViewAndOrder() throws Exception {
+        Logic logic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("edit-recent.json")));
+        addJohns(logic);
+        logic.execute("show John Tan");
+        logic.execute("show John Tan_2");
+        logic.execute("recent");
+
+        logic.execute("edit John Tan_2 /phone 90000009");
+
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getAddressBook().getRecentContacts());
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getFilteredPersonList().stream()
+                .map(Person::getDisplayName).toList());
+        assertEquals("90000009", model.getFilteredPersonList().getFirst().getPhone().value);
+    }
+
+    @Test
+    void execute_renameWhileViewingRecent_updatesHistoryAndKeepsRecentView() throws Exception {
+        Logic logic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("rename-recent.json")));
+        addJohns(logic);
+        logic.execute("show John Tan");
+        logic.execute("show John Tan_2");
+        logic.execute("recent");
+
+        logic.execute("edit John Tan_2 /name Jane Tan");
+
+        assertEquals(List.of("Jane Tan", "John Tan"), model.getAddressBook().getRecentContacts());
+        assertEquals(List.of("Jane Tan", "John Tan"), model.getFilteredPersonList().stream()
+                .map(Person::getDisplayName).toList());
+    }
+
+    @Test
     void execute_saveFailure_keepsCommandChangeAndReportsRetryWarning() throws Exception {
         Logic setupLogic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("contacts.json")));
         addJohns(setupLogic);
@@ -114,8 +145,39 @@ class RecentWorkflowTest {
             Logic failingLogic = newLogic(model, failingStorage);
             CommandResult result = failingLogic.execute("show John Tan");
             assertTrue(result.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RETRY_WARNING));
-            assertEquals(List.of("John Tan", "John Tan_2"), model.getAddressBook().getRecentContacts());
-            assertEquals("John Tan", model.getFilteredPersonList().get(0).getDisplayName());
+            assertEquals(List.of("John Tan_2", "John Tan"), model.getAddressBook().getRecentContacts());
+            assertEquals("John Tan_2", model.getFilteredPersonList().get(0).getDisplayName());
         }
+    }
+
+    @Test
+    void execute_showSaveFailsThenRetrySucceeds_doesNotPersistFailedRecentVisit() throws Exception {
+        Logic setupLogic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("retry-setup.json")));
+        addJohns(setupLogic);
+        setupLogic.execute("show John Tan_2");
+        List<String> originalRecentContacts = List.of("John Tan_2");
+
+        JsonAddressBookStorage retryStorage = new JsonAddressBookStorage(tempDir.resolve("retry.json")) {
+            private boolean failNextSave = true;
+
+            @Override
+            public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                if (failNextSave) {
+                    failNextSave = false;
+                    throw new IOException("disk unavailable");
+                }
+                super.saveAddressBook(addressBook);
+            }
+        };
+        Logic retryingLogic = newLogic(model, retryStorage);
+
+        CommandResult failedResult = retryingLogic.execute("show John Tan");
+        assertTrue(failedResult.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RETRY_WARNING));
+        assertEquals(originalRecentContacts, model.getAddressBook().getRecentContacts());
+
+        CommandResult retryResult = retryingLogic.execute("list");
+
+        assertTrue(retryResult.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RECOVERED));
+        assertEquals(originalRecentContacts, retryStorage.readAddressBook().orElseThrow().getRecentContacts());
     }
 }

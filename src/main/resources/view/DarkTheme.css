@@ -153,6 +153,11 @@
     -fx-text-fill: white;
 }
 
+.result-display-scroll-pane,
+.result-display-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
 .result-display .label {
     -fx-text-fill: black !important;
 }

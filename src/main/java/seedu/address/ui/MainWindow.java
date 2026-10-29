@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.Logic;
@@ -36,6 +37,7 @@ public class MainWindow extends UiPart<Stage> {
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
     private ResultDisplay resultDisplay;
+    private CommandBox commandBox;
     private HelpWindow helpWindow;
     private ContactDetailsWindow contactDetailsWindow;
 
@@ -129,7 +131,7 @@ public class MainWindow extends UiPart<Stage> {
         StatusBarFooter statusBarFooter = new StatusBarFooter(dataFilePath);
         statusbarPlaceholder.getChildren().add(statusBarFooter.getRoot());
 
-        CommandBox commandBox = new CommandBox(this::executeCommand);
+        commandBox = new CommandBox(this::executeCommand);
         commandBoxPlaceholder.getChildren().add(commandBox.getRoot());
     }
 
@@ -166,6 +168,27 @@ public class MainWindow extends UiPart<Stage> {
      */
     @FXML
     private void handleExit() {
+        try {
+            executeCommand("exit");
+        } catch (CommandException | ParseException e) {
+            logger.info("An error occurred while executing exit: " + e.getMessage());
+        }
+    }
+
+    /** Routes the native window close button through the same exit confirmation as the exit command. */
+    @FXML
+    private void handleWindowCloseRequest(WindowEvent event) {
+        event.consume();
+        try {
+            displayCommandResult(logic.executeWindowCloseRequest());
+        } catch (CommandException | ParseException e) {
+            logger.info("An error occurred while processing window close: " + e.getMessage());
+            resultDisplay.setFeedbackToUser(e.getMessage());
+        }
+    }
+
+    /** Closes the application after the exit command has been accepted. */
+    private void closeWindow() {
         GuiSettings guiSettings = new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
                 (int) primaryStage.getX(), (int) primaryStage.getY());
         logic.setGuiSettings(guiSettings);
@@ -188,26 +211,30 @@ public class MainWindow extends UiPart<Stage> {
     private CommandResult executeCommand(String commandText) throws CommandException, ParseException {
         try {
             CommandResult commandResult = logic.execute(commandText);
-            logger.info("Result: " + commandResult.getFeedbackToUser());
-            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
-
-            if (commandResult.isShowHelp()) {
-                handleHelp();
-            }
-
-            if (commandResult.isShowPersonDetails()) {
-                showContactDetails(commandResult);
-            }
-
-            if (commandResult.isExit()) {
-                handleExit();
-            }
-
+            displayCommandResult(commandResult);
             return commandResult;
         } catch (CommandException | ParseException e) {
             logger.info("An error occurred while executing command: " + commandText);
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
+        }
+    }
+
+    /** Displays command feedback and performs any UI actions requested by the result. */
+    private void displayCommandResult(CommandResult commandResult) {
+        logger.info("Result: " + commandResult.getFeedbackToUser());
+        resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
+
+        if (commandResult.isShowHelp()) {
+            handleHelp();
+        }
+
+        if (commandResult.isShowPersonDetails()) {
+            showContactDetails(commandResult);
+        }
+
+        if (commandResult.isExit()) {
+            closeWindow();
         }
     }
 
@@ -217,6 +244,7 @@ public class MainWindow extends UiPart<Stage> {
             contactDetailsWindow.hide();
         }
         contactDetailsWindow = new ContactDetailsWindow(commandResult.getPersonToShow(), dataFilePath);
+        contactDetailsWindow.getRoot().setOnHidden(event -> commandBox.focus());
         contactDetailsWindow.show();
     }
 }

@@ -3,6 +3,7 @@ package seedu.address.storage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -73,5 +74,8 @@ public interface Storage {
      * @throws IOException if the photo could not be deleted
      */
     void deletePhoto(Photo photo) throws IOException;
+
+    /** Deletes managed photo files that are not referenced by the given address book. */
+    void deleteUnreferencedPhotos(Set<Photo> referencedPhotos) throws IOException;
 
 }

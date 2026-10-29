@@ -2,6 +2,7 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ConfirmCommand;
 import seedu.address.logic.commands.EditCommand;
+import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -39,6 +41,9 @@ public class LogicManager implements Logic {
     public static final String MESSAGE_SAVE_RECOVERED =
             "Previously unsaved changes have now been saved successfully.";
 
+    public static final String MESSAGE_EXIT_UNSAVED_CHANGES =
+            "Warning: Your changes could not be saved. Type Yes to exit anyway, or anything else to cancel exit.";
+
     private final Logger logger = LogsCenter.getLogger(LogicManager.class);
 
     private final Model model;
@@ -46,6 +51,7 @@ public class LogicManager implements Logic {
     private final AddressBookParser addressBookParser;
 
     private Command pendingCommand;
+    private boolean pendingExitConfirmation;
     private boolean hasUnsavedChanges;
 
     /**
@@ -61,11 +67,21 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
+        List<String> recentContactsBeforeCommand = model.getAddressBook().getRecentContacts();
         Set<Photo> photosBeforeCommand = getReferencedPhotos();
         CommandResult commandResult;
         Command command;
+        boolean exitConfirmed = false;
 
-        if (pendingCommand != null) {
+        if (pendingExitConfirmation) {
+            pendingExitConfirmation = false;
+            if (commandText.trim().equalsIgnoreCase("yes")) {
+                exitConfirmed = true;
+                commandResult = executeCommand(new ExitCommand());
+            } else {
+                commandResult = (new CancelCommand()).execute(model);
+            }
+        } else if (pendingCommand != null) {
             command = pendingCommand;
             pendingCommand = null;
             if (commandText.equals("yes")) {
@@ -75,6 +91,10 @@ public class LogicManager implements Logic {
             }
         } else {
             command = addressBookParser.parseCommand(commandText);
+            if (command instanceof ExitCommand && hasUnsavedChanges) {
+                pendingExitConfirmation = true;
+                return new CommandResult(MESSAGE_EXIT_UNSAVED_CHANGES);
+            }
             if (command.requiresConfirmation()) {
                 pendingCommand = command;
                 commandResult = (new ConfirmCommand(command)).execute(model);
@@ -88,8 +108,14 @@ public class LogicManager implements Logic {
         }
         String saveError = trySaveAddressBook();
         if (saveError != null) {
+            model.restoreRecentContacts(recentContactsBeforeCommand);
             hasUnsavedChanges = true;
-            commandResult = commandResult.withAdditionalFeedback(saveError + "\n" + MESSAGE_SAVE_RETRY_WARNING);
+            if (commandResult.isExit() && !exitConfirmed) {
+                pendingExitConfirmation = true;
+                commandResult = new CommandResult(saveError + "\n" + MESSAGE_EXIT_UNSAVED_CHANGES);
+            } else {
+                commandResult = commandResult.withAdditionalFeedback(saveError + "\n" + MESSAGE_SAVE_RETRY_WARNING);
+            }
         } else if (hasUnsavedChanges) {
             hasUnsavedChanges = false;
             commandResult = commandResult.withAdditionalFeedback(MESSAGE_SAVE_RECOVERED);
@@ -100,6 +126,13 @@ public class LogicManager implements Logic {
         }
 
         return commandResult;
+    }
+
+    @Override
+    public CommandResult executeWindowCloseRequest() throws CommandException, ParseException {
+        pendingCommand = null;
+        pendingExitConfirmation = false;
+        return execute("exit");
     }
 
     /** Attempts to persist the complete current address-book state and returns an error message on failure. */

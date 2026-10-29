@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -76,5 +77,23 @@ public class PhotoStorageTest {
         photoStorage.deletePhoto(new Photo("photos/missing.png"));
 
         assertTrue(Files.notExists(testFolder.resolve("photos/missing.png")));
+    }
+
+    @Test
+    public void deleteUnreferencedPhotos_removesOrphansAndKeepsReferencedFiles() throws Exception {
+        PhotoStorage photoStorage = new PhotoStorage(testFolder.resolve("campuscontacts.json"));
+        Path referencedPath = testFolder.resolve("photos/referenced.png");
+        Path orphanPath = testFolder.resolve("photos/orphan.jpg");
+        Path unrelatedPath = testFolder.resolve("photos/notes.txt");
+        Files.createDirectories(referencedPath.getParent());
+        Files.writeString(referencedPath, "referenced");
+        Files.writeString(orphanPath, "orphan");
+        Files.writeString(unrelatedPath, "keep");
+
+        photoStorage.deleteUnreferencedPhotos(Set.of(new Photo("photos/referenced.png")));
+
+        assertTrue(Files.exists(referencedPath));
+        assertTrue(Files.notExists(orphanPath));
+        assertTrue(Files.exists(unrelatedPath));
     }
 }

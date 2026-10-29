@@ -64,7 +64,7 @@
         </GridPane>
         <Separator />
         <Label fx:id="editHistory" id="editHistory" />
-        <Button mnemonicParsing="false" onAction="#handleClose" text="Close" />
+        <Button mnemonicParsing="false" onAction="#handleClose" text="Close [X]" />
       </VBox>
     </Scene>
   </scene>

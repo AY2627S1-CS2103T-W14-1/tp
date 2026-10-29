@@ -10,6 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
 
@@ -91,6 +93,7 @@ public class ContactDetailsWindow extends UiPart<Stage> {
         editHistory.setText(String.format("Added time: %s%nLast Edited: %s",
                 formatTimestamp(person.getCreatedAt()), formatTimestamp(person.getLastEditedAt())));
         setPhoto(person, dataFilePath);
+        getRoot().addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
     }
 
     /** Returns a displayable timestamp, including for records created before edit history was added. */
@@ -147,5 +150,13 @@ public class ContactDetailsWindow extends UiPart<Stage> {
     @FXML
     private void handleClose() {
         hide();
+    }
+
+    /** Closes the window when the user presses X. */
+    private void handleKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.X) {
+            handleClose();
+            event.consume();
+        }
     }
 }

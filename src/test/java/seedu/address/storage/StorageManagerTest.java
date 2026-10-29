@@ -2,8 +2,10 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
+import seedu.address.testutil.PersonBuilder;
 
 public class StorageManagerTest {
 
@@ -63,6 +66,26 @@ public class StorageManagerTest {
     @Test
     public void getAddressBookFilePath() {
         assertNotNull(storageManager.getAddressBookFilePath());
+    }
+
+    @Test
+    public void addressBookRead_removesUnreferencedPhotoFiles() throws Exception {
+        Path photoDirectory = testFolder.resolve("photos");
+        Path referencedPhoto = photoDirectory.resolve("referenced.png");
+        Path orphanedPhoto = photoDirectory.resolve("orphaned.png");
+        Files.createDirectories(photoDirectory);
+        Files.writeString(referencedPhoto, "referenced");
+        Files.writeString(orphanedPhoto, "orphaned");
+
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(new PersonBuilder().withName("Photo Owner")
+                .withPhoto("photos/referenced.png").build());
+        storageManager.saveAddressBook(addressBook);
+
+        storageManager.readAddressBook();
+
+        assertTrue(Files.exists(referencedPhoto));
+        assertTrue(Files.notExists(orphanedPhoto));
     }
 
 }

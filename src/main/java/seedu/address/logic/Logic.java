@@ -20,6 +20,9 @@ public interface Logic {
      */
     CommandResult execute(String commandText) throws CommandException, ParseException;
 
+    /** Cancels any pending confirmation and processes an application window close as an exit request. */
+    CommandResult executeWindowCloseRequest() throws CommandException, ParseException;
+
     /** Returns an unmodifiable view of the filtered list of persons */
     ObservableList<Person> getFilteredPersonList();
 
