@@ -128,6 +128,13 @@ public class LogicManager implements Logic {
         return commandResult;
     }
 
+    @Override
+    public CommandResult executeWindowCloseRequest() throws CommandException, ParseException {
+        pendingCommand = null;
+        pendingExitConfirmation = false;
+        return execute("exit");
+    }
+
     /** Attempts to persist the complete current address-book state and returns an error message on failure. */
     private String trySaveAddressBook() {
         try {

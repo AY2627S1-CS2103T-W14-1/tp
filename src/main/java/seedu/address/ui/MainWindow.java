@@ -179,7 +179,12 @@ public class MainWindow extends UiPart<Stage> {
     @FXML
     private void handleWindowCloseRequest(WindowEvent event) {
         event.consume();
-        handleExit();
+        try {
+            displayCommandResult(logic.executeWindowCloseRequest());
+        } catch (CommandException | ParseException e) {
+            logger.info("An error occurred while processing window close: " + e.getMessage());
+            resultDisplay.setFeedbackToUser(e.getMessage());
+        }
     }
 
     /** Closes the application after the exit command has been accepted. */
@@ -206,26 +211,30 @@ public class MainWindow extends UiPart<Stage> {
     private CommandResult executeCommand(String commandText) throws CommandException, ParseException {
         try {
             CommandResult commandResult = logic.execute(commandText);
-            logger.info("Result: " + commandResult.getFeedbackToUser());
-            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
-
-            if (commandResult.isShowHelp()) {
-                handleHelp();
-            }
-
-            if (commandResult.isShowPersonDetails()) {
-                showContactDetails(commandResult);
-            }
-
-            if (commandResult.isExit()) {
-                closeWindow();
-            }
-
+            displayCommandResult(commandResult);
             return commandResult;
         } catch (CommandException | ParseException e) {
             logger.info("An error occurred while executing command: " + commandText);
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
+        }
+    }
+
+    /** Displays command feedback and performs any UI actions requested by the result. */
+    private void displayCommandResult(CommandResult commandResult) {
+        logger.info("Result: " + commandResult.getFeedbackToUser());
+        resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
+
+        if (commandResult.isShowHelp()) {
+            handleHelp();
+        }
+
+        if (commandResult.isShowPersonDetails()) {
+            showContactDetails(commandResult);
+        }
+
+        if (commandResult.isExit()) {
+            closeWindow();
         }
     }
 
