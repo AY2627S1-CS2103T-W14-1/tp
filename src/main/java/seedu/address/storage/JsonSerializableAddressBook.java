@@ -27,6 +27,7 @@ class JsonSerializableAddressBook {
 
     static final String MESSAGE_NULL_NAME_BUCKET = "Name buckets must not be null.";
     static final String MESSAGE_NULL_PERSON = "Person entries must not be null.";
+    static final String LEGACY_DEFAULT_ROLE = "student";
 
     private final Map<String, JsonNameBucket> personsByName = new TreeMap<>();
     private final List<String> recentContacts = new ArrayList<>();
@@ -108,13 +109,18 @@ class JsonSerializableAddressBook {
             if (jsonAdaptedPerson == null) {
                 throw new IllegalValueException(MESSAGE_NULL_PERSON);
             }
-            UnindexedPerson person = jsonAdaptedPerson.toModelType()
+            UnindexedPerson person = jsonAdaptedPerson.toModelType(LEGACY_DEFAULT_ROLE)
                     .withTimestamps(migrationTime, migrationTime);
             addressBook.addPerson(person);
         }
         addressBook.setRecentContacts(recentContacts);
         addressBook.setFavouriteContacts(favouriteContacts);
         return addressBook;
+    }
+
+    /** Returns true when this file uses the pre-role flat storage format. */
+    boolean isLegacyFormat() {
+        return !hasNameBuckets;
     }
 
 }

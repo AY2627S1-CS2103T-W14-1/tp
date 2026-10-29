@@ -337,6 +337,11 @@
     -fx-background-radius: 0;
 }
 
+.result-display {
+    -fx-background-color: #383838;
+    -fx-padding: 5;
+}
+
 #tags {
     -fx-hgap: 7;
     -fx-vgap: 3;

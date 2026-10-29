@@ -22,6 +22,7 @@ public class JsonAddressBookStorage {
     private static final Logger logger = LogsCenter.getLogger(JsonAddressBookStorage.class);
 
     private Path filePath;
+    private boolean legacyDataLoaded;
 
     public JsonAddressBookStorage(Path filePath) {
         this.filePath = filePath;
@@ -49,12 +50,14 @@ public class JsonAddressBookStorage {
      */
     public Optional<ReadOnlyAddressBook> readAddressBook(Path filePath) throws DataLoadingException {
         requireNonNull(filePath);
+        legacyDataLoaded = false;
 
         Optional<JsonSerializableAddressBook> jsonAddressBook = JsonUtil.readJsonFile(
                 filePath, JsonSerializableAddressBook.class);
         if (!jsonAddressBook.isPresent()) {
             return Optional.empty();
         }
+        legacyDataLoaded = jsonAddressBook.get().isLegacyFormat();
 
         try {
             return Optional.of(jsonAddressBook.get().toModelType());
@@ -62,6 +65,11 @@ public class JsonAddressBookStorage {
             logger.info("Illegal values found in " + filePath + ": " + ive.getMessage());
             throw new DataLoadingException(ive);
         }
+    }
+
+    /** Returns whether the most recently loaded address book used the legacy flat format. */
+    public boolean wasLegacyDataLoaded() {
+        return legacyDataLoaded;
     }
 
     /**

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -48,10 +47,9 @@ public class EditCommandParser implements Parser<EditCommand> {
                 PREFIX_CONTACT_FACULTY, PREFIX_CONTACT_DEPARTMENT, PREFIX_CONTACT_OFFICE_HOURS,
                 PREFIX_CONTACT_PHOTO, PREFIX_CONTACT_TAG, PREFIX_TAG);
 
-        Index index;
-
+        NameIndexParser.NameAndIndex nameAndIndex;
         try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
+            nameAndIndex = NameIndexParser.parse(argMultimap.getPreamble());
         } catch (ParseException pe) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
         }
@@ -126,7 +124,7 @@ public class EditCommandParser implements Parser<EditCommand> {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
 
-        return new EditCommand(index, editPersonDescriptor, photoSource);
+        return new EditCommand(nameAndIndex.name(), nameAndIndex.personIndex(), editPersonDescriptor, photoSource);
     }
 
     /**

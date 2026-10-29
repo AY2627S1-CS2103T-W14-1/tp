@@ -36,6 +36,10 @@ import seedu.address.ui.UiManager;
 public class MainApp extends Application {
 
     public static final String VERSION = "V1.4";
+    public static final String CORRUPTED_DATA_WARNING = "Warning: The data file could not be loaded because it appears "
+            + "to be corrupted. The contact list was started empty. Please restore a valid backup.";
+    public static final String LEGACY_DATA_WARNING = "Warning: Legacy data was loaded. Contacts without a role were "
+            + "migrated as students. Please review their roles.";
 
     private static final Logger logger = LogsCenter.getLogger(MainApp.class);
     private static final Path USER_PREFS_FILE_PATH = Paths.get("preferences.json");
@@ -45,6 +49,7 @@ public class MainApp extends Application {
     protected Logic logic;
     protected Storage storage;
     protected Model model;
+    private String startupMessage;
 
     private final Path addressBookFilePath;
     private final Path userPrefsFilePath;
@@ -90,7 +95,7 @@ public class MainApp extends Application {
             model = initModelManager(storage, userPrefs);
             logic = new LogicManager(model, storage);
 
-            ui = new UiManager(logic, storage.getAddressBookFilePath());
+            ui = new UiManager(logic, storage.getAddressBookFilePath(), startupMessage);
             initialized = true;
         } finally {
             if (!initialized) {
@@ -116,10 +121,14 @@ public class MainApp extends Application {
                         + " populated with a sample AddressBook.");
             }
             initialData = addressBookOptional.orElseGet(SampleDataUtil::getSampleAddressBook);
+            if (storage.wasLegacyDataLoaded()) {
+                startupMessage = LEGACY_DATA_WARNING;
+            }
         } catch (DataLoadingException e) {
             logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
                     + " Will be starting with an empty AddressBook.");
             initialData = new AddressBook();
+            startupMessage = CORRUPTED_DATA_WARNING;
         }
 
         return new ModelManager(initialData, userPrefs);

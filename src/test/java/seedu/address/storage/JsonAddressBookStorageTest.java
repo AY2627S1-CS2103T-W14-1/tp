@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.HOON;
@@ -68,6 +69,16 @@ public class JsonAddressBookStorageTest {
     @Test
     public void readAddressBook_nullLegacyPerson_throwsDataLoadingException() {
         assertThrows(DataLoadingException.class, () -> readAddressBook("nullLegacyPersonAddressBook.json"));
+    }
+
+    @Test
+    public void readAddressBook_legacyFormat_reportsLegacyDataLoaded() throws Exception {
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(
+                TEST_DATA_FOLDER.resolve("../JsonSerializableAddressBookTest/typicalPersonsAddressBook.json"));
+
+        storage.readAddressBook();
+
+        assertTrue(storage.wasLegacyDataLoaded());
     }
 
     @Test

@@ -56,6 +56,12 @@ public class CommandResult {
         return feedbackToUser;
     }
 
+    /** Returns a copy of this result with additional feedback while preserving its UI actions. */
+    public CommandResult withAdditionalFeedback(String additionalFeedback) {
+        requireNonNull(additionalFeedback);
+        return new CommandResult(feedbackToUser + "\n" + additionalFeedback, showHelp, exit, personToShow);
+    }
+
     public boolean isShowHelp() {
         return showHelp;
     }

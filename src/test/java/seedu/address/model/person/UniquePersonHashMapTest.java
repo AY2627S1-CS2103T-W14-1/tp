@@ -82,6 +82,21 @@ public class UniquePersonHashMapTest {
     }
 
     @Test
+    public void setPerson_editingSecondDuplicateKeepsItsSuffix() {
+        UnindexedPerson secondAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        persons.add(ALICE);
+        persons.add(secondAlice);
+
+        Person indexedSecondAlice = withId(secondAlice, 1);
+        Person editedSecondAlice = new PersonBuilder(indexedSecondAlice).withPhone("91234567").build();
+
+        Person storedPerson = persons.setPerson(indexedSecondAlice, editedSecondAlice);
+
+        assertEquals(1, storedPerson.getPersonIndex().getZeroBased());
+        assertEquals("Alice Pauline_2", storedPerson.getDisplayName());
+    }
+
+    @Test
     public void setPerson_renameAllocatesSmallestIdInDestinationBucket() {
         persons.add(ALICE);
         UnindexedPerson anotherAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
@@ -112,6 +127,38 @@ public class UniquePersonHashMapTest {
         assertEquals(1, storedRenamedPerson.getPersonIndex().getZeroBased());
         assertEquals(List.of(ALICE, storedRenamedPerson), persons.getPersonBuckets()
                 .get(ALICE.getName().fullName).values().stream().toList());
+    }
+
+    @Test
+    public void setPerson_renameIntoFullDestinationBucketAllocatesAfterExistingDuplicates() {
+        persons.add(ALICE);
+        UnindexedPerson secondAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).buildNoIndex();
+        UnindexedPerson thirdAlice = new PersonBuilder(ALICE).withPhone("99999999").buildNoIndex();
+        persons.add(secondAlice);
+        persons.add(thirdAlice);
+
+        Person source = new PersonBuilder(BOB).build();
+        persons.add(source);
+        Person renamed = new PersonBuilder(source).withName(ALICE.getName().fullName).build();
+
+        Person storedPerson = persons.setPerson(source, renamed);
+
+        assertEquals(3, storedPerson.getPersonIndex().getZeroBased());
+        assertEquals("Alice Pauline_4", storedPerson.getDisplayName());
+    }
+
+    @Test
+    public void setPerson_renameIntoBucketWithOnlyHighIndexReusesBaseName() {
+        Person highIndexAlice = withId(new PersonBuilder(ALICE).buildNoIndex(), 100);
+        Person source = withId(new PersonBuilder(BOB).buildNoIndex(), 0);
+        persons.setPersonBuckets(Map.of(ALICE.getName().fullName, Map.of(100, highIndexAlice),
+                BOB.getName().fullName, Map.of(0, source)));
+
+        Person renamed = new PersonBuilder(source).withName(ALICE.getName().fullName).build();
+        Person storedPerson = persons.setPerson(source, renamed);
+
+        assertEquals(0, storedPerson.getPersonIndex().getZeroBased());
+        assertEquals("Alice Pauline", storedPerson.getDisplayName());
     }
 
     @Test

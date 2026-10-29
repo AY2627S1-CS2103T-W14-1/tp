@@ -43,7 +43,7 @@ public class HelpWindow extends UiPart<Stage> {
 
             3. EDIT A CONTACT
             Syntax:
-              edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL]
+              edit NAME[_INDEX] [/name NAME] [/phone PHONE] [/email EMAIL]
               [/location LOCATION] [/major MAJOR] [/year YEAR]
               [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS]
               [/photo FILE_PATH] [t/TAG]...
@@ -51,9 +51,9 @@ public class HelpWindow extends UiPart<Stage> {
             Use /photo [blank] to remove it.
             Renaming assigns the smallest available suffix for the new name.
             Examples:
-              edit 1 /phone 91234567
-              edit 1 /photo C:\\Users\\Student\\Pictures\\new.jpg
-              edit 1 /photo [blank]
+              edit Alex Yeoh /phone 91234567
+              edit Alex Yeoh /photo C:\\Users\\Student\\Pictures\\new.jpg
+              edit Alex Yeoh /photo [blank]
 
             4. DELETE A CONTACT
             Syntax: delete NAME[_NUMBER]

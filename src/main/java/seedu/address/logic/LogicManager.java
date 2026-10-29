@@ -2,7 +2,6 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -33,6 +32,13 @@ public class LogicManager implements Logic {
     public static final String FILE_OPS_PERMISSION_ERROR_FORMAT =
             "Could not save data to file %s due to insufficient permissions to write to the file or the folder.";
 
+    public static final String MESSAGE_SAVE_RETRY_WARNING =
+            "Warning: Your change was applied, but could not be saved. "
+                    + "It will be retried automatically with the next command.";
+
+    public static final String MESSAGE_SAVE_RECOVERED =
+            "Previously unsaved changes have now been saved successfully.";
+
     private final Logger logger = LogsCenter.getLogger(LogicManager.class);
 
     private final Model model;
@@ -40,6 +46,7 @@ public class LogicManager implements Logic {
     private final AddressBookParser addressBookParser;
 
     private Command pendingCommand;
+    private boolean hasUnsavedChanges;
 
     /**
      * Constructs a {@code LogicManager} with the given {@code Model} and {@code Storage}.
@@ -76,25 +83,36 @@ public class LogicManager implements Logic {
             }
         }
 
-        List<String> previousRecentContacts = model.getAddressBook().getRecentContacts();
         if (commandResult.isShowPersonDetails()) {
             model.recordPersonViewed(commandResult.getPersonToShow());
         }
-        try {
-            storage.saveAddressBook(model.getAddressBook());
-        } catch (IOException ioe) {
-            if (commandResult.isShowPersonDetails()) {
-                model.restoreRecentContacts(previousRecentContacts);
-            }
-            if (ioe instanceof AccessDeniedException) {
-                throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, ioe.getMessage()), ioe);
-            }
-            throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
+        String saveError = trySaveAddressBook();
+        if (saveError != null) {
+            hasUnsavedChanges = true;
+            commandResult = commandResult.withAdditionalFeedback(saveError + "\n" + MESSAGE_SAVE_RETRY_WARNING);
+        } else if (hasUnsavedChanges) {
+            hasUnsavedChanges = false;
+            commandResult = commandResult.withAdditionalFeedback(MESSAGE_SAVE_RECOVERED);
         }
 
-        deleteUnreferencedPhotos(photosBeforeCommand);
+        if (saveError == null) {
+            deleteUnreferencedPhotos(photosBeforeCommand);
+        }
 
         return commandResult;
+    }
+
+    /** Attempts to persist the complete current address-book state and returns an error message on failure. */
+    private String trySaveAddressBook() {
+        try {
+            storage.saveAddressBook(model.getAddressBook());
+            return null;
+        } catch (IOException ioe) {
+            if (ioe instanceof AccessDeniedException) {
+                return String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, ioe.getMessage());
+            }
+            return String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage());
+        }
     }
 
     /**
