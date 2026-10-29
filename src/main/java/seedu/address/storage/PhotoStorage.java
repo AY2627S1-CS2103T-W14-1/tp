@@ -5,6 +5,9 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import seedu.address.model.person.Photo;
@@ -47,11 +50,44 @@ public class PhotoStorage {
     public void deletePhoto(Photo photo) throws IOException {
         requireNonNull(photo);
 
-        Path dataDirectory = photoDirectory.getParent();
-        Path targetPath = dataDirectory.resolve(photo.getRelativePath()).normalize();
+        Path targetPath = getManagedPhotoPath(photo);
         if (targetPath.startsWith(photoDirectory)) {
             Files.deleteIfExists(targetPath);
         }
+    }
+
+    /**
+     * Deletes regular supported image files in the managed photo directory that are not referenced by the address book.
+     * Files outside this directory and non-image files are left untouched.
+     */
+    public void deleteUnreferencedPhotos(Set<Photo> referencedPhotos) throws IOException {
+        requireNonNull(referencedPhotos);
+        if (!Files.isDirectory(photoDirectory)) {
+            return;
+        }
+
+        Set<Path> referencedPaths = new HashSet<>();
+        for (Photo photo : referencedPhotos) {
+            Path path = getManagedPhotoPath(photo);
+            if (path.startsWith(photoDirectory)) {
+                referencedPaths.add(path);
+            }
+        }
+
+        try (var photoFiles = Files.list(photoDirectory)) {
+            for (Path photoFile : photoFiles.toList()) {
+                if (Files.isRegularFile(photoFile)
+                        && hasSupportedImageExtension(photoFile)
+                        && !referencedPaths.contains(photoFile.normalize())) {
+                    Files.deleteIfExists(photoFile);
+                }
+            }
+        }
+    }
+
+    private Path getManagedPhotoPath(Photo photo) {
+        Path dataDirectory = photoDirectory.getParent();
+        return dataDirectory.resolve(photo.getRelativePath()).normalize();
     }
 
     private static String getExtension(Path path) {
@@ -63,5 +99,11 @@ public class PhotoStorage {
         String name = fileName.toString();
         int extensionStart = name.lastIndexOf('.');
         return extensionStart < 0 ? "" : name.substring(extensionStart);
+    }
+
+    private static boolean hasSupportedImageExtension(Path path) {
+        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        return name.endsWith(".png") || name.endsWith(".jpg")
+                || name.endsWith(".jpeg") || name.endsWith(".gif");
     }
 }
