@@ -250,7 +250,8 @@ orders the current results normally; `recent` returns them to history order.
 A missing or null array loads as empty history. Loading removes missing contacts and repeated identifiers,
 then keeps the first ten entries. Null entries or an invalid array structure cause a data-loading error.
 Deleting a contact removes its history entry before the suffix can be reused. Editing a contact preserves
-its position in history, and replacing or clearing the address book also replaces the history.
+its position in history and keeps the recent view active; if its name changes, the history entry is updated
+to the new display name. Replacing or clearing the address book also replaces the history.
 
 An ordered list is enough for this feature: it avoids timestamps, tied visit times and changes to profile
 constructors. Tests cover the ten-contact limit, repeat visits, duplicate names, filters, sorting, storage,

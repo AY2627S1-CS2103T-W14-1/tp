@@ -98,6 +98,37 @@ class RecentWorkflowTest {
     }
 
     @Test
+    void execute_editWhileViewingRecent_keepsRecentViewAndOrder() throws Exception {
+        Logic logic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("edit-recent.json")));
+        addJohns(logic);
+        logic.execute("show John Tan");
+        logic.execute("show John Tan_2");
+        logic.execute("recent");
+
+        logic.execute("edit John Tan_2 /phone 90000009");
+
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getAddressBook().getRecentContacts());
+        assertEquals(List.of("John Tan_2", "John Tan"), model.getFilteredPersonList().stream()
+                .map(Person::getDisplayName).toList());
+        assertEquals("90000009", model.getFilteredPersonList().getFirst().getPhone().value);
+    }
+
+    @Test
+    void execute_renameWhileViewingRecent_updatesHistoryAndKeepsRecentView() throws Exception {
+        Logic logic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("rename-recent.json")));
+        addJohns(logic);
+        logic.execute("show John Tan");
+        logic.execute("show John Tan_2");
+        logic.execute("recent");
+
+        logic.execute("edit John Tan_2 /name Jane Tan");
+
+        assertEquals(List.of("Jane Tan", "John Tan"), model.getAddressBook().getRecentContacts());
+        assertEquals(List.of("Jane Tan", "John Tan"), model.getFilteredPersonList().stream()
+                .map(Person::getDisplayName).toList());
+    }
+
+    @Test
     void execute_saveFailure_keepsCommandChangeAndReportsRetryWarning() throws Exception {
         Logic setupLogic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("contacts.json")));
         addJohns(setupLogic);
