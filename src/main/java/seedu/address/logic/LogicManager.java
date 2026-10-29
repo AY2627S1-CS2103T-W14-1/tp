@@ -2,6 +2,7 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -66,6 +67,7 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
+        List<String> recentContactsBeforeCommand = model.getAddressBook().getRecentContacts();
         Set<Photo> photosBeforeCommand = getReferencedPhotos();
         CommandResult commandResult;
         Command command;
@@ -106,6 +108,7 @@ public class LogicManager implements Logic {
         }
         String saveError = trySaveAddressBook();
         if (saveError != null) {
+            model.restoreRecentContacts(recentContactsBeforeCommand);
             hasUnsavedChanges = true;
             if (commandResult.isExit() && !exitConfirmed) {
                 pendingExitConfirmation = true;
