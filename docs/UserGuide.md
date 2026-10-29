@@ -288,6 +288,10 @@ Exits the program.
 
 Format: `exit`
 
+If the application could not save previous changes, it will warn you before exiting. Type `yes`
+to close the application anyway. Any other response cancels the exit. The window's top-right close button follows
+the same process.
+
 ### Saving the data
 
 CampusContacts automatically saves data after every command. You do not need to save manually.

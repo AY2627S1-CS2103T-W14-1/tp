@@ -223,6 +223,49 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_exitAfterFailedSave_requiresConfirmation() throws Exception {
+        JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(
+                temporaryFolder.resolve("exitConfirmationAddressBook.json")) {
+            @Override
+            public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                throw DUMMY_IO_EXCEPTION;
+            }
+        };
+        StorageManager storage = new StorageManager(addressBookStorage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("exitConfirmationUserPrefs.json")));
+        logic = new LogicManager(model, storage);
+
+        logic.execute(PersonUtil.getAddCommand(new PersonBuilder(AMY).withTags().buildNoIndex()));
+
+        CommandResult prompt = logic.execute("exit");
+        assertTrue(prompt.getFeedbackToUser().contains(LogicManager.MESSAGE_EXIT_UNSAVED_CHANGES));
+        assertTrue(!prompt.isExit());
+
+        CommandResult cancelled = logic.execute("no");
+        assertTrue(!cancelled.isExit());
+    }
+
+    @Test
+    public void execute_exitConfirmation_isCaseInsensitive() throws Exception {
+        JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(
+                temporaryFolder.resolve("exitConfirmationAddressBook.json")) {
+            @Override
+            public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                throw DUMMY_IO_EXCEPTION;
+            }
+        };
+        StorageManager storage = new StorageManager(addressBookStorage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("exitConfirmationUserPrefs.json")));
+        logic = new LogicManager(model, storage);
+
+        logic.execute(PersonUtil.getAddCommand(new PersonBuilder(AMY).withTags().buildNoIndex()));
+        logic.execute("exit");
+
+        CommandResult confirmed = logic.execute(" YeS ");
+        assertTrue(confirmed.isExit());
+    }
+
+    @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
     }
