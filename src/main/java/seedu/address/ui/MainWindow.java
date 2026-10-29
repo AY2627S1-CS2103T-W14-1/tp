@@ -36,6 +36,7 @@ public class MainWindow extends UiPart<Stage> {
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
     private ResultDisplay resultDisplay;
+    private CommandBox commandBox;
     private HelpWindow helpWindow;
     private ContactDetailsWindow contactDetailsWindow;
 
@@ -129,7 +130,7 @@ public class MainWindow extends UiPart<Stage> {
         StatusBarFooter statusBarFooter = new StatusBarFooter(dataFilePath);
         statusbarPlaceholder.getChildren().add(statusBarFooter.getRoot());
 
-        CommandBox commandBox = new CommandBox(this::executeCommand);
+        commandBox = new CommandBox(this::executeCommand);
         commandBoxPlaceholder.getChildren().add(commandBox.getRoot());
     }
 
@@ -217,6 +218,7 @@ public class MainWindow extends UiPart<Stage> {
             contactDetailsWindow.hide();
         }
         contactDetailsWindow = new ContactDetailsWindow(commandResult.getPersonToShow(), dataFilePath);
+        contactDetailsWindow.getRoot().setOnHidden(event -> commandBox.focus());
         contactDetailsWindow.show();
     }
 }
