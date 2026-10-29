@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.commands.CommandResult;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
@@ -97,14 +98,12 @@ class RecentWorkflowTest {
     }
 
     @Test
-    void execute_saveFailure_doesNotRecordOrReorderAnUnopenedProfile() throws Exception {
+    void execute_saveFailure_keepsCommandChangeAndReportsRetryWarning() throws Exception {
         Logic setupLogic = newLogic(model, new JsonAddressBookStorage(tempDir.resolve("contacts.json")));
         addJohns(setupLogic);
         setupLogic.execute("show John Tan");
         setupLogic.execute("show John Tan_2");
         setupLogic.execute("recent");
-        List<String> before = model.getAddressBook().getRecentContacts();
-        List<Person> displayedBefore = List.copyOf(model.getFilteredPersonList());
         for (IOException failure : List.of(new IOException("disk unavailable"), new AccessDeniedException("denied"))) {
             JsonAddressBookStorage failingStorage = new JsonAddressBookStorage(tempDir.resolve("failed.json")) {
                 @Override
@@ -113,9 +112,10 @@ class RecentWorkflowTest {
                 }
             };
             Logic failingLogic = newLogic(model, failingStorage);
-            assertThrows(CommandException.class, () -> failingLogic.execute("show John Tan"));
-            assertEquals(before, model.getAddressBook().getRecentContacts());
-            assertEquals(displayedBefore, model.getFilteredPersonList());
+            CommandResult result = failingLogic.execute("show John Tan");
+            assertTrue(result.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RETRY_WARNING));
+            assertEquals(List.of("John Tan", "John Tan_2"), model.getAddressBook().getRecentContacts());
+            assertEquals("John Tan", model.getFilteredPersonList().get(0).getDisplayName());
         }
     }
 }

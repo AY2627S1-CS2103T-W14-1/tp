@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -181,15 +183,43 @@ public class LogicManagerTest {
     }
 
     @Test
-    public void execute_storageThrowsIoException_throwsCommandException() {
+    public void execute_storageThrowsIoException_reportsSaveWarning() {
         assertCommandFailureForExceptionFromStorage(DUMMY_IO_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()));
     }
 
     @Test
-    public void execute_storageThrowsAdException_throwsCommandException() {
+    public void execute_storageThrowsAdException_reportsSaveWarning() {
         assertCommandFailureForExceptionFromStorage(DUMMY_AD_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()));
+    }
+
+    @Test
+    public void execute_storageRecoversOnNextCommand_retriesCompleteAddressBook() throws Exception {
+        AtomicBoolean shouldFail = new AtomicBoolean(true);
+        Path addressBookPath = temporaryFolder.resolve("retryAddressBook.json");
+        JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookPath) {
+            @Override
+            public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                if (shouldFail.getAndSet(false)) {
+                    throw DUMMY_IO_EXCEPTION;
+                }
+                super.saveAddressBook(addressBook);
+            }
+        };
+        StorageManager storage = new StorageManager(addressBookStorage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("retryUserPrefs.json")));
+        logic = new LogicManager(model, storage);
+
+        CommandResult failedSave = logic.execute(PersonUtil.getAddCommand(
+                new PersonBuilder(AMY).withTags().buildNoIndex()));
+        assertTrue(failedSave.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RETRY_WARNING));
+        assertEquals(1, model.getAddressBook().getPersonList().size());
+        assertTrue(addressBookStorage.readAddressBook().isEmpty());
+
+        CommandResult recoveredSave = logic.execute(ListCommand.COMMAND_WORD);
+        assertTrue(recoveredSave.getFeedbackToUser().contains(LogicManager.MESSAGE_SAVE_RECOVERED));
+        assertEquals(model.getAddressBook(), addressBookStorage.readAddressBook().orElseThrow());
     }
 
     @Test
@@ -278,7 +308,13 @@ public class LogicManagerTest {
         Person expectedPerson = new PersonBuilder(AMY).withTags().build();
         ModelManager expectedModel = new ModelManager();
         expectedModel.addPerson(expectedPerson);
-        assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
+        CommandResult result = assertCommandFailureForSave(addCommand);
+        assertTrue(result.getFeedbackToUser().contains(expectedMessage));
+        assertEquals(expectedModel, model);
+    }
+
+    private CommandResult assertCommandFailureForSave(String inputCommand) {
+        return assertDoesNotThrow(() -> logic.execute(inputCommand));
     }
 
     private static void writePng(Path target) throws IOException {
