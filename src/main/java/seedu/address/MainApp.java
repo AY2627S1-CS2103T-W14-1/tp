@@ -3,6 +3,9 @@ package seedu.address;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -44,6 +47,9 @@ public class MainApp extends Application {
     private static final Logger logger = LogsCenter.getLogger(MainApp.class);
     private static final Path USER_PREFS_FILE_PATH = Paths.get("preferences.json");
     private static final Path ADDRESS_BOOK_FILE_PATH = Paths.get("data", "campuscontacts.json");
+    private static final String CORRUPTED_BACKUP_DIRECTORY = "backups";
+    private static final DateTimeFormatter CORRUPTED_BACKUP_TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS");
 
     protected Ui ui;
     protected Logic logic;
@@ -128,10 +134,48 @@ public class MainApp extends Application {
             logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
                     + " Will be starting with an empty AddressBook.");
             initialData = new AddressBook();
-            startupMessage = CORRUPTED_DATA_WARNING;
+            startupMessage = createCorruptedDataWarning(storage.getAddressBookFilePath());
         }
 
         return new ModelManager(initialData, userPrefs);
+    }
+
+    /** Creates a timestamped copy of corrupted data before the application can write to the original file. */
+    private String createCorruptedDataWarning(Path dataFilePath) {
+        Path backupPath = createCorruptedDataBackup(dataFilePath);
+        if (backupPath == null) {
+            return CORRUPTED_DATA_WARNING + " A backup could not be created automatically.";
+        }
+        return CORRUPTED_DATA_WARNING + " A copy was saved to " + backupPath + ".";
+    }
+
+    /** Returns the backup path on success, or {@code null} if the corrupted file could not be copied. */
+    private Path createCorruptedDataBackup(Path dataFilePath) {
+        try {
+            if (!Files.isRegularFile(dataFilePath)) {
+                return null;
+            }
+
+            Path backupDirectory = dataFilePath.toAbsolutePath().normalize().getParent()
+                    .resolve(CORRUPTED_BACKUP_DIRECTORY);
+            Files.createDirectories(backupDirectory);
+
+            String fileName = dataFilePath.getFileName().toString();
+            String timestamp = LocalDateTime.now().format(CORRUPTED_BACKUP_TIMESTAMP_FORMATTER);
+            Path backupPath = backupDirectory.resolve(fileName + ".corrupted-" + timestamp + ".bak");
+            int suffix = 1;
+            while (Files.exists(backupPath)) {
+                backupPath = backupDirectory.resolve(fileName + ".corrupted-" + timestamp + "-" + suffix + ".bak");
+                suffix++;
+            }
+
+            Files.copy(dataFilePath, backupPath);
+            logger.warning("Preserved corrupted data file at " + backupPath);
+            return backupPath;
+        } catch (IOException | RuntimeException exception) {
+            logger.warning("Could not preserve corrupted data file: " + StringUtil.getDetails(exception));
+            return null;
+        }
     }
 
     /**

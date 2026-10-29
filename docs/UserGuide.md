@@ -312,7 +312,7 @@ CampusContacts data is saved automatically as a JSON file `[JAR file location]/d
 **Caution:**
 Close all instances of CampusContacts (including older versions) before editing or copying the data file.
 The startup lock cannot prevent external editors or older versions from changing the file.<br>
-If your changes make the data file invalid, CampusContacts starts with an empty contact list at the next run. The invalid file remains on disk until you run a command (CampusContacts saves after every command). Still, we recommend backing up the file before editing it.<br>
+If your changes make the data file invalid, CampusContacts starts with an empty contact list at the next run and preserves a timestamped copy in `data/backups`. The invalid original remains on disk until you run a command (CampusContacts saves after every command). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause the CampusContacts to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 
