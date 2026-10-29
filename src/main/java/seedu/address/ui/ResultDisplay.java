@@ -14,11 +14,10 @@ import javafx.scene.text.TextFlow;
 public class ResultDisplay extends UiPart<Region> {
 
     private static final String FXML = "ResultDisplay.fxml";
+    private static final Color WARNING_COLOR = Color.web("#ffb74d");
 
     @FXML
     private TextFlow resultDisplay;
-
-    private static final Color WARNING_COLOR = Color.web("#ffb74d");
 
     public ResultDisplay() {
         super(FXML);

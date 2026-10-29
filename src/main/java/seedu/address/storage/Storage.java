@@ -48,6 +48,9 @@ public interface Storage {
      */
     Optional<ReadOnlyAddressBook> readAddressBook() throws DataLoadingException;
 
+    /** Returns whether the most recently loaded address book used the legacy flat format. */
+    boolean wasLegacyDataLoaded();
+
     /**
      * Saves the given {@link ReadOnlyAddressBook} to the storage.
      * @param addressBook cannot be null.
