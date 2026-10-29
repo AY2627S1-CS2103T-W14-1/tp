@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
@@ -20,6 +22,7 @@ import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.util.SampleDataUtil;
+import seedu.address.storage.DataFileLock;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.Storage;
@@ -48,21 +51,57 @@ public class MainApp extends Application {
     protected Model model;
     private String startupMessage;
 
+    private final Path addressBookFilePath;
+    private final Path userPrefsFilePath;
+    private DataFileLock dataFileLock;
+    private String startupError;
+
+    public MainApp() {
+        this(ADDRESS_BOOK_FILE_PATH, USER_PREFS_FILE_PATH);
+    }
+
+    MainApp(Path addressBookFilePath, Path userPrefsFilePath) {
+        this.addressBookFilePath = addressBookFilePath;
+        this.userPrefsFilePath = userPrefsFilePath;
+    }
+
     @Override
     public void init() throws Exception {
         logger.info("=============================[ Initializing CampusContacts ]===========================");
         super.init();
 
-        JsonUserPrefsStorage userPrefsStorage = new JsonUserPrefsStorage(USER_PREFS_FILE_PATH);
-        UserPrefs userPrefs = initPrefs(userPrefsStorage);
-        JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(ADDRESS_BOOK_FILE_PATH);
-        storage = new StorageManager(addressBookStorage, userPrefsStorage);
+        // Acquire ownership before even loading preferences: initPrefs also writes to disk.
+        try {
+            dataFileLock = DataFileLock.tryAcquire(addressBookFilePath).orElse(null);
+            if (dataFileLock == null) {
+                startupError = "CampusContacts is already using this data folder. "
+                        + "Close the other instance before opening it again.";
+                return;
+            }
+        } catch (IOException e) {
+            startupError = "CampusContacts could not lock its data folder. "
+                    + "Check that the folder is writable and try again.";
+            logger.severe(startupError + " " + StringUtil.getDetails(e));
+            return;
+        }
 
-        model = initModelManager(addressBookStorage, userPrefs);
+        boolean initialized = false;
+        try {
+            JsonUserPrefsStorage userPrefsStorage = new JsonUserPrefsStorage(userPrefsFilePath);
+            UserPrefs userPrefs = initPrefs(userPrefsStorage);
+            JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath);
+            storage = new StorageManager(addressBookStorage, userPrefsStorage);
 
-        logic = new LogicManager(model, storage);
+            model = initModelManager(addressBookStorage, userPrefs);
+            logic = new LogicManager(model, storage);
 
-        ui = new UiManager(logic, storage.getAddressBookFilePath(), startupMessage);
+            ui = new UiManager(logic, storage.getAddressBookFilePath(), startupMessage);
+            initialized = true;
+        } finally {
+            if (!initialized) {
+                releaseDataFileLock();
+            }
+        }
     }
 
     /**
@@ -129,17 +168,51 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        if (startupError != null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("CampusContacts could not start");
+            alert.setHeaderText(startupError);
+            alert.setContentText("Data folder: " + addressBookFilePath.toAbsolutePath().normalize().getParent());
+            try {
+                alert.showAndWait();
+            } finally {
+                Platform.exit();
+            }
+            return;
+        }
         logger.info("Starting CampusContacts " + MainApp.VERSION);
-        ui.start(primaryStage);
+        try {
+            ui.start(primaryStage);
+        } catch (RuntimeException | Error e) {
+            releaseDataFileLock();
+            throw e;
+        }
     }
 
     @Override
     public void stop() {
         logger.info("============================ [ Stopping CampusContacts ] =============================");
         try {
-            storage.saveUserPrefs(model.getUserPrefs());
+            if (dataFileLock != null && model != null && storage != null) {
+                storage.saveUserPrefs(model.getUserPrefs());
+            }
         } catch (IOException e) {
             logger.severe("Failed to save preferences " + StringUtil.getDetails(e));
+        } finally {
+            releaseDataFileLock();
+        }
+    }
+
+    private void releaseDataFileLock() {
+        if (dataFileLock == null) {
+            return;
+        }
+        try {
+            dataFileLock.close();
+        } catch (IOException e) {
+            logger.severe("Failed to release data file lock " + StringUtil.getDetails(e));
+        } finally {
+            dataFileLock = null;
         }
     }
 }

@@ -22,7 +22,7 @@ CampusContacts is a desktop application for managing contacts in the university 
 
 1. Copy the file to the folder you want to use as the _home folder_ for CampusContacts.
 
-1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar campuscontacts.jar`.<br>
+1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
@@ -30,7 +30,7 @@ CampusContacts is a desktop application for managing contacts in the university 
    Some example commands you can try:
    - `list` : Lists all contacts.
 
-   - `add John Doe /email johnd@example.com /phone 98765432 /location John street, block 123, #01-01 /photo C:\Users\Student\Pictures\john.jpg` : Adds a contact named `John Doe` with an optional photo.
+   - `add John Doe /role student /email johnd@example.com /phone 98765432 /location John street, block 123, #01-01` : Adds a student contact named `John Doe`.
 
    - `show John Doe` : Opens John Doe's full contact details.
 
@@ -51,7 +51,7 @@ CampusContacts is a desktop application for managing contacts in the university 
 **Notes about the command format:**<br>
 
 - Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
-  For example, in `add NAME /email EMAIL /phone PHONE /location LOCATION`, replace `NAME` with `John Doe`.
+  For example, in `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION`, replace `NAME` with `John Doe` and `ROLE` with `student`.
 
 - Items in square brackets are optional.<br>
   For example, `[t/TAG]` means that a tag such as `t/friend` may be supplied or omitted.
@@ -60,7 +60,7 @@ CampusContacts is a desktop application for managing contacts in the university 
   For example, `[t/TAG]... ` may be omitted, or written as `t/friend` or `t/friend t/family`.
 
 - Prefixed fields can be in any order. For `add`, the name must come before all prefixed fields.<br>
-  For example, `add John Doe /phone 98765432 /location COM1 /email johnd@example.com` is also acceptable.
+  For example, `add John Doe /phone 98765432 /location COM1 /email johnd@example.com /role student` is also acceptable.
 
 - Extraneous parameters for commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
@@ -78,12 +78,14 @@ Format: `help`
 
 Adds a person to the contact list.
 
-Format: `add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...`
+Format: `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH] [t/TAG]...`
 
-- The name, email, phone number, and location are all required and must not be blank.
+- The name, role, email, phone number, and location are all required and must not be blank.
 - Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
-- Separate `/email`, `/phone`, and `/location` from their values with a space.
-- Each of these three prefixes must appear exactly once; repeated prefixes are rejected, even with identical values.
+- Separate each prefix from its value with a space, except for tags written as `t/TAG`.
+- Each required prefix (`/role`, `/email`, `/phone`, and `/location`) must appear exactly once; repeated non-tag prefixes are rejected, even with identical values.
+- Role accepts `student` (`s`, `stu`) or `professor` (`p`, `prof`), case-insensitively.
+- Students may optionally use `/major` and `/year`; professors may optionally use `/faculty`, `/department`, and `/hours`. Fields belonging to the other role are rejected.
 - Location is stored in the existing address field. It may contain spaces and punctuation.
 - `/photo` is optional. Its value must be the path to a readable PNG, JPG, JPEG, or GIF file.
 - CampusContacts copies the selected image into its own data folder. You may safely move or delete the original image after adding the contact.
@@ -99,9 +101,11 @@ If a contact already has the same name, CampusContacts assigns it a distinct dis
 
 Examples:
 
-- `add John Doe /email johnd@example.com /phone 98765432 /location COM1, #02-01`
-- `add Betsy Crowe /location COM2 /phone 1234567 /email betsycrowe@example.com t/friend`
-- `add Alex Tan /email alex@u.nus.edu /phone 91234567 /location COM1 /photo C:\Users\Student\Pictures\alex.jpg`
+- `add John Doe /role student /email johnd@example.com /phone 98765432 /location COM1, #02-01 /major Computer Science /year 2`
+- `add Betsy Crowe /role professor /location COM2 /phone 1234567 /email betsycrowe@example.com /faculty Computing /department Computer Science /hours Monday 2pm to 4pm t/friend`
+- `add Alex Tan /role student /email alex@u.nus.edu /phone 91234567 /location COM1 /photo C:\Users\Student\Pictures\alex.jpg`
+
+For the photo example, replace the sample path with the path to an existing supported image on your computer, or omit `/photo` and its value.
 
 ### Listing all persons: `list`
 
@@ -291,11 +295,18 @@ Photos are stored separately in `[JAR file location]/data/photos`. Do not rename
 
 ### Editing the data file
 
+Only one instance of CampusContacts may use a data folder at a time. If another instance is already using it,
+the second launch displays an error; close the other instance before trying again. Separate home folders can be
+used independently. Do not delete or rename `data/campuscontacts.json.lock` while the application is running.
+It is normal for this file to remain after exit; it does not stop the next launch.
+
 CampusContacts data is saved automatically as a JSON file `[JAR file location]/data/campuscontacts.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <box type="warning" seamless>
 
 **Caution:**
+Close all instances of CampusContacts (including older versions) before editing or copying the data file.
+The startup lock cannot prevent external editors or older versions from changing the file.<br>
 If your changes make the data file invalid, CampusContacts starts with an empty contact list at the next run. The invalid file remains on disk until you run a command (CampusContacts saves after every command). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause the CampusContacts to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
@@ -324,7 +335,7 @@ _Details coming soon ..._
 
 | Action          | Format, Examples                                                                                                                                                                                                                                          |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Add**         | `add NAME /email EMAIL /phone PHONE /location LOCATION [/photo FILE_PATH] [t/TAG]...` <br> e.g., `add James Ho /email jamesho@example.com /phone 22224444 /location COM1 /photo C:\Users\Student\Pictures\james.jpg`                                      |
+| **Add**         | `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH] [t/TAG]...` <br> e.g., `add James Ho /role student /email jamesho@example.com /phone 22224444 /location COM1` (use only the optional fields for the chosen role) |
 | **Clear**       | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                                                                                                |
 | **Delete**      | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                                                                                                        |
 | **Edit**        | `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`<br> e.g., `edit 1 /phone 91234567 /email jameslee@example.com` |
