@@ -156,9 +156,26 @@ public class EditCommandTest {
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
         expectedModel.setPerson(model.getFilteredPersonList().get(0), editedPerson);
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_editFavourite_keepsFavouriteView() throws Exception {
+        Person favourite = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        model.setFavourite(favourite, true);
+        model.showFavouritePersons();
+
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build());
+        editCommand.execute(model);
+
+        assertEquals(1, model.getFilteredPersonList().size());
+        assertEquals(VALID_PHONE_BOB, model.getFilteredPersonList().get(0).getPhone().value);
+        assertTrue(model.getAddressBook().getFavouriteContacts()
+                .contains(model.getFilteredPersonList().get(0).getDisplayName()));
     }
 
     @Test
@@ -174,6 +191,26 @@ public class EditCommandTest {
         assertTrue(result.getFeedbackToUser().contains("Alice Pauline_2"));
         assertFalse(model.getAddressBook().getPersonList().stream()
                 .anyMatch(person -> person.isSamePerson(target)));
+    }
+
+    @Test
+    public void execute_rename_preservesCreationTimeAndUpdatesLastEditedTime() throws Exception {
+        LocalDateTime creationTime = LocalDateTime.of(2020, 1, 1, 0, 0);
+        LocalDateTime previousEditTime = LocalDateTime.of(2021, 1, 1, 0, 0);
+        Person original = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person timestampedOriginal = original.withTimestamps(creationTime, previousEditTime)
+                .withPersonIndex(original.getPersonIndex());
+        model.setPerson(original, timestampedOriginal);
+
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName("Renamed Person").build());
+        editCommand.execute(model);
+
+        Person renamed = model.getAddressBook().getPersonList().stream()
+                .filter(person -> person.getName().fullName.equals("Renamed Person"))
+                .findFirst().orElseThrow();
+        assertEquals(creationTime, renamed.getCreatedAt());
+        assertTrue(renamed.getLastEditedAt().isAfter(previousEditTime));
     }
 
     @Test
@@ -248,7 +285,8 @@ public class EditCommandTest {
         Index index = Index.fromOneBased(1);
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
         EditCommand editCommand = new EditCommand(index, editPersonDescriptor);
-        String expected = EditCommand.class.getCanonicalName() + "{index=" + index + ", editPersonDescriptor="
+        String expected = EditCommand.class.getCanonicalName() + "{index=" + index
+                + ", targetName=null, targetPersonIndex=null, editPersonDescriptor="
                 + editPersonDescriptor + ", photoSource=Optional.empty}";
         assertEquals(expected, editCommand.toString());
     }

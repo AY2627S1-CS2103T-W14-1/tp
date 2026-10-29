@@ -1,7 +1,6 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -13,7 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.commons.core.index.PersonIndex;
 import seedu.address.commons.util.CollectionUtil;
+import seedu.address.commons.util.StringUtil;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -42,9 +43,9 @@ public class EditCommand extends Command {
     public static final String COMMAND_WORD = "edit";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
-            + "by the index number used in the displayed person list. "
+            + "by name and an optional index for duplicate names. "
             + "Existing values will be overwritten by the input values.\n"
-            + "Parameters: INDEX (must be a positive integer) "
+            + "Parameters: NAME[_PERSON_INDEX] "
             + "[/name NAME] "
             + "[/phone PHONE] "
             + "[/email EMAIL] "
@@ -56,7 +57,7 @@ public class EditCommand extends Command {
             + "[/hours HOURS] "
             + "[/photo FILE_PATH or /photo [blank]] "
             + "[t/TAG or /tag TAG]...\n"
-            + "Example: " + COMMAND_WORD + " 1 "
+            + "Example: " + COMMAND_WORD + " John Doe_2 "
             + "/phone 91234567 "
             + "/email johndoe@example.com "
             + "/major Computer Science";
@@ -69,6 +70,8 @@ public class EditCommand extends Command {
             "Professor contacts cannot have major or year.";
 
     private final Index index;
+    private final String targetName;
+    private final PersonIndex targetPersonIndex;
     private final EditPersonDescriptor editPersonDescriptor;
     private final Optional<Path> photoSource;
 
@@ -87,6 +90,23 @@ public class EditCommand extends Command {
         requireNonNull(photoSource);
 
         this.index = index;
+        this.targetName = null;
+        this.targetPersonIndex = null;
+        this.editPersonDescriptor = new EditPersonDescriptor(editPersonDescriptor);
+        this.photoSource = photoSource;
+    }
+
+    /** Creates an edit command targeting a contact by name and optional duplicate-name index. */
+    public EditCommand(String targetName, PersonIndex targetPersonIndex,
+                       EditPersonDescriptor editPersonDescriptor, Optional<Path> photoSource) {
+        requireNonNull(targetName);
+        requireNonNull(targetPersonIndex);
+        requireNonNull(editPersonDescriptor);
+        requireNonNull(photoSource);
+
+        this.index = null;
+        this.targetName = StringUtil.toProperCase(targetName);
+        this.targetPersonIndex = targetPersonIndex;
         this.editPersonDescriptor = new EditPersonDescriptor(editPersonDescriptor);
         this.photoSource = photoSource;
     }
@@ -101,19 +121,21 @@ public class EditCommand extends Command {
         requireNonNull(photo);
         EditPersonDescriptor updatedDescriptor = new EditPersonDescriptor(editPersonDescriptor);
         updatedDescriptor.setPhoto(photo);
-        return new EditCommand(index, updatedDescriptor);
+        return index != null
+                ? new EditCommand(index, updatedDescriptor)
+                : new EditCommand(targetName, targetPersonIndex, updatedDescriptor, Optional.empty());
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
-
-        if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
-        }
-
-        Person personToEdit = lastShownList.get(index.getZeroBased());
+        Person personToEdit = index == null
+                ? model.getAddressBook().getPersonList().stream()
+                        .filter(person -> person.getName().fullName.equals(targetName))
+                        .filter(person -> person.getPersonIndex().equals(targetPersonIndex))
+                        .findFirst()
+                        .orElseThrow(() -> new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME))
+                : getPersonFromDisplayedList(model);
         assert personToEdit != null : "personToEdit retrieved from model list cannot be null";
 
         if (personToEdit.getRole().equals(new Role("student"))) {
@@ -132,8 +154,15 @@ public class EditCommand extends Command {
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
 
         Person storedPerson = model.setPerson(personToEdit, editedPerson);
-        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(storedPerson)));
+    }
+
+    private Person getPersonFromDisplayedList(Model model) throws CommandException {
+        List<Person> lastShownList = model.getFilteredPersonList();
+        if (index.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_NAME);
+        }
+        return lastShownList.get(index.getZeroBased());
     }
 
     /**
@@ -182,7 +211,9 @@ public class EditCommand extends Command {
             return false;
         }
 
-        return index.equals(otherEditCommand.index)
+        return java.util.Objects.equals(index, otherEditCommand.index)
+                && java.util.Objects.equals(targetName, otherEditCommand.targetName)
+                && java.util.Objects.equals(targetPersonIndex, otherEditCommand.targetPersonIndex)
                 && editPersonDescriptor.equals(otherEditCommand.editPersonDescriptor)
                 && photoSource.equals(otherEditCommand.photoSource);
     }
@@ -191,6 +222,8 @@ public class EditCommand extends Command {
     public String toString() {
         return new ToStringBuilder(this)
                 .add("index", index)
+                .add("targetName", targetName)
+                .add("targetPersonIndex", targetPersonIndex)
                 .add("editPersonDescriptor", editPersonDescriptor)
                 .add("photoSource", photoSource)
                 .toString();

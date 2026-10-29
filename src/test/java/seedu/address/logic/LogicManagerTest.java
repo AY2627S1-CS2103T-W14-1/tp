@@ -119,7 +119,7 @@ public class LogicManagerTest {
         Path firstCopy = temporaryFolder.resolve(model.getAddressBook().getPersonList().get(0)
                 .getPhoto().orElseThrow().getRelativePath());
 
-        logic.execute("edit 1 /photo " + secondSource);
+        logic.execute("edit Alex Tan /photo " + secondSource);
 
         Person editedPerson = model.getAddressBook().getPersonList().get(0);
         Path secondCopy = temporaryFolder.resolve(editedPerson.getPhoto().orElseThrow().getRelativePath());
@@ -130,7 +130,7 @@ public class LogicManagerTest {
         assertEquals(editedPerson.getPhoto(), storage.readAddressBook().orElseThrow()
                 .getPersonList().get(0).getPhoto());
 
-        logic.execute("edit 1 /photo [blank]");
+        logic.execute("edit Alex Tan /photo [blank]");
 
         assertTrue(model.getAddressBook().getPersonList().get(0).getPhoto().isEmpty());
         assertTrue(Files.notExists(secondCopy));

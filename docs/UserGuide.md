@@ -169,7 +169,7 @@ Examples:
 
 Edits an existing person in the contact list.
 
-Format: `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH or [blank]] [t/TAG or /tag TAG]...`
+Format: `edit NAME[_INDEX] [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH or [blank]] [t/TAG or /tag TAG]...`
 
 - Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, ...
 - At least one of the optional fields must be provided.
@@ -177,12 +177,13 @@ Format: `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATI
 - When editing tags, all of the person's existing tags are removed; adding tags is not cumulative.
 - To remove all of a person's tags, enter `t/` without a tag after it.
 - Use `/photo FILE_PATH` to add or replace a contact photo. Use `/photo [blank]` to remove it.
-- Renaming a contact assigns the smallest available suffix for the new name. If that name already exists, the contact is added under the next available suffix.
+- Renaming a contact assigns the smallest available suffix for the new name. If that name already exists, the contact is added under the next available suffix. This happens even if the new name is the same as the old one.
 
 Examples:
-* `edit 1 /phone 91234567 /email johndoe@example.com` Edits the phone number and email address of the 1st contact.
-* `edit 2 /name Betsy Crower t/` Edits the name of the 2nd contact to be `Betsy Crower` and clears all existing tags.
-* `edit 1 /location UTown Residence` Edits the location of the 1st contact.
+* `edit John Doe /phone 91234567 /email johndoe@example.com` Edits the phone number and email address of John Doe.
+* `edit Alice /name Betsy Crower t/` Edits Alice's name to be `Betsy Crower` and clears all existing tags.
+* `edit John Doe /location UTown Residence` Edits the location of John Doe.
+* `edit John Doe_2 /name John Doe` reuses John Doe without suffix, if it is available.
 
 ### Showing a contact's details: `show`
 
@@ -338,7 +339,7 @@ _Details coming soon ..._
 | **Add**         | `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH] [t/TAG]...` <br> e.g., `add James Ho /role student /email jamesho@example.com /phone 22224444 /location COM1` (use only the optional fields for the chosen role) |
 | **Clear**       | `clear` _(Followed by `yes` to confirm or `no` to cancel)_                                                                                                                                                                                                |
 | **Delete**      | `delete NAME[_INDEX]`<br> e.g., `delete Alex Yeoh`                                                                                                                                                                                                        |
-| **Edit**        | `edit INDEX [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`<br> e.g., `edit 1 /phone 91234567 /email jameslee@example.com` |
+| **Edit**        | `edit NAME[_INDEX] [/name NAME] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`<br> e.g., `edit James Lee /phone 91234567 /email jameslee@example.com` |
 | **Find**        | `find [/name NAME] [/role ROLE] [/phone PHONE] [/email EMAIL] [/location LOCATION] [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [t/TAG or /tag TAG]...`<br> e.g., `find John /location COM1 t/colleague`        |
 | **List**        | `list`                                                                                                                                                                                                                                                    |
 | **Show**        | `show NAME[_NUMBER]`<br> e.g., `show James Ho_2`                                                                                                                                                                                                          |
