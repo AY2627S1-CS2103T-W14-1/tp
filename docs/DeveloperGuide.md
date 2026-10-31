@@ -210,6 +210,21 @@ The storage snapshot is structured as follows:
 
 On startup, `JsonSerializableAddressBook` validates each bucket, recreates the indexed `Person` objects from the nested map keys, and passes the result to `AddressBook#setPersonBuckets`. The name bucket rebuilds its released-index queue and next-index value once. Normal add, delete, and edit operations use the in-memory map; `LogicManager` subsequently saves a snapshot through `Storage`.
 
+### Roles, edit history, and sorting
+
+Contacts have one of two normalized roles: `student` or `professor`. The model uses the
+`Student` and `Professor` subclasses to hold role-specific fields. Student contacts may
+have a major and year, while professor contacts may have a faculty, department, and office
+hours. The parser rejects fields belonging to the other role, so invalid combinations are
+stopped before they reach the model.
+
+Each stored contact also has `createdAt` and `lastEditedAt` timestamps. They are persisted
+with the contact and are used by `sort add` and `sort edit`. The supported sort fields are
+`name`, `phone`, `add`, and `edit`. For timestamp fields, ascending order means most recent
+first. Name sorting uses the `PersonIndex` as a tie-breaker, which keeps duplicate names
+deterministic even when the direction is reversed. Legacy contacts without timestamps are
+given one migration timestamp when loaded.
+
 ### Exclusive access to the data folder
 
 `MainApp` acquires a `DataFileLock` before reading contacts or initializing preferences (which also writes to disk).
@@ -226,9 +241,36 @@ that do not acquire this lock from changing the JSON file.
 
 ### Contact photo storage
 
-A contact may have an optional `Photo` reference. When a photo is supplied to `add`, `StorageManager` delegates copying it into the application's `photos` directory to `PhotoStorage`; the contact keeps the returned relative path. `JsonAdaptedPerson` writes that reference to JSON, so the application can resolve the copied photo after restarting. The diagram focuses on the photo-specific fields and storage API; unrelated address-book storage details are omitted.
+A contact may have an optional `Photo` reference. When a photo is supplied to `add` or
+`edit`, `LogicManager` validates the source and asks `StorageManager` to copy it into the
+`photos` directory beside the data file. The contact stores only the generated relative
+path, and `JsonAdaptedPerson` persists that path so the photo can be resolved after a
+restart. PNG, JPG, JPEG, and GIF files are supported. `edit ... /photo [blank]` removes a
+photo.
+
+Photo files are managed separately from the JSON snapshot. After a successful save,
+`StorageManager` removes managed photo files that are no longer referenced by any contact.
+If importing a photo or applying the command fails, the newly copied file is removed so a
+failed command does not leave an orphaned photo.
 
 <puml src="diagrams/PhotoStorageClassDiagram.puml" alt="Class diagram of contact photo references and photo storage" width="550" />
+
+### Data recovery and save failures
+
+If loading the address-book file fails, the application starts with an empty address book
+and first preserves the unreadable file in `data/backups/` using a timestamped `.bak` name.
+This gives the user a copy to inspect or restore instead of silently overwriting the
+original. A legacy flat `persons` file is loaded with missing roles migrated to `student`,
+then rewritten in the nested `personsByName` format on the next successful save.
+
+Normal command execution also treats persistence failures explicitly. The command's
+in-memory change remains applied, but the failed save marks the session as having unsaved
+changes. The next command retries the save. If the user attempts to exit while changes are
+still unsaved, the application asks for `yes` to exit anyway; any other response cancels
+the exit. Recent-contact history is restored when a save fails, so a failed `show` does not
+persist a history change.
+
+<puml src="diagrams/SaveRecoverySequenceDiagram.puml" alt="Save failure recovery and exit confirmation sequence" />
 
 ### Show contact details feature
 
@@ -240,8 +282,11 @@ The `show NAME[_NUMBER]` command lets users view the complete stored details of 
 1. `MainWindow` recognises that result and opens `ContactDetailsWindow`.
 1. The popup displays the contact's display name, ID, phone number, email, location, and tags.
 
-The popup is deliberately a UI concern: the command resolves a model object. `LogicManager` records a successful
-selection in the recently viewed history, saves the address book, then returns the result to the UI.
+The popup is deliberately a UI concern: the command resolves a model object. `LogicManager`
+records a successful selection in the recently viewed history and attempts to save it before
+returning the result to the UI. If saving fails, the history change is rolled back and a
+warning is shown, but the selected contact is still returned to the UI and its details
+window still opens; the save is retried by a later command.
 
 ### Recently viewed contacts
 
@@ -253,7 +298,9 @@ distinct contact removes the oldest entry. Callers receive an immutable copy of 
 
 `ShowCommand` finds a contact in the displayed list and returns it in `CommandResult`.
 `LogicManager` then records the visit and saves the address book. If saving throws `IOException`, including
-a permission error, it restores the previous history and reports the error instead of opening the popup.
+a permission error, it restores the previous history and reports the error. The result still
+contains the selected contact, so the popup opens even though the history update was not
+persisted.
 A failed contact lookup leaves history unchanged.
 
 `RecentCommand` asks `ModelManager` to show contacts in history order using the existing `FilteredList`
@@ -268,7 +315,7 @@ Deleting a contact removes its history entry before the suffix can be reused. Ed
 its position in history and keeps the recent view active; if its name changes, the history entry is updated
 to the new display name. Replacing or clearing the address book also replaces the history.
 
-An ordered list is enough for this feature: it avoids timestamps, tied visit times and changes to profile
+An ordered list is enough for this feature: it avoids visit timestamps, tied visit times and changes to profile
 constructors. Tests cover the ten-contact limit, repeat visits, duplicate names, filters, sorting, storage,
 photos, deletion, clear confirmation and failed saves. Manual checks are listed below.
 
