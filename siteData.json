@@ -155,6 +155,14 @@
         "project-addressbook-level-3": "Project: AddressBook Level 3"
       },
       "headingKeywords": {}
+    },
+    {
+      "src": "team/scoot1234.md",
+      "title": "Lo Yong Yang's Project Portfolio Page",
+      "headings": {
+        "project-campuscontacts": "Project: CampusContacts"
+      },
+      "headingKeywords": {}
     }
   ]
 }
