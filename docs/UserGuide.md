@@ -81,18 +81,22 @@ Adds a person to the contact list.
 Format: `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH] [t/TAG]...`
 
 - The name, role, email, phone number, and location are all required and must not be blank.
+- Names may only use alphabets and spaces, and are case-normalised upon confirmation.
+- If a contact already has the same name, CampusContacts assigns it a distinct display suffix. For example, adding a second `John Tan` displays it as `John Tan_2`.
+- Phone numbers must be at least 3 digits long.
+- Emails have a specific format, e.g. `someone@example.com`.
 - Write the name first, without an `n/` prefix. The remaining fields may appear in any order.
 - Separate each prefix from its value with a space, except for tags written as `t/TAG`.
 - Each required prefix (`/role`, `/email`, `/phone`, and `/location`) must appear exactly once; repeated non-tag prefixes are rejected, even with identical values.
 - Role accepts `student` (`s`, `stu`) or `professor` (`p`, `prof`), case-insensitively.
 - Students may optionally use `/major` and `/year`; professors may optionally use `/faculty`, `/department`, and `/hours`. Fields belonging to the other role are rejected.
 - Location is stored in the existing address field. It may contain spaces and punctuation.
+- Major, faculty, department and office hours are similarly allowed to be any non-empty string.
+- Year must be an integer from 1 to 6, both inclusive.
 - `/photo` is optional. Its value must be the path to a readable PNG, JPG, JPEG, or GIF file.
 - CampusContacts copies the selected image into its own data folder. You may safely move or delete the original image after adding the contact.
 - When different contacts use the same source image, CampusContacts saves separate copies for them.
 - Tags are optional and use the `t/TAG` syntax.
-
-If a contact already has the same name, CampusContacts assigns it a distinct display suffix. For example, adding a second `John Tan` displays it as `John Tan_2`.
 
 <box type="tip" seamless>
 
@@ -184,6 +188,7 @@ Format: `edit NAME[_NUMBER] [/name NAME] [/phone PHONE] [/email EMAIL] [/locatio
 - Use `/photo FILE_PATH` to add or replace a contact photo. Use `/photo [blank]` to remove it.
 - You cannot assign professor fields (`/faculty`, `/department`, `/hours`) to a student, nor student fields (`/major`, `/year`) to a professor.
 - Renaming a contact assigns the smallest available suffix for the new name. If that name already exists, the contact is added under the next available suffix. If the new name is the same as the old one, the contact keeps its current suffix.
+- To clear an optional field, enter `[blank]` after its prefix. For example, edit `John Tan /major [blank]` removes the contact's major. Fields not specified in the command remain unchanged.
 
 Examples:
 * `edit John Doe /phone 91234567 /email johndoe@example.com` Edits the phone number and email address of John Doe.
@@ -336,6 +341,21 @@ _Details coming soon ..._
 
 **Q**: How do I transfer my data to another computer?<br>
 **A**: Install the app on the other computer, then copy both `data/campuscontacts.json` and the `data/photos` folder from your previous CampusContacts home folder.
+
+**Q**: What happens if I add two contacts with the same name?<br>
+**A**: CampusContacts automatically assigns a distinct display suffix to each contact with a duplicate name. For example, the second contact named `John Tan` is displayed as `John Tan_2`. You can use this suffix when viewing, editing, or deleting a particular contact.
+
+**Q**: How do I remove a contact's photo?<br>
+**A**: Use the `edit` command with `/photo [blank]`. For example, `edit John Tan /photo [blank]` removes John Tan's photo.
+
+**Q**: Why can't I see a contact when using `delete` or `edit`?<br>
+**A**: The `find` command filters the displayed contact list, but `delete` and `edit` search the entire address book. You can still modify a contact even if it is hidden by the current filter.
+
+**Q**: Why does the application display an error when I launch a second instance?<br>
+**A**: Only one instance of CampusContacts can use a particular data folder at a time. Close the other instance or launch the application using a different home folder.
+
+**Q**: How do I view my favourite contacts?<br>
+**A**: Use `favourites` to display all contacts marked as favourites. Use `favourite NAME` to mark a contact and `unfavourite NAME` to remove it from your favourites.
 
 ---
 
