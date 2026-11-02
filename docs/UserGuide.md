@@ -81,7 +81,8 @@ Adds a person to the contact list.
 Format: `add NAME /role ROLE /email EMAIL /phone PHONE /location LOCATION [/major MAJOR] [/year YEAR] [/faculty FACULTY] [/department DEPARTMENT] [/hours HOURS] [/photo FILE_PATH] [t/TAG]...`
 
 - The name, role, email, phone number, and location are all required and must not be blank.
-- Names may only use alphabets and spaces, and are case-normalised upon confirmation.
+- Names may use any Unicode letter, including `A`, `é`, `中`, `Ж`, etc., as well as spaces, apostrophes and hyphens.
+- Names are case-normalised upon confirmation.
 - If a contact already has the same name, CampusContacts assigns it a distinct display suffix. For example, adding a second `John Tan` displays it as `John Tan_2`.
 - Phone numbers must be at least 3 digits long.
 - Emails have a specific format, e.g. `someone@example.com`.
@@ -344,6 +345,9 @@ _Details coming soon ..._
 
 **Q**: What happens if I add two contacts with the same name?<br>
 **A**: CampusContacts automatically assigns a distinct display suffix to each contact with a duplicate name. For example, the second contact named `John Tan` is displayed as `John Tan_2`. You can use this suffix when viewing, editing, or deleting a particular contact.
+
+**Q:** Why does the application change the capitalisation of names such as `John von Neumann` or `McDonald`?<br>
+**A:** The application automatically converts names to title case. As a result, `John von Neumann` and `McDonald` may be displayed as `John Von Neumann` and `Mcdonald` respectively. The application does not currently preserve special capitalisation conventions in names.
 
 **Q**: How do I remove a contact's photo?<br>
 **A**: Use the `edit` command with `/photo [blank]`. For example, `edit John Tan /photo [blank]` removes John Tan's photo.
